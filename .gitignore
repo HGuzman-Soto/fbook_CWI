@@ -8,7 +8,7 @@ __pycache__/
 #data files
 data.csv
 temp_data.csv
-
+wiki.simple
 
 # compiled output
 /dist
