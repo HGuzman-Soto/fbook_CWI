@@ -81,6 +81,7 @@ def main():
 
     # drop comment id from df
     df = df.drop('commentid', axis=1)
+    df = df.drop('id', axis=1)
 
     # remove post column as seperate df
     df_post = df[['post']].copy()
@@ -106,12 +107,12 @@ def main():
     df['id_3'] = df_temp[['id_3']].copy()
 
     # merge id's
-    df['id'] = df.apply(lambda x: (str(x['id_1']) + "_" +
+    df['ID'] = df.apply(lambda x: (str(x['id_1']) + "_" +
                                    str(x['id_2']) + "_" + str(x['id_3'])), axis=1)
 
     # drop id cols and rename column
     df = df.drop(['id_1', 'id_2', 'id_3'], axis=1)
-    df = df.rename(columns={'comments': 'text'})
+    df = df.rename(columns={'comments': 'sentence'})
 
     # work on posts, similarly as with comments
 
@@ -122,18 +123,18 @@ def main():
     df_temp = df_temp.explode('id_3', ignore_index=True)
     df_post = df_post.explode('post', ignore_index=True)
     df_post['id_3'] = df_temp[['id_3']].copy()
-    df_post['id'] = df_post.apply(lambda x: (
+    df_post['ID'] = df_post.apply(lambda x: (
         str(x['id_1']) + "_0_" + str(x['id_3'])), axis=1)
     df_post = df_post.drop(['id_1', 'id_3'], axis=1)
-    df_post = df_post.rename(columns={'post': 'text'})
+    df_post = df_post.rename(columns={'post': 'sentence'})
 
     # bring all data together, remove list bracket leftovers, drop duplicates and empty text
     df = df.append(df_post, ignore_index=True)
     df = df.astype(str)
-    df = df[df['text'] != ("" or "nan")]
-    df['text'] = df['text'].apply(lambda x: re.sub(
+    df = df[df['sentence'] != ("" or "nan")]
+    df['sentence'] = df['sentence'].apply(lambda x: re.sub(
         r"\W*\[\"|\W*\[\'|\'\]\W*|\"\]*\W|\]|\[|^\"|\"$", "", x))
-    df.drop_duplicates(subset=['text'], keep='last',
+    df.drop_duplicates(subset=['sentence'], keep='last',
                        inplace=True, ignore_index=True)
     df.reset_index(drop=True, inplace=True)
 
@@ -144,7 +145,7 @@ def main():
         # ensures that duplicate comments are dropped from csv
         newdf = pd.read_csv('temp_data.csv')
         newdf.drop_duplicates(
-            subset=['text'], keep='first', inplace=True, ignore_index=True)
+            subset=['sentence'], keep='first', inplace=True, ignore_index=True)
         newdf.to_csv('temp_data.csv', index=False)
     else:
         df.to_csv('temp_data.csv', index=False)

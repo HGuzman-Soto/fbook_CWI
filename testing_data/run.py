@@ -41,7 +41,6 @@ df = df[df.clean_text.apply(lambda x: isValuableComment(x)) == True]
 meta = ('content_word', 'object')
 
 
-
 # convert to dask dataframe and call extract_content_words()
 df = dd.from_pandas(df, npartitions=12)
 df['content_word'] = df.map_partitions(lambda df: df.clean_text.apply(
@@ -61,7 +60,8 @@ print("Expanding content word lists \n")
 df = df.explode('content_word')
 
 print("Attaching indexes to each content words \n")
-df[['starting_index', 'ending_index']] = df.apply(lambda x: (x['content_word'][1][0], x['content_word'][1][1]), axis=1, result_type='expand')
+df[['starting_index', 'ending_index']] = df.apply(lambda x: (
+    x['content_word'][1][0], x['content_word'][1][1]), axis=1, result_type='expand')
 
 # reformatting content words from set members back to single tokens
 df['content_word'] = df['content_word'].apply(lambda x: x[0])
@@ -69,6 +69,9 @@ df['content_word'] = df['content_word'].apply(lambda x: x[0])
 # df.to_csv('data.csv', index=False)
 print("Finished")
 print("--- %s seconds ---" % (time.time() - start_time))
+
+df = df.reindex(columns=['ID', 'sentence', 'clean_sentence',
+                         'start_index', 'end_index', 'phrase'])
 
 # test = df.compute()
 print(df)
