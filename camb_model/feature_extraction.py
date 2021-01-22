@@ -45,7 +45,7 @@ if __name__ == "__main__":
 for x in array:
 
     location = 'training_data/'+x+'.tsv'
-    data_frame = pd.read_table(location, names=('ID', 'sentence', 'start_index', 'end_index', 'phrase', 'total_native',
+    data_frame = pd.read_table(location, names=('ID', 'sentence', 'start_index', 'end_index', 'word', 'total_native',
                                                 'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic'), encoding='utf-8-sig')
 
     data_frame['sentence'] = data_frame['sentence'].apply(
@@ -53,17 +53,17 @@ for x in array:
     data_frame['sentence'] = data_frame['sentence'].apply(
         lambda x: x.replace("’", "'"))
 
-    data_frame['split'] = data_frame['phrase'].apply(lambda x: x.split())
+    data_frame['split'] = data_frame['word'].apply(lambda x: x.split())
 
     data_frame['count'] = data_frame['split'].apply(lambda x: len(x))
 
     # We create a table that contains only the words
     words = data_frame[data_frame['count'] == 1]
 
-    word_set = words.phrase.str.lower().unique()
+    word_set = words.word.str.lower().unique()
 
     word_set = pd.DataFrame(word_set)
-    word_set.columns = ['phrase']
+    word_set.columns = ['word']
 
 
 ##########################################################################################################
@@ -77,7 +77,7 @@ for x in array:
     remove = remove + '”'
 
     pattern = r"[{}]".format(remove)  # create the pattern
-    word_set['phrase'] = word_set['phrase'].apply(
+    word_set['word'] = word_set['word'].apply(
         lambda x: x.translate({ord(char): None for char in remove}))
 
     print("finish cleaning", "\n")
@@ -99,16 +99,16 @@ for x in array:
         return syllables
 
     # Apply function to get syllables
-    word_set['syllables'] = word_set['phrase'].apply(
+    word_set['syllables'] = word_set['word'].apply(
         lambda x: get_syllables(x))
 
     # Apply function to get word length
-    word_set['length'] = word_set['phrase'].apply(lambda x: len(x))
+    word_set['length'] = word_set['word'].apply(lambda x: len(x))
 
     # take words and merge with values first you will need to clean the phrase column
-    words['original phrase'] = words['phrase']
-    words['phrase'] = words['phrase'].str.lower()
-    words['phrase'] = words['phrase'].apply(
+    words['original word'] = words['word']
+    words['word'] = words['word'].str.lower()
+    words['word'] = words['word'].apply(
         lambda x: x.translate({ord(char): None for char in remove}))
 
     word_features = pd.merge(words, word_set)
@@ -178,7 +178,7 @@ for x in array:
 
     # # Issue - There are some inputs that don't work and thats why I added 'NN' as the except
     def get_pos(row):
-        word = row['phrase']
+        word = row['word']
         parse = row['parse']
 
         print("word", word)
@@ -200,7 +200,7 @@ for x in array:
         except:
             return None
     # def get_pos(row):
-    #     word = row['phrase']
+    #     word = row['word']
     #     parse = row['parse']
     #     for i in range(len(parse['sentences'][0]['tokens'])):
 
@@ -216,7 +216,7 @@ for x in array:
 
     def get_dep(row):
         number = 0
-        word = row['phrase']
+        word = row['word']
         parse = row['parse']
         try:
             for i in range(len(parse['sentences'][0]['basicDependencies'])):
@@ -239,7 +239,7 @@ for x in array:
 
     # def get_dep(row):
     #     number = 0
-    #     word = row['phrase']
+    #     word = row['word']
     #     parse = row['parse']
     #     for i in range(len(parse['sentences'][0]['basicDependencies'])):
     #         comp_word = parse['sentences'][0]['basicDependencies'][i]['governorGloss']
@@ -283,7 +283,7 @@ for x in array:
 
     def lemmatiser(row):
 
-        word = row['phrase']
+        word = row['word']
         pos = row['pos']
 
         try:
@@ -554,7 +554,7 @@ for x in array:
 
     def get_frequency(row):
         nofreq = float(0.000000)
-        word = row["phrase"]
+        word = row["word"]
         print("word:", word)
         word = str(word)
         tag = row["pos"]
@@ -649,7 +649,7 @@ for x in array:
 
     # # Apply function to get the level from Cambridge Advanced Learner Dictionary
     cald = pd.read_csv('binary-features/CALD.csv')
-    word_parse_features['cald'] = word_parse_features['phrase'].apply(
+    word_parse_features['cald'] = word_parse_features['word'].apply(
         lambda x: int(cald.loc[cald.Word == x, 'Level'].mean().round(0)) if any(cald.Word == x) else 0)
 
 
@@ -689,10 +689,10 @@ for x in array:
 
 ##########################################################################################################
 
-    print("start convert phrase and pos to string")
-    word_parse_features['phrase'] = word_parse_features.phrase.astype(str)
+    print("start convert word and pos to string")
+    word_parse_features['word'] = word_parse_features.word.astype(str)
     word_parse_features['pos'] = word_parse_features.pos.astype(str)
-    print("end convert phrase and pos to string")
+    print("end convert word and pos to string")
 
 
 ##########################################################################################################

@@ -11,7 +11,7 @@ Given a dataset which contains features, and a name, the function outputs featur
 
 def get_features(data, name):
     df = pd.DataFrame(data=data)
-    df = df.drop(columns=['parse', 'count', 'split', 'original phrase',
+    df = df.drop(columns=['parse', 'count', 'split', 'original word',
                           'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_probabilistic'])
     df.to_csv('features/' + name + '_features.csv',
               index=False, encoding='utf-8-sig')

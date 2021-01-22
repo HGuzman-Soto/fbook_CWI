@@ -5,7 +5,8 @@ Currently a work in progress
 
 ## Installation
 
-1. Run Python3 install -r requirements.txt to get all packages
+1. Run pip3 install -r requirements.txt to get all packages\
+
 
 ## Features
 
