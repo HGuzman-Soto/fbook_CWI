@@ -1,6 +1,6 @@
 # Facebook Complex Word Identification
 
-Developed as a part of Dr. Yudong Liu (research lab (https://cs.wwu.edu/liuy2)\
+Developed as a part of Dr. Yudong Liu research lab (https://cs.wwu.edu/liuy2) </br>
 Currently a work in progress
 
 ## Installation
