@@ -19,8 +19,7 @@ start_time = time.time()
 # df = dd.read_csv('temp_data.csv')
 df = pd.read_csv('temp_data.csv')
 
-# df = df[1000:1500]
-
+df = df[0:100]
 """todo
 1) rename this file
 2) Use spacy.pipe() for all these processes/maybe the preprocess.py file to make things faster
@@ -35,43 +34,43 @@ Steps
 
 """
 
-df['clean_text'] = df.text.apply(lambda x: clean(x))
+df['clean_sentence'] = df.sentence.apply(lambda x: clean(x))
 
-df = df[df.clean_text.apply(lambda x: isValuableComment(x)) == True]
-meta = ('content_word', 'object')
+df = df[df.clean_sentence.apply(lambda x: isValuableComment(x)) == True]
+meta = ('word', 'object')
 
 
 # convert to dask dataframe and call extract_content_words()
-df = dd.from_pandas(df, npartitions=12)
-df['content_word'] = df.map_partitions(lambda df: df.clean_text.apply(
-    lambda x: extract_content_words(x)), meta=meta).compute(num_workers=nCores)
+# df = dd.from_pandas(df, npartitions=12)
+# df['word'] = df.map_partitions(lambda df: df.clean_sentence.apply(
+#     lambda x: extract_content_words(x)), meta=meta).compute(num_workers=nCores)
 
-df = df.compute()  # dask to pandas again
+# df = df.compute()  # dask to pandas again
 
 # reference without dask
-df['content_word'] = df.clean_text.apply(
+df['word'] = df.clean_sentence.apply(
     lambda x: extract_content_words(x))
 
 # remove rows w/ no content words
-df = df[df['content_word'].astype(bool)]
+df = df[df['word'].astype(bool)]
 
 print("\n")
 print("Expanding content word lists \n")
-df = df.explode('content_word')
+df = df.explode('word')
 
 print("Attaching indexes to each content words \n")
-df[['starting_index', 'ending_index']] = df.apply(lambda x: (
-    x['content_word'][1][0], x['content_word'][1][1]), axis=1, result_type='expand')
+df[['start_index', 'end_index']] = df.apply(lambda x: (
+    x['word'][1][0], x['word'][1][1]), axis=1, result_type='expand')
 
 # reformatting content words from set members back to single tokens
-df['content_word'] = df['content_word'].apply(lambda x: x[0])
+df['word'] = df['word'].apply(lambda x: x[0])
 
 # df.to_csv('data.csv', index=False)
 print("Finished")
 print("--- %s seconds ---" % (time.time() - start_time))
 
 df = df.reindex(columns=['ID', 'sentence', 'clean_sentence',
-                         'start_index', 'end_index', 'phrase'])
+                         'start_index', 'end_index', 'word'])
 
 # test = df.compute()
 print(df)

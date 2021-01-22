@@ -189,7 +189,7 @@ first_fixation = Pipeline([
 ])
 
 words = Pipeline([
-    ('selector', TextSelector(key='phrase')),
+    ('selector', TextSelector(key='word')),
     ('vect', CountVectorizer())
 ])
 
