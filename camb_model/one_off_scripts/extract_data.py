@@ -2,6 +2,7 @@ import pandas as pd
 
 import re
 import collections
+import string
 from collections import Counter
 
 
@@ -21,23 +22,44 @@ Issue: When converting series to dataframe, the index column is made when conver
 I just manually label the first colummn as word
 
 """
+from nltk.corpus import stopwords
+stop = stopwords.words('english')
 
 
 def simple_wiki():
-    colnames = ['word', 'paragraph', 'sentence']
-    df_wiki = pd.read_table('camb_model/corpus/simple.txt',
-                            names=colnames, header=None)
+
+    df_wiki = pd.read_table('wiki.simple', names=['sentence'])
+
+    # casing
+    df_wiki['sentence'] = df_wiki.sentence.str.lower()
+    # remove stop words
+    df_wiki['sentence'] = df_wiki.sentence.apply(lambda x: ' '.join(
+        [word for word in x.split() if word not in (stop)]))
+
+    # remove punctuaction
+    df_wiki['sentence'] = df_wiki.sentence.str.replace('[^\w\s]', '')
+    # print(df_wiki)
+
+    # remove numbers
+    df_wiki['sentence'] = df_wiki.sentence.str.replace('\d+', '')
+    df_wiki['sentence'] = df_wiki.sentence.str.strip()
 
     series_top = pd.Series(
-        " ".join((df_wiki.word).str.lower()).split()).value_counts()
+        " ".join((df_wiki.sentence).str.lower()).split()).value_counts()
 
     df_top = series_top.to_frame(name="frequency")
+    df_top['word'] = df_top.index
+    df_top['word'] = df_top.word[df_top.word.str.len() > 2]
+    df_top = df_top.dropna(axis=0)
     print(df_top)
 
     df_top = df_top.nlargest(6386, "frequency")
+    print(df_top)
 
-    # # make csv file
-    df_top.to_csv("simple.csv", index=True)
+    df_top = df_top[['word', 'frequency']]
+
+    # # # make csv file
+    df_top.to_csv("simple.csv", index=False)
 
 
 """
@@ -68,5 +90,5 @@ def subtitles():
     df_top.to_csv("subtitles.csv", index=True)
 
 
-simple_wiki()
-subtitles()
+# simple_wiki()
+# subtitles()
