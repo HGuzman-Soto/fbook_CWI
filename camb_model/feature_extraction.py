@@ -177,80 +177,80 @@ for x in array:
 #     # Work out POS and dep number for words in word_parse_features
 
     # # Issue - There are some inputs that don't work and thats why I added 'NN' as the except
-    def get_pos(row):
-        word = row['word']
-        parse = row['parse']
-
-        print("word", word)
-
-        try:
-            for i in range(len(parse['sentences'][0]['tokens'])):
-                try:
-                    comp_word = parse['sentences'][0]['tokens'][i]['word']
-                    comp_word = comp_word.lower()
-                    comp_word = comp_word.translate(
-                        {ord(char): None for char in remove})
-
-                    if comp_word == word:
-                        print("proper", parse['sentences']
-                              [0]['tokens'][i]['pos'])
-                        return parse['sentences'][0]['tokens'][i]['pos']
-                except:
-                    pass
-        except:
-            return None
     # def get_pos(row):
     #     word = row['word']
     #     parse = row['parse']
-    #     for i in range(len(parse['sentences'][0]['tokens'])):
 
-    #         comp_word = parse['sentences'][0]['tokens'][i]['word']
-    #         comp_word = comp_word.lower()
-    #         comp_word = comp_word.translate(
-    #             {ord(char): None for char in remove})
+    #     print("word", word)
 
-    #         if comp_word == word:
-    #             return parse['sentences'][0]['tokens'][i]['pos']
+    #     try:
+    #         for i in range(len(parse['sentences'][0]['tokens'])):
+    #             try:
+    #                 comp_word = parse['sentences'][0]['tokens'][i]['word']
+    #                 comp_word = comp_word.lower()
+    #                 comp_word = comp_word.translate(
+    #                     {ord(char): None for char in remove})
 
-###########################################################################################################
-
-    def get_dep(row):
-        number = 0
+    #                 if comp_word == word:
+    #                     print("proper", parse['sentences']
+    #                           [0]['tokens'][i]['pos'])
+    #                     return parse['sentences'][0]['tokens'][i]['pos']
+    #             except:
+    #                 pass
+    #     except:
+    #         return None
+    def get_pos(row):
         word = row['word']
         parse = row['parse']
-        try:
-            for i in range(len(parse['sentences'][0]['basicDependencies'])):
-                try:
-                    comp_word = parse['sentences'][0]['basicDependencies'][i]['governorGloss']
-                    print("word", word)
-                    comp_word = comp_word.lower()
-                    comp_word = comp_word.translate(
-                        {ord(char): None for char in remove})
-                    print("comp word:", comp_word)
+        for i in range(len(parse['sentences'][0]['tokens'])):
 
-                    if comp_word == word.lower():
-                        number += 1
-                    print("proper dp", number)
-                except:
-                    pass
-            return number
-        except:
-            pass
+            comp_word = parse['sentences'][0]['tokens'][i]['word']
+            comp_word = comp_word.lower()
+            comp_word = comp_word.translate(
+                {ord(char): None for char in remove})
+
+            if comp_word == word:
+                return parse['sentences'][0]['tokens'][i]['pos']
+
+###########################################################################################################
 
     # def get_dep(row):
     #     number = 0
     #     word = row['word']
     #     parse = row['parse']
-    #     for i in range(len(parse['sentences'][0]['basicDependencies'])):
-    #         comp_word = parse['sentences'][0]['basicDependencies'][i]['governorGloss']
-    #         comp_word = comp_word.lower()
-    #         comp_word = comp_word.translate(
-    #             {ord(char): None for char in remove})
+    #     try:
+    #         for i in range(len(parse['sentences'][0]['basicDependencies'])):
+    #             try:
+    #                 comp_word = parse['sentences'][0]['basicDependencies'][i]['governorGloss']
+    #                 print("word", word)
+    #                 comp_word = comp_word.lower()
+    #                 comp_word = comp_word.translate(
+    #                     {ord(char): None for char in remove})
+    #                 print("comp word:", comp_word)
 
-    #         if comp_word == word:
-    #             number += 1
+    #                 if comp_word == word.lower():
+    #                     number += 1
+    #                 print("proper dp", number)
+    #             except:
+    #                 pass
+    #         return number
+    #     except:
+    #         pass
 
-    #     return number
+    def get_dep(row):
+        number = 0
+        word = row['word']
+        parse = row['parse']
+        for i in range(len(parse['sentences'][0]['basicDependencies'])):
+            comp_word = parse['sentences'][0]['basicDependencies'][i]['governorGloss']
+            comp_word = comp_word.lower()
+            comp_word = comp_word.translate(
+                {ord(char): None for char in remove})
+
+            if comp_word == word:
+                number += 1
+
+        return number
 
 
 ##########################################################################################################
