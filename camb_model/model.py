@@ -504,21 +504,21 @@ y_data = total_test
 y_test = y_data['complex_binary'].values
 y_pred = pipeline.predict(y_data)
 y_probas = pipeline.predict_proba(y_data)
-y_train = y_data.drop(columns=['complex_binary', 'parse', 'count', 'split', 'original word',
-                               'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_probabilistic'])
+X_test = y_data.drop(columns=['complex_binary', 'parse', 'count', 'split', 'original word',
+                              'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_probabilistic', 'sentence', 'ID', 'clean sentence', 'start_index', 'end_index',  'pos', 'lemma'])
 
 train = total_training
-X_test = train['complex_binary'].values
+y_train = train['complex_binary'].values
 X_train = train.drop(columns=['complex_binary', 'parse', 'count', 'split', 'original word',
-                              'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_probabilistic'])
+                              'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_probabilistic', 'sentence', 'ID', 'clean sentence', 'start_index', 'end_index', 'pos', 'lemma'])
 
 
 # temporary, we need to get feature names from the pipeline transformation of features
-train = X_train.drop(
-    columns=['sentence', 'ID', 'clean sentence', 'start_index', 'end_index', 'word', 'pos', 'lemma'])
-feature_names = train.values
+# train = X_train.drop(
+#     columns=['sentence', 'ID', 'clean sentence', 'start_index', 'end_index', 'word', 'pos', 'lemma'])
+feature_names = X_train.values
 
-labels = ['non_complex_word', 'complex_word']
+labels = ['non_complex', 'complex']
 
 plot_results(pipeline, X_train, X_test, y_train, y_test, y_pred,
              y_probas, labels, str(model), feature_names)
