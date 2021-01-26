@@ -385,7 +385,7 @@ if (args.combine_models == 1):
     ensemble.fit(training_data, train_targets)
     model = ensemble
     models.append(model)
-print(models)
+
 pipeline = models[-1]
 
 ##########################################################################################################
