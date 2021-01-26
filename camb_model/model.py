@@ -1,6 +1,7 @@
 # adapted from: https://github.com/siangooding/cwi_2018/blob/master/Algorithm%20Application.ipynb
 ##########################################################################################################
 
+from os import pipe
 from sklearn.naive_bayes import GaussianNB
 import scipy.stats as stats
 from sklearn.metrics import f1_score
@@ -63,6 +64,9 @@ if __name__ == "__main__":
     parser.add_argument('--wikinews', '-i', type=int, default=0)
     parser.add_argument('--news', '-n', type=int, default=0)
     parser.add_argument('--test', '-t', type=int, default=0)
+    parser.add_argument('--random_forest', '-rf', type=int, default=0)
+    parser.add_argument('--ada_boost', '-ab', type=int, default=0)
+    parser.add_argument('--combine_models', '-cm', type=int, default=0)
 
     train_frames = []
     test_frames = []
@@ -115,6 +119,7 @@ if __name__ == "__main__":
 
     if (args.news == 1):
         news_test_data = pd.read_pickle('features/News_Test_allInfo')
+        news_training_data = pd.read_pickle('features/News_Test_allInfo')
         news_test_data.name = 'News'
         news_training_data.name = 'News'
         test_frames = [news_test_data]
@@ -349,32 +354,39 @@ feature_processing.fit_transform(training_data)
 
 ##########################################################################################################
 
+models = []
 
-model = AdaBoostClassifier(n_estimators=5000, random_state=67)
-pipeline = Pipeline([
-    ('features', feats),
-    ('classifier', model),
-])
+if (args.ada_boost == 1 or args.combine_models == 1):
 
-pipeline.fit(training_data, train_targets)
+    model = AdaBoostClassifier(n_estimators=5000, random_state=67)
+    pipeline = Pipeline([
+        ('features', feats),
+        ('classifier', model),
+    ])
+    pipeline.fit(training_data, train_targets)
 
+    models.append(pipeline)
 
-"""
+if (args.random_forest == 1 or args.combine_models == 1):
 
-Ensemble method - 
-"""
-# rf = RandomForestClassifier(n_estimators=1000)
+    model = RandomForestClassifier(n_estimators=1000)
+    pipeline_rf = Pipeline([
+        ('features', feats),
+        ('classifier', model)
+    ])
+    pipeline_rf.fit(training_data, train_targets)
 
-# pipeline_rf = Pipeline([
-#     ('features', feats),
-#     ('classifier', rf)
-# ])
-# pipeline_rf.fit(training_data, train_targets)
+    models.append(pipeline_rf)
 
+if (args.combine_models == 1):
 
-# estimators = [('rf', pipeline_rf), ('ada', pipeline)]
-# ensemble = VotingClassifier(estimators, voting='hard')
-# ensemble.fit(training_data, train_targets)
+    estimators = [('rf', models[1]), ('ada', models[0])]
+    ensemble = VotingClassifier(estimators, voting='hard')
+    ensemble.fit(training_data, train_targets)
+    model = ensemble
+    models.append(model)
+print(models)
+pipeline = models[-1]
 
 ##########################################################################################################
 
