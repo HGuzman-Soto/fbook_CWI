@@ -17,6 +17,8 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.base import BaseEstimator, TransformerMixin
+import matplotlib.pyplot as plt
+
 import string
 import numpy as np
 import argparse
@@ -28,6 +30,12 @@ import sys
 # import wandb
 # wandb.init(project="visualize-sklearn")
 # https://docs.wandb.ai/integrations/scikit
+# https://colab.research.google.com/drive/1dxWV5uulLOQvMoBBaJy2dZ3ZONr4Mqlo?usp=sharing#scrollTo=Asg7YeGxmJRO
+
+import wandb
+from wandb.keras import WandbCallback
+
+# wandb.login()
 
 
 ##########################################################################################################
@@ -56,6 +64,7 @@ to do that).
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run feature extraction')
+    parser.add_argument('--wandb', '-wb', type=int, default=0)
     parser.add_argument('--all', '-a', type=int, default=0)
     parser.add_argument('--train_wikipedia', '-tw', type=int, default=0)
     parser.add_argument('--train_wikinews', '-ti', type=int, default=0)
@@ -70,8 +79,10 @@ if __name__ == "__main__":
 
     train_frames = []
     test_frames = []
+    train_names = []
     args = parser.parse_args()
     if (args.all == 1):
+        train_names = ['wikipedia_train', 'wikinews_train', 'news_train']
         wikipedia_training_data = pd.read_pickle(
             'features/Wikipedia_Train_allInfo')
         wikipedia_training_data.name = 'Wikipedia'
@@ -87,22 +98,26 @@ if __name__ == "__main__":
                         wiki_training_data, news_training_data]
 
     if (args.train_wikipedia == 1):
+        train_names.append('wikipedia_train')
         wikipedia_training_data = pd.read_pickle(
             'features/Wikipedia_Train_allInfo')
         wikipedia_training_data.name = 'Wikipedia'
         train_frames.append(wikipedia_training_data)
 
     if (args.train_wikinews == 1):
+        train_names.append('wikinews_train')
         wiki_training_data = pd.read_pickle('features/WikiNews_Train_allInfo')
         wiki_training_data.name = 'WikiNews'
         train_frames.append(wiki_training_data)
 
     if (args.train_news == 1):
+        train_names.append('news_train')
         news_training_data = pd.read_pickle('features/News_Train_allInfo')
         news_training_data.name = 'News'
         train_frames.append(news_training_data)
 
     if (args.wikipedia == 1):
+        test_name = ["wikipedia_test"]
         wikipedia_test_data = pd.read_pickle('features/Wikipedia_Test_allInfo')
         wikipedia_training_data = pd.read_pickle(
             'features/Wikipedia_Train_allInfo')
@@ -111,6 +126,7 @@ if __name__ == "__main__":
         test_frames = [wikipedia_test_data]
 
     if (args.wikinews == 1):
+        test_name = ["wikinews_test"]
         wiki_test_data = pd.read_pickle('features/WikiNews_Test_allInfo')
         wiki_training_data = pd.read_pickle('features/WikiNews_Train_allInfo')
         wiki_test_data.name = 'WikiNews'
@@ -118,6 +134,7 @@ if __name__ == "__main__":
         test_frames = [wiki_test_data]
 
     if (args.news == 1):
+        test_name = ['news_test']
         news_test_data = pd.read_pickle('features/News_Test_allInfo')
         news_training_data = pd.read_pickle('features/News_Test_allInfo')
         news_test_data.name = 'News'
@@ -125,24 +142,15 @@ if __name__ == "__main__":
         test_frames = [news_test_data]
 
     elif (args.test == 1):
+        test_name = ["test"]
         testing_data = pd.read_pickle('features/testing_data_allInfo')
         testing_data.name = 'testing'
         test_frames = [testing_data]
 
-    # I think this lexicon is in reference to the 2017 wu paper?
-    # Or their may be a part that has to do with phrases here
-    # lexicon = pd.read_table('lexicon', delim_whitespace=True,
-    #                         names=('phrase', 'score'))
-    # lexicon['phrase'] = lexicon['phrase'].apply(lambda x: str(x).lower())
-
     total_training = pd.concat(train_frames)
-
     total_test = pd.concat(test_frames)
 
-    # total_training = pd.merge(total_training, lexicon, on='phrase', how='left')
     total_training.fillna(0.0, inplace=True)
-
-    # total_test = pd.merge(total_test, lexicon, on='phrase', how='left')
     total_test.fillna(0.0, inplace=True)
 
     training_data = total_training
@@ -167,6 +175,9 @@ class TextSelector(BaseEstimator, TransformerMixin):
     def transform(self, X):
         return X[self.key]
 
+    # def get_feature_names(self):
+    #     return X.columns.tolist()
+
 ##########################################################################################################
 
 
@@ -184,6 +195,9 @@ class NumberSelector(BaseEstimator, TransformerMixin):
 
     def transform(self, X):
         return X[[self.key]]
+
+    # def get_feature_names(self):
+    #     return X.columns.tolist()
 
 ##########################################################################################################
 
@@ -255,11 +269,6 @@ subimdb = Pipeline([
     ('standard', StandardScaler())
 ])
 
-# n_gram_freq = Pipeline([
-#     ('selector', NumberSelector(key='ngram freq')),
-#     ('standard', StandardScaler())
-# ])
-
 cald = Pipeline([
     ('selector', NumberSelector(key='cald')),
     ('standard', StandardScaler())
@@ -309,15 +318,11 @@ TLFRQ = Pipeline([
     ('standard', StandardScaler())
 ])
 
-# score = Pipeline([
-#     ('selector', NumberSelector(key='score')),
-#     ('standard', StandardScaler())
-# ])
 
 ##########################################################################################################
 
 global feats
-feats = FeatureUnion([  # ('ff',first_fixation),
+feats = FeatureUnion([
     ('words', words),
     ('word_length', word_length),
     ('Tag', tag),
@@ -328,10 +333,8 @@ feats = FeatureUnion([  # ('ff',first_fixation),
     ('Syllables', syllables),
     ('ogden', ogden),
     ('simple_wiki', simple_wiki),
-    # ('origin', origin),
     ('freq', frequency),
     ('subimdb', subimdb),
-    # ('n_gram_freq', n_gram_freq),
     ('cald', cald),
     ('aoa', aoa),
     ('cnc', conc),
@@ -342,7 +345,6 @@ feats = FeatureUnion([  # ('ff',first_fixation),
     ('KFFRQ', KFFRQ),
     ('NPHN', NPHN),
     ('TLFRQ', TLFRQ)
-    # ('score', score)
 ])
 
 
@@ -390,67 +392,143 @@ pipeline = models[-1]
 
 ##########################################################################################################
 
-global model_stats
-model_stats = pd.DataFrame(
-    columns=['Data', 'Classifier', 'Precision', 'Recall', 'F-Score'])
 
-
-def apply_algorithm(array):
+def apply_algorithm(name, array):
+    model_stats = pd.DataFrame(
+        columns=['Data', 'Classifier', 'Precision', 'Recall', 'F-Score'])
 
     i = 0
     for x in array:
+        print("results for", name[i], ":\n")
+        data = x
+        targets = data['complex_binary'].values
+        predictions = pipeline.predict(data)
 
-        test_data = x
-        test_targets = test_data['complex_binary'].values
-        # test_predictions = ensemble.predict(test_data)
-        test_predictions = pipeline.predict(test_data)
+        df = pd.DataFrame(data=data)
+        df = df.drop(columns=['parse', 'count', 'split', 'original word',
+                              'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_probabilistic'])
+        df['output'] = predictions
+        df.to_csv("results/" + name[i] + "_results.csv", index=False)
 
-        accuracy = accuracy_score(test_targets, test_predictions)
-        precision = precision_score(test_targets, test_predictions)
-        recall = recall_score(test_targets, test_predictions)
-        F_Score = f1_score(test_targets, test_predictions, average='macro')
+        accuracy = accuracy_score(targets, predictions)
+        precision = precision_score(targets, predictions)
+        recall = recall_score(targets, predictions)
+        F_Score = f1_score(targets, predictions, average='macro')
+
+        model_stats.loc[len(model_stats)] = [i, (str(model))[
+            :100], precision, recall, F_Score]
+
+        model_stats.to_csv("results/" + name[i] + "_metrics.csv", index=False)
+        print("Accuracy", accuracy)
+        print("Precision:", model_stats.Precision)
+        print("Recall:", model_stats.Recall)
+        print("F-Score:", model_stats['F-Score'], "\n")
+
+
+"""
+To-Do -
+
+Split apply_algorithm into three functions - Since the pipeline feature should make this fast
+
+1) score algorithm - just handles getting all the metrics
+
+2) Get results (append features + outputs)
+
+3) ROC + other visualizations
+"""
+
+
+def score_model(name, array):
+    model_stats = pd.DataFrame(
+        columns=['Data', 'Classifier', 'Precision', 'Recall', 'F-Score'])
+    i = 0
+    for x in array:
+        print("results for", name[i], ":\n")
+        data = x
+        targets = data['complex_binary'].values
+        predictions = pipeline.predict(data)
+
+        accuracy = accuracy_score(targets, predictions)
+        precision = precision_score(targets, predictions)
+        recall = recall_score(targets, predictions)
+        F_Score = f1_score(targets, predictions, average='macro')
 
         model_stats.loc[len(model_stats)] = [i, (str(model))[
             :100], precision, recall, F_Score]
         print("Accuracy", accuracy)
         print("Precision:", model_stats.Precision)
         print("Recall:", model_stats.Recall)
-        print("F-Score:", model_stats['F-Score'])
-
-        # baseline_accuracies(test_targets)
+        print("F-Score:", model_stats['F-Score'], "\n")
 
 ##########################################################################################################
 
 
-def fbook(fbook_data, features_df):
-    test_predictions = pipeline.predict(fbook_data)
-    outputs_df = pd.DataFrame(data=test_predictions)
-    final_df = features_df.concat(outputs_df)
-    final_df.to_csv('testing_results.csv', index=False)
+def get_results(name, array):
+    i = 0
+    for x in array:
+        data = x
+        targets = data['complex_binary'].values
+        predictions = pipeline.predict(data)
+        df = pd.DataFrame(data=data)
+        df['output'] = predictions
+        df.to_csv("results/" + name[i] + "_results.csv", index=False)
 
 ##########################################################################################################
 
 
-apply_algorithm([total_test])  # with lexicon
-print(model_stats)
+def wandB():
+    wandb.init(project="fbook_CWI")
+    y_data = total_test
 
-if (args.test == 1):
-    fbook(total_training, test_df)
+    y_test = y_data['complex_binary'].values
+    y_pred = pipeline.predict(y_data)
+    y_probas = pipeline.predict_proba(y_data)
+
+    vectorizer = CountVectorizer()
+    words_test = vectorizer.fit_transform(y_data['word'])
+
+    y_data['word'] = pd.DataFrame(
+        words_test.toarray(), columns=vectorizer.get_feature_names())
+
+    X_test = y_data.drop(columns=['complex_binary', 'parse', 'count', 'split', 'original word',
+                                  'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_probabilistic', 'sentence', 'ID', 'clean sentence', 'start_index', 'end_index',  'pos', 'lemma'])
+
+    train = total_training
+    words_train = vectorizer.fit_transform(train['word'])
+    train['word'] = pd.DataFrame(
+        words_train.toarray(), columns=vectorizer.get_feature_names())
+    y_train = train['complex_binary'].values
+    X_train = train.drop(columns=['complex_binary', 'parse', 'count', 'split', 'original word',
+                                  'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_probabilistic', 'sentence', 'ID', 'clean sentence', 'start_index', 'end_index', 'pos', 'lemma'])
+
+    # temporary, we need to get feature names from the pipeline transformation of features
+    # train = X_train.drop(
+    #     columns=['sentence', 'ID', 'clean sentence', 'start_index', 'end_index', 'word', 'pos', 'lemma'])
+    feature_names = X_train.values
+
+    labels = ['non_complex', 'complex']
+
+    plot_results(pipeline, X_train, X_test, y_train, y_test, y_pred,
+                 y_probas, labels, str(model), feature_names)
+
+
+def plot_results(model, X_train, X_test, y_train, y_test, y_pred, y_probas, labels, model_name, feature_names):
+    wandb.sklearn.plot_classifier(model,
+                                  X_train, X_test,
+                                  y_train, y_test,
+                                  y_pred, y_probas,
+                                  labels,
+                                  False,
+                                  model_name,
+                                  feature_names)
+
+
+##########################################################################################################
+apply_algorithm(test_name, [total_test])
+apply_algorithm(train_names, [total_training])
 
 
 ##########################################################################################################
 
-"""
-Below is what is needed to run the model on our generated fbook data
-Ignore for now as we're not working with that at this moment right now
-
-"""
-
-# fbook_data = pd.read_pickle('features/test_data')
-# fbook_data.to_csv('testing_features.csv', index=False)
-# print(fbook_data.head())
-# fbook(fbook_data)
-
-
-# apply_algorithm([total_test])  # without lexicon
-# model_stats
+if args.wandb == 1:
+    wandB()

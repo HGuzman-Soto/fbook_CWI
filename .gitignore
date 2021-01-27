@@ -9,6 +9,9 @@ __pycache__/
 data.csv
 temp_data.csv
 wiki.simple
+features/
+results/
+wandb/
 
 # compiled output
 /dist
