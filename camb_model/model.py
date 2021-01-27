@@ -64,6 +64,7 @@ to do that).
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run feature extraction')
+    parser.add_argument('--wandb', '-wb', type=int, default=0)
     parser.add_argument('--all', '-a', type=int, default=0)
     parser.add_argument('--train_wikipedia', '-tw', type=int, default=0)
     parser.add_argument('--train_wikinews', '-ti', type=int, default=0)
@@ -477,6 +478,38 @@ def get_results(name, array):
 
 def wandB():
     wandb.init(project="fbook_CWI")
+    y_data = total_test
+
+    y_test = y_data['complex_binary'].values
+    y_pred = pipeline.predict(y_data)
+    y_probas = pipeline.predict_proba(y_data)
+
+    vectorizer = CountVectorizer()
+    words_test = vectorizer.fit_transform(y_data['word'])
+
+    y_data['word'] = pd.DataFrame(
+        words_test.toarray(), columns=vectorizer.get_feature_names())
+
+    X_test = y_data.drop(columns=['complex_binary', 'parse', 'count', 'split', 'original word',
+                                  'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_probabilistic', 'sentence', 'ID', 'clean sentence', 'start_index', 'end_index',  'pos', 'lemma'])
+
+    train = total_training
+    words_train = vectorizer.fit_transform(train['word'])
+    train['word'] = pd.DataFrame(
+        words_train.toarray(), columns=vectorizer.get_feature_names())
+    y_train = train['complex_binary'].values
+    X_train = train.drop(columns=['complex_binary', 'parse', 'count', 'split', 'original word',
+                                  'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_probabilistic', 'sentence', 'ID', 'clean sentence', 'start_index', 'end_index', 'pos', 'lemma'])
+
+    # temporary, we need to get feature names from the pipeline transformation of features
+    # train = X_train.drop(
+    #     columns=['sentence', 'ID', 'clean sentence', 'start_index', 'end_index', 'word', 'pos', 'lemma'])
+    feature_names = X_train.values
+
+    labels = ['non_complex', 'complex']
+
+    plot_results(pipeline, X_train, X_test, y_train, y_test, y_pred,
+                 y_probas, labels, str(model), feature_names)
 
 
 def plot_results(model, X_train, X_test, y_train, y_test, y_pred, y_probas, labels, model_name, feature_names):
@@ -497,28 +530,5 @@ apply_algorithm(train_names, [total_training])
 
 ##########################################################################################################
 
-wandB()
-
-
-y_data = total_test
-y_test = y_data['complex_binary'].values
-y_pred = pipeline.predict(y_data)
-y_probas = pipeline.predict_proba(y_data)
-X_test = y_data.drop(columns=['complex_binary', 'parse', 'count', 'split', 'original word',
-                              'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_probabilistic', 'sentence', 'ID', 'clean sentence', 'start_index', 'end_index',  'pos', 'lemma'])
-
-train = total_training
-y_train = train['complex_binary'].values
-X_train = train.drop(columns=['complex_binary', 'parse', 'count', 'split', 'original word',
-                              'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_probabilistic', 'sentence', 'ID', 'clean sentence', 'start_index', 'end_index', 'pos', 'lemma'])
-
-
-# temporary, we need to get feature names from the pipeline transformation of features
-# train = X_train.drop(
-#     columns=['sentence', 'ID', 'clean sentence', 'start_index', 'end_index', 'word', 'pos', 'lemma'])
-feature_names = X_train.values
-
-labels = ['non_complex', 'complex']
-
-plot_results(pipeline, X_train, X_test, y_train, y_test, y_pred,
-             y_probas, labels, str(model), feature_names)
+if args.wandb == 1:
+    wandB()
