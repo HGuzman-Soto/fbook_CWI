@@ -66,16 +66,17 @@ def find_jsonfile():
 
 def main():
     json_file = get_jsonfile()
-    if json_file in 'json_files/':
+    if json_file in os.listdir('json_files/'):
         json_file = 'json_files/' + json_file
 
     # vectorized data operations
+        d = pd.read_json(json_file, orient='DataFrame')
+        os.remove(json_file)
 
+    else:
         d = pd.read_json(json_file, orient='DataFrame')
         shutil.move(json_file,
                     "json_files/")
-    else:
-        d = pd.read_json(json_file, orient='DataFrame')
 
     df = pd.json_normalize(d['threads'])
 

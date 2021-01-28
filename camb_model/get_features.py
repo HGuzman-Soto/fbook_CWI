@@ -11,8 +11,11 @@ Given a dataset which contains features, and a name, the function outputs featur
 
 def get_features(data, name):
     df = pd.DataFrame(data=data)
-    df = df.drop(columns=['parse', 'count', 'split', 'original word',
-                          'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_probabilistic'])
+    if (len(args.test) > 0):
+        df = df.drop(columns=['parse', 'count', 'split', 'original word'])
+    else:
+        df = df.drop(columns=['parse', 'count', 'split', 'original word',
+                              'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_probabilistic'])
     df.to_csv('features/' + name + '_features.csv',
               index=False, encoding='utf-8-sig')
     return df
@@ -24,7 +27,7 @@ if __name__ == "__main__":
     parser.add_argument('--wikipedia', '-w', type=int, default=0)
     parser.add_argument('--wikinews', '-i', type=int, default=0)
     parser.add_argument('--news', '-n', type=int, default=0)
-    parser.add_argument('--test', '-t', type=int, default=0)
+    parser.add_argument('--test', '-t', type=str, default=None)
 
     args = parser.parse_args()
 
@@ -53,7 +56,7 @@ if __name__ == "__main__":
         get_features(news_training_data, "news_train")
         get_features(news_test_data, "news_test")
 
-    elif (args.test == 1):
-        testing_data = pd.read_pickle('features/testing_data_allInfo')
+    elif (len(args.test) > 0):
+        testing_data = pd.read_pickle('features/' + args.test + '_allInfo')
         testing_data.name = 'testing'
         test_df = get_features(testing_data, "test")

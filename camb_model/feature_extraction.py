@@ -6,6 +6,7 @@ import string
 import regex as re
 import argparse
 import json
+from pathlib import Path
 
 
 # Load the data set that needs populating
@@ -24,7 +25,7 @@ if __name__ == "__main__":
     parser.add_argument('--wikipedia', '-w', type=int, default=0)
     parser.add_argument('--wikinews', '-i', type=int, default=0)
     parser.add_argument('--news', '-n', type=int, default=0)
-    parser.add_argument('--test', '-t', type=int, default=0)
+    parser.add_argument('--test', '-t', type=str, default=None)
 
     array = []
     args = parser.parse_args()
@@ -37,16 +38,20 @@ if __name__ == "__main__":
         array += 'WikiNews_Test', 'WikiNews_Train'
     if (args.news == 1):
         array += 'News_Test', 'News_Train'
-    elif (args.test == 1):
-        array = ['testing_data.tsv']
+    elif (len(args.test) > 1):
+        array = [args.test]
 
 ##########################################################################################################
 
 for x in array:
-
-    location = 'training_data/'+x+'.tsv'
-    data_frame = pd.read_table(location, names=('ID', 'sentence', 'start_index', 'end_index', 'word', 'total_native',
-                                                'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic'), encoding='utf-8-sig')
+    if (len(args.test) > 0):
+        location = args.test + ".csv"
+        data_frame = pd.read_csv(location, encoding='utf-8-sig')
+        # data_frame = data_frame.astype(str)
+    else:
+        location = 'training_data/'+x+'.tsv'
+        data_frame = pd.read_table(location, names=('ID', 'sentence', 'start_index', 'end_index', 'word', 'total_native',
+                                                    'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic'), encoding='utf-8-sig')
 
     data_frame['sentence'] = data_frame['sentence'].apply(
         lambda x: x.replace("%", "percent"))

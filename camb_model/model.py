@@ -72,7 +72,7 @@ if __name__ == "__main__":
     parser.add_argument('--wikipedia', '-w', type=int, default=0)
     parser.add_argument('--wikinews', '-i', type=int, default=0)
     parser.add_argument('--news', '-n', type=int, default=0)
-    parser.add_argument('--test', '-t', type=int, default=0)
+    parser.add_argument('--test', '-t', type=str, default=None)
     parser.add_argument('--random_forest', '-rf', type=int, default=0)
     parser.add_argument('--ada_boost', '-ab', type=int, default=0)
     parser.add_argument('--combine_models', '-cm', type=int, default=0)
@@ -141,9 +141,9 @@ if __name__ == "__main__":
         news_training_data.name = 'News'
         test_frames = [news_test_data]
 
-    elif (args.test == 1):
+    elif (len(args.test) > 0):
         test_name = ["test"]
-        testing_data = pd.read_pickle('features/testing_data_allInfo')
+        testing_data = pd.read_pickle('features/' + args.test + '_allInfo')
         testing_data.name = 'testing'
         test_frames = [testing_data]
 
@@ -470,9 +470,27 @@ def get_results(name, array):
         targets = data['complex_binary'].values
         predictions = pipeline.predict(data)
         df = pd.DataFrame(data=data)
+        df = df.drop(columns=['parse', 'count', 'split', 'original word'])
         df['output'] = predictions
+        predict_df = df['output']
+        df.drop(labels=['output'], axis=1, inplace=True)
+        df.insert(7, 'output', predict_df)
+
         df.to_csv("results/" + name[i] + "_results.csv", index=False)
 
+
+##########################################################################################################
+def get_outputs(name, data):
+
+    predictions = pipeline.predict(data)
+    df = pd.DataFrame(data=data)
+    df = df.drop(columns=['parse', 'count', 'split', 'original word'])
+    df['output'] = predictions
+    predict_df = df['output']
+    df.drop(labels=['output'], axis=1, inplace=True)
+    df.insert(7, 'output', predict_df)
+
+    df.to_csv("results/" + str(name) + "_results.csv", index=False)
 ##########################################################################################################
 
 
@@ -524,8 +542,12 @@ def plot_results(model, X_train, X_test, y_train, y_test, y_pred, y_probas, labe
 
 
 ##########################################################################################################
-apply_algorithm(test_name, [total_test])
-apply_algorithm(train_names, [total_training])
+
+if (len(args.test) > 0):
+    get_outputs(args.test, total_test)
+else:
+    apply_algorithm(train_names, [total_training])
+    apply_algorithm(test_name, [total_test])
 
 
 ##########################################################################################################

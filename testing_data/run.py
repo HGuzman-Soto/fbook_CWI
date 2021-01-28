@@ -19,7 +19,6 @@ start_time = time.time()
 # df = dd.read_csv('temp_data.csv')
 df = pd.read_csv('temp_data.csv')
 
-df = df[0:100]
 """todo
 1) rename this file
 2) Use spacy.pipe() for all these processes/maybe the preprocess.py file to make things faster
@@ -72,12 +71,35 @@ print("--- %s seconds ---" % (time.time() - start_time))
 df = df.reindex(columns=['ID', 'sentence', 'clean_sentence',
                          'start_index', 'end_index', 'word'])
 
+
 # test = df.compute()
 print(df)
 if path.exists('data.csv'):
     df.to_csv('data.csv', mode='a', header=False, index=False)
-    os.remove('temp_data.csv')
+    data_num = len(os.listdir("data_files/data"))
+    temp_data_num = len(os.listdir("data_files/temp_data"))
+    print(data_num)
+
+    new_data_name = "data_" + str(data_num) + ".csv"
+    new_temp_name = "temp_data_" + str(temp_data_num) + ".csv"
+
+    os.rename('data.csv', new_data_name)
+    os.rename('temp_data.csv',  new_temp_name)
+
+    shutil.move(new_data_name, "data_files/data/")
+    shutil.move(new_temp_name, "data_files/temp_data/")
 
 else:
     df.to_csv('data.csv', index=False)
-    os.remove('temp_data.csv')
+
+    data_num = len(os.listdir("data_files/data"))
+    temp_data_num = len(os.listdir("data_files/temp_data"))
+
+    new_data_name = "data_" + str(data_num) + ".csv"
+    new_temp_name = "temp_data_" + str(temp_data_num) + ".csv"
+
+    os.rename('data.csv', new_data_name)
+    os.rename('temp_data.csv',  new_temp_name)
+
+    shutil.move(new_data_name, "data_files/data/")
+    shutil.move(new_temp_name, "data_files/temp_data/")

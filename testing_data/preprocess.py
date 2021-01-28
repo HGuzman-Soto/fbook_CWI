@@ -53,7 +53,7 @@ def extract_content_words(text):
             else:  # this is for testing
                 print("Removed word:", token.text, "\n")
 
-    #gets indexes for content words, replace \\ with "." for text and cw's
+    # gets indexes for content words, replace \\ with "." for text and cw's
     re.sub(r'\\', '.', text)
     indexes = {}
     for word in content_words:
@@ -61,14 +61,16 @@ def extract_content_words(text):
         if word.text not in indexes.keys():
             indexes[word_tmp] = []
         for inst in re.finditer(word_tmp, text):
-            indexes[word_tmp].append( (inst.start(), inst.end()) )
-    
-    #apply indexes to content words (stack type pop operation)
+            indexes[word_tmp].append((inst.start(), inst.end()))
+
+    # apply indexes to content words (stack type pop operation)
     for i in range(len(content_words)):
-        content_words[i] = (content_words[i], indexes[re.sub(r'\\', '.', content_words[i].text)].pop(0))
+        content_words[i] = (content_words[i], indexes[re.sub(
+            r'\\', '.', content_words[i].text)].pop(0))
 
     print("content words: ", content_words)
     return content_words
+
 
 ######################################################################################
 """
