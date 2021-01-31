@@ -45,7 +45,7 @@ if __name__ == "__main__":
 
 for x in array:
     if (len(args.test) > 0):
-        location = args.test + ".csv"
+        location = "testing_data/data_files/data/" + args.test + ".csv"
         data_frame = pd.read_csv(location, encoding='utf-8-sig')
         # data_frame = data_frame.astype(str)
     else:
@@ -177,33 +177,8 @@ for x in array:
     print(len(word_parse_features))
 
     print("finish parsing sentence")
-##########################################################################################################
+###########################################################################################################
 
-#     # Work out POS and dep number for words in word_parse_features
-
-    # # Issue - There are some inputs that don't work and thats why I added 'NN' as the except
-    # def get_pos(row):
-    #     word = row['word']
-    #     parse = row['parse']
-
-    #     print("word", word)
-
-    #     try:
-    #         for i in range(len(parse['sentences'][0]['tokens'])):
-    #             try:
-    #                 comp_word = parse['sentences'][0]['tokens'][i]['word']
-    #                 comp_word = comp_word.lower()
-    #                 comp_word = comp_word.translate(
-    #                     {ord(char): None for char in remove})
-
-    #                 if comp_word == word:
-    #                     print("proper", parse['sentences']
-    #                           [0]['tokens'][i]['pos'])
-    #                     return parse['sentences'][0]['tokens'][i]['pos']
-    #             except:
-    #                 pass
-    #     except:
-    #         return None
     def get_pos(row):
         word = row['word']
         parse = row['parse']
@@ -218,29 +193,6 @@ for x in array:
                 return parse['sentences'][0]['tokens'][i]['pos']
 
 ###########################################################################################################
-
-    # def get_dep(row):
-    #     number = 0
-    #     word = row['word']
-    #     parse = row['parse']
-    #     try:
-    #         for i in range(len(parse['sentences'][0]['basicDependencies'])):
-    #             try:
-    #                 comp_word = parse['sentences'][0]['basicDependencies'][i]['governorGloss']
-    #                 print("word", word)
-    #                 comp_word = comp_word.lower()
-    #                 comp_word = comp_word.translate(
-    #                     {ord(char): None for char in remove})
-    #                 print("comp word:", comp_word)
-
-    #                 if comp_word == word.lower():
-    #                     number += 1
-    #                 print("proper dp", number)
-    #             except:
-    #                 pass
-    #         return number
-    #     except:
-    #         pass
 
     def get_dep(row):
         number = 0
@@ -404,6 +356,7 @@ for x in array:
 
     # CNC, KFCAT, FAM, KFSMP, KFFRQ, NPHN, T-LFRQ
 
+
     def CNC_fun(word):
 
         table = mrc_features[mrc_features['word'] == word.upper()]
@@ -420,7 +373,6 @@ for x in array:
 
 
 ##########################################################################################################
-
 
     def KFCAT_fun(word):
 
@@ -454,7 +406,6 @@ for x in array:
 
 
 ##########################################################################################################
-
 
     def KFSMP_fun(word):
 
@@ -520,6 +471,7 @@ for x in array:
 ##########################################################################################################
 
     # Convert tree bank tags to ones that are compatible w google
+
 
     def is_noun(tag):
         return tag in ['NN', 'NNS', 'NNP', 'NNPS']
