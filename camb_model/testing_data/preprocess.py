@@ -66,8 +66,11 @@ def extract_content_words(text):
 
     # apply indexes to content words (stack type pop operation)
     for i in range(len(content_words)):
-        content_words[i] = (content_words[i], indexes[re.sub(
-            r'\\', '.', content_words[i].text)].pop(0))
+        try:
+            content_words[i] = (content_words[i], indexes[re.sub(
+                r'\\', '.', content_words[i].text)].pop(0))
+        except:
+            pass
 
     print("content words: ", content_words)
     return content_words
