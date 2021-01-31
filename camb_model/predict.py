@@ -41,7 +41,7 @@ def apply_algorithm(name, array):
 
     i = 0
     for x in array:
-        print("results for", name[i], ":\n")
+        print("results for", name, ":\n")
         data = x
         targets = data['complex_binary'].values
         predictions = loaded_model.predict(data)
@@ -60,7 +60,7 @@ def apply_algorithm(name, array):
         model_stats.loc[len(model_stats)] = [i, (str(loaded_model))[
             :100], precision, recall, F_Score]
 
-        model_stats.to_csv("results/" + name[i] + "_metrics.csv", index=False)
+        model_stats.to_csv("results/" + name + "_metrics.csv", index=False)
         print("Accuracy", accuracy)
         print("Precision:", model_stats.Precision)
         print("Recall:", model_stats.Recall)
