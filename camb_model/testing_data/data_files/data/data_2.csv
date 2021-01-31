@@ -1,0 +1,315 @@
+ID,sentence,clean_sentence,start_index,end_index,word
+0_1_1,Beautiful bird.,beautiful bird ,0,9,beautiful
+0_1_1,Beautiful bird.,beautiful bird ,10,14,bird
+0_1_2,Love to see all birds,love to see all birds,0,4,love
+0_1_2,Love to see all birds,love to see all birds,16,21,birds
+0_2_2,I really enjoy all of the different nature pictures on fb,i really enjoy all of the different nature pictures on fb,9,14,enjoy
+0_2_2,I really enjoy all of the different nature pictures on fb,i really enjoy all of the different nature pictures on fb,26,35,different
+0_2_2,I really enjoy all of the different nature pictures on fb,i really enjoy all of the different nature pictures on fb,36,42,nature
+0_2_2,I really enjoy all of the different nature pictures on fb,i really enjoy all of the different nature pictures on fb,43,51,pictures
+0_3_2,I love getting up early in the morning going outside with my coffee and watching the birds in my backyard,i love getting up early in the morning going outside with my coffee and watching the birds in my backyard,2,6,love
+0_3_2,I love getting up early in the morning going outside with my coffee and watching the birds in my backyard,i love getting up early in the morning going outside with my coffee and watching the birds in my backyard,7,14,getting
+0_3_2,I love getting up early in the morning going outside with my coffee and watching the birds in my backyard,i love getting up early in the morning going outside with my coffee and watching the birds in my backyard,18,23,early
+0_3_2,I love getting up early in the morning going outside with my coffee and watching the birds in my backyard,i love getting up early in the morning going outside with my coffee and watching the birds in my backyard,31,38,morning
+0_3_2,I love getting up early in the morning going outside with my coffee and watching the birds in my backyard,i love getting up early in the morning going outside with my coffee and watching the birds in my backyard,39,44,going
+0_3_2,I love getting up early in the morning going outside with my coffee and watching the birds in my backyard,i love getting up early in the morning going outside with my coffee and watching the birds in my backyard,45,52,outside
+0_3_2,I love getting up early in the morning going outside with my coffee and watching the birds in my backyard,i love getting up early in the morning going outside with my coffee and watching the birds in my backyard,61,67,coffee
+0_3_2,I love getting up early in the morning going outside with my coffee and watching the birds in my backyard,i love getting up early in the morning going outside with my coffee and watching the birds in my backyard,72,80,watching
+0_3_2,I love getting up early in the morning going outside with my coffee and watching the birds in my backyard,i love getting up early in the morning going outside with my coffee and watching the birds in my backyard,85,90,birds
+0_3_2,I love getting up early in the morning going outside with my coffee and watching the birds in my backyard,i love getting up early in the morning going outside with my coffee and watching the birds in my backyard,97,105,backyard
+0_4_1,Gorgeous colors!!,gorgeous colors ,0,8,gorgeous
+0_4_1,Gorgeous colors!!,gorgeous colors ,9,15,colors
+0_5_1,Who would have thought there could be that many different Tanagers?!,who would have thought there could be that many different tanagers ,15,22,thought
+0_5_1,Who would have thought there could be that many different Tanagers?!,who would have thought there could be that many different tanagers ,48,57,different
+0_5_1,Who would have thought there could be that many different Tanagers?!,who would have thought there could be that many different tanagers ,58,66,tanagers
+0_6_2,Just listening to the bird songs is a huge joy at this time of the year!,just listening to the bird songs is a huge joy at this time of the year ,5,14,listening
+0_6_2,Just listening to the bird songs is a huge joy at this time of the year!,just listening to the bird songs is a huge joy at this time of the year ,22,26,bird
+0_6_2,Just listening to the bird songs is a huge joy at this time of the year!,just listening to the bird songs is a huge joy at this time of the year ,27,32,songs
+0_6_2,Just listening to the bird songs is a huge joy at this time of the year!,just listening to the bird songs is a huge joy at this time of the year ,38,42,huge
+0_6_2,Just listening to the bird songs is a huge joy at this time of the year!,just listening to the bird songs is a huge joy at this time of the year ,43,46,joy
+0_6_2,Just listening to the bird songs is a huge joy at this time of the year!,just listening to the bird songs is a huge joy at this time of the year ,55,59,time
+0_6_2,Just listening to the bird songs is a huge joy at this time of the year!,just listening to the bird songs is a huge joy at this time of the year ,67,71,year
+0_7_1,Breathtakingly beautiful!,breathtakingly beautiful ,0,14,breathtakingly
+0_7_1,Breathtakingly beautiful!,breathtakingly beautiful ,15,24,beautiful
+0_7_2,Thanks for sharing!,thanks for sharing ,0,6,thanks
+0_7_2,Thanks for sharing!,thanks for sharing ,11,18,sharing
+0_8_1,One of God’s beautiful amazing creatures,one of gods beautiful amazing creatures,7,11,gods
+0_8_1,One of God’s beautiful amazing creatures,one of gods beautiful amazing creatures,12,21,beautiful
+0_8_1,One of God’s beautiful amazing creatures,one of gods beautiful amazing creatures,22,29,amazing
+0_8_1,One of God’s beautiful amazing creatures,one of gods beautiful amazing creatures,30,39,creatures
+0_9_1,The best plumage anywhere on earth other than the endangered sage grouse,the best plumage anywhere on earth other than the endangered sage grouse,4,8,best
+0_9_1,The best plumage anywhere on earth other than the endangered sage grouse,the best plumage anywhere on earth other than the endangered sage grouse,9,16,plumage
+0_9_1,The best plumage anywhere on earth other than the endangered sage grouse,the best plumage anywhere on earth other than the endangered sage grouse,50,60,endangered
+0_9_1,The best plumage anywhere on earth other than the endangered sage grouse,the best plumage anywhere on earth other than the endangered sage grouse,61,65,sage
+0_9_1,The best plumage anywhere on earth other than the endangered sage grouse,the best plumage anywhere on earth other than the endangered sage grouse,66,72,grouse
+0_10_1,Omar Tinoco Nice comment if you dont mind you can send me friend request for better chatting,omar tinoco nice comment if you dont mind you can send me friend request for better chatting,12,16,nice
+0_10_1,Omar Tinoco Nice comment if you dont mind you can send me friend request for better chatting,omar tinoco nice comment if you dont mind you can send me friend request for better chatting,17,24,comment
+0_10_1,Omar Tinoco Nice comment if you dont mind you can send me friend request for better chatting,omar tinoco nice comment if you dont mind you can send me friend request for better chatting,37,41,mind
+0_10_1,Omar Tinoco Nice comment if you dont mind you can send me friend request for better chatting,omar tinoco nice comment if you dont mind you can send me friend request for better chatting,50,54,send
+0_10_1,Omar Tinoco Nice comment if you dont mind you can send me friend request for better chatting,omar tinoco nice comment if you dont mind you can send me friend request for better chatting,58,64,friend
+0_10_1,Omar Tinoco Nice comment if you dont mind you can send me friend request for better chatting,omar tinoco nice comment if you dont mind you can send me friend request for better chatting,65,72,request
+0_10_1,Omar Tinoco Nice comment if you dont mind you can send me friend request for better chatting,omar tinoco nice comment if you dont mind you can send me friend request for better chatting,77,83,better
+0_10_1,Omar Tinoco Nice comment if you dont mind you can send me friend request for better chatting,omar tinoco nice comment if you dont mind you can send me friend request for better chatting,84,92,chatting
+0_11_1,You beautiful creature  you.,you beautiful creature you ,4,13,beautiful
+0_11_1,You beautiful creature  you.,you beautiful creature you ,14,22,creature
+0_13_1,This bird has a BIG yellow belly.,this bird has a big yellow belly ,5,9,bird
+0_13_1,This bird has a BIG yellow belly.,this bird has a big yellow belly ,16,19,big
+0_13_1,This bird has a BIG yellow belly.,this bird has a big yellow belly ,20,26,yellow
+0_13_1,This bird has a BIG yellow belly.,this bird has a big yellow belly ,27,32,belly
+0_14_1,Beautiful picture of a beautiful bird.,beautiful picture of a beautiful bird ,0,9,beautiful
+0_14_1,Beautiful picture of a beautiful bird.,beautiful picture of a beautiful bird ,10,17,picture
+0_14_1,Beautiful picture of a beautiful bird.,beautiful picture of a beautiful bird ,23,32,beautiful
+0_14_1,Beautiful picture of a beautiful bird.,beautiful picture of a beautiful bird ,33,37,bird
+0_15_1,I am a bird watcher and bird lover.,i am a bird watcher and bird lover ,7,11,bird
+0_15_1,I am a bird watcher and bird lover.,i am a bird watcher and bird lover ,12,19,watcher
+0_15_2,But I am deathly afraid of them in person.,but i am deathly afraid of them in person ,9,16,deathly
+0_15_2,But I am deathly afraid of them in person.,but i am deathly afraid of them in person ,17,23,afraid
+0_15_2,But I am deathly afraid of them in person.,but i am deathly afraid of them in person ,35,41,person
+0_16_1,Beautiful colors.They really like bananas!,beautiful colors they really like bananas ,0,9,beautiful
+0_16_1,Beautiful colors.They really like bananas!,beautiful colors they really like bananas ,10,16,colors
+0_16_1,Beautiful colors.They really like bananas!,beautiful colors they really like bananas ,29,33,like
+0_16_1,Beautiful colors.They really like bananas!,beautiful colors they really like bananas ,34,41,bananas
+0_17_1,What beautiful birds some colourful,what beautiful birds some colourful,5,14,beautiful
+0_17_1,What beautiful birds some colourful,what beautiful birds some colourful,15,20,birds
+0_17_1,What beautiful birds some colourful,what beautiful birds some colourful,26,35,colourful
+0_18_1,"You sure couldn’t miss him, his bright colors are beautiful.,",you sure could not miss him his bright colors are beautiful ,4,8,sure
+0_18_1,"You sure couldn’t miss him, his bright colors are beautiful.,",you sure could not miss him his bright colors are beautiful ,19,23,miss
+0_18_1,"You sure couldn’t miss him, his bright colors are beautiful.,",you sure could not miss him his bright colors are beautiful ,32,38,bright
+0_18_1,"You sure couldn’t miss him, his bright colors are beautiful.,",you sure could not miss him his bright colors are beautiful ,39,45,colors
+0_18_1,"You sure couldn’t miss him, his bright colors are beautiful.,",you sure could not miss him his bright colors are beautiful ,50,59,beautiful
+0_20_1,Birds - the earth's most colourful and amazing creatures!,birds the earths most colourful and amazing creatures ,0,5,birds
+0_20_1,Birds - the earth's most colourful and amazing creatures!,birds the earths most colourful and amazing creatures ,10,16,earths
+0_20_1,Birds - the earth's most colourful and amazing creatures!,birds the earths most colourful and amazing creatures ,22,31,colourful
+0_20_1,Birds - the earth's most colourful and amazing creatures!,birds the earths most colourful and amazing creatures ,36,43,amazing
+0_20_1,Birds - the earth's most colourful and amazing creatures!,birds the earths most colourful and amazing creatures ,44,53,creatures
+0_21_1,There are so many beautiful birds.,there are so many beautiful birds ,18,27,beautiful
+0_21_1,There are so many beautiful birds.,there are so many beautiful birds ,28,33,birds
+0_22_1,So beautiful the colors are amazing,so beautiful the colors are amazing,3,12,beautiful
+0_22_1,So beautiful the colors are amazing,so beautiful the colors are amazing,17,23,colors
+0_22_1,So beautiful the colors are amazing,so beautiful the colors are amazing,28,35,amazing
+0_23_1,Amazing photo,amazing photo,0,7,amazing
+0_24_1,Leslie Masters Nice comment if you dont mind you can send me friend request for better chatting,leslie masters nice comment if you dont mind you can send me friend request for better chatting,20,27,comment
+0_24_1,Leslie Masters Nice comment if you dont mind you can send me friend request for better chatting,leslie masters nice comment if you dont mind you can send me friend request for better chatting,40,44,mind
+0_24_1,Leslie Masters Nice comment if you dont mind you can send me friend request for better chatting,leslie masters nice comment if you dont mind you can send me friend request for better chatting,53,57,send
+0_24_1,Leslie Masters Nice comment if you dont mind you can send me friend request for better chatting,leslie masters nice comment if you dont mind you can send me friend request for better chatting,61,67,friend
+0_24_1,Leslie Masters Nice comment if you dont mind you can send me friend request for better chatting,leslie masters nice comment if you dont mind you can send me friend request for better chatting,68,75,request
+0_24_1,Leslie Masters Nice comment if you dont mind you can send me friend request for better chatting,leslie masters nice comment if you dont mind you can send me friend request for better chatting,80,86,better
+0_24_1,Leslie Masters Nice comment if you dont mind you can send me friend request for better chatting,leslie masters nice comment if you dont mind you can send me friend request for better chatting,87,95,chatting
+0_25_1,"Very pretty,Lovely colours",very pretty lovely colours,5,11,pretty
+0_25_1,"Very pretty,Lovely colours",very pretty lovely colours,12,18,lovely
+0_25_1,"Very pretty,Lovely colours",very pretty lovely colours,19,26,colours
+0_26_1,"Beautiful bird,love those colors",beautiful bird love those colors,0,9,beautiful
+0_26_1,"Beautiful bird,love those colors",beautiful bird love those colors,10,14,bird
+0_26_1,"Beautiful bird,love those colors",beautiful bird love those colors,15,19,love
+0_26_1,"Beautiful bird,love those colors",beautiful bird love those colors,26,32,colors
+0_27_1,Look at 'em birdies,look at em birdies,0,4,look
+0_27_1,Look at 'em birdies,look at em birdies,11,18,birdies
+0_28_1,Dragica Cuic hello,dragica cuic hello,8,12,cuic
+0_29_1,Enjoyed seeing all the beautiful birds!,enjoyed seeing all the beautiful birds ,0,7,enjoyed
+0_29_1,Enjoyed seeing all the beautiful birds!,enjoyed seeing all the beautiful birds ,8,14,seeing
+0_29_1,Enjoyed seeing all the beautiful birds!,enjoyed seeing all the beautiful birds ,23,32,beautiful
+0_29_1,Enjoyed seeing all the beautiful birds!,enjoyed seeing all the beautiful birds ,33,38,birds
+0_31_1,Beautiful bird!!!,beautiful bird ,0,9,beautiful
+0_31_1,Beautiful bird!!!,beautiful bird ,10,14,bird
+0_31_2,Another one of God’s beautiful creations!!,another one of gods beautiful creations ,15,19,gods
+0_31_2,Another one of God’s beautiful creations!!,another one of gods beautiful creations ,20,29,beautiful
+0_31_2,Another one of God’s beautiful creations!!,another one of gods beautiful creations ,30,39,creations
+0_32_1,Colors are beautiful.,colors are beautiful ,0,6,colors
+0_32_1,Colors are beautiful.,colors are beautiful ,11,20,beautiful
+0_33_1,Beautiful Bird like that color of blue with the bright yellow,beautiful bird like that color of blue with the bright yellow,0,9,beautiful
+0_33_1,Beautiful Bird like that color of blue with the bright yellow,beautiful bird like that color of blue with the bright yellow,10,14,bird
+0_33_1,Beautiful Bird like that color of blue with the bright yellow,beautiful bird like that color of blue with the bright yellow,25,30,color
+0_33_1,Beautiful Bird like that color of blue with the bright yellow,beautiful bird like that color of blue with the bright yellow,34,38,blue
+0_33_1,Beautiful Bird like that color of blue with the bright yellow,beautiful bird like that color of blue with the bright yellow,48,54,bright
+0_33_1,Beautiful Bird like that color of blue with the bright yellow,beautiful bird like that color of blue with the bright yellow,55,61,yellow
+0_34_1,"God's Amazing variety in just one type of bird, truly amazing.",gods amazing variety in just one type of bird truly amazing ,0,4,gods
+0_34_1,"God's Amazing variety in just one type of bird, truly amazing.",gods amazing variety in just one type of bird truly amazing ,5,12,amazing
+0_34_1,"God's Amazing variety in just one type of bird, truly amazing.",gods amazing variety in just one type of bird truly amazing ,13,20,variety
+0_34_1,"God's Amazing variety in just one type of bird, truly amazing.",gods amazing variety in just one type of bird truly amazing ,33,37,type
+0_34_1,"God's Amazing variety in just one type of bird, truly amazing.",gods amazing variety in just one type of bird truly amazing ,41,45,bird
+0_34_1,"God's Amazing variety in just one type of bird, truly amazing.",gods amazing variety in just one type of bird truly amazing ,46,51,truly
+0_34_1,"God's Amazing variety in just one type of bird, truly amazing.",gods amazing variety in just one type of bird truly amazing ,52,59,amazing
+0_35_1,"Amazing birds, so many different varieties and colours!",amazing birds so many different varieties and colours ,0,7,amazing
+0_35_1,"Amazing birds, so many different varieties and colours!",amazing birds so many different varieties and colours ,8,13,birds
+0_35_1,"Amazing birds, so many different varieties and colours!",amazing birds so many different varieties and colours ,22,31,different
+0_35_1,"Amazing birds, so many different varieties and colours!",amazing birds so many different varieties and colours ,32,41,varieties
+0_35_1,"Amazing birds, so many different varieties and colours!",amazing birds so many different varieties and colours ,46,53,colours
+0_36_2,like the bird,like the bird,9,13,bird
+0_37_1,Big yellow chest !,big yellow chest ,0,3,big
+0_37_1,Big yellow chest !,big yellow chest ,4,10,yellow
+0_37_1,Big yellow chest !,big yellow chest ,11,16,chest
+0_38_1,Nice looking bird the yellow really stands out,nice looking bird the yellow really stands out,5,12,looking
+0_38_1,Nice looking bird the yellow really stands out,nice looking bird the yellow really stands out,13,17,bird
+0_38_1,Nice looking bird the yellow really stands out,nice looking bird the yellow really stands out,22,28,yellow
+0_38_1,Nice looking bird the yellow really stands out,nice looking bird the yellow really stands out,36,42,stands
+0_39_1,This is why I feed birds in my back yard they  com and go in the wild great to watch all the different breeds,this is why i feed birds in my back yard they com and go in the wild great to watch all the different breeds,14,18,feed
+0_39_1,This is why I feed birds in my back yard they  com and go in the wild great to watch all the different breeds,this is why i feed birds in my back yard they com and go in the wild great to watch all the different breeds,19,24,birds
+0_39_1,This is why I feed birds in my back yard they  com and go in the wild great to watch all the different breeds,this is why i feed birds in my back yard they com and go in the wild great to watch all the different breeds,36,40,yard
+0_39_1,This is why I feed birds in my back yard they  com and go in the wild great to watch all the different breeds,this is why i feed birds in my back yard they com and go in the wild great to watch all the different breeds,46,49,com
+0_39_1,This is why I feed birds in my back yard they  com and go in the wild great to watch all the different breeds,this is why i feed birds in my back yard they com and go in the wild great to watch all the different breeds,64,68,wild
+0_39_1,This is why I feed birds in my back yard they  com and go in the wild great to watch all the different breeds,this is why i feed birds in my back yard they com and go in the wild great to watch all the different breeds,69,74,great
+0_39_1,This is why I feed birds in my back yard they  com and go in the wild great to watch all the different breeds,this is why i feed birds in my back yard they com and go in the wild great to watch all the different breeds,78,83,watch
+0_39_1,This is why I feed birds in my back yard they  com and go in the wild great to watch all the different breeds,this is why i feed birds in my back yard they com and go in the wild great to watch all the different breeds,92,101,different
+0_39_1,This is why I feed birds in my back yard they  com and go in the wild great to watch all the different breeds,this is why i feed birds in my back yard they com and go in the wild great to watch all the different breeds,102,108,breeds
+0_40_1,"Gyönyörű madárka, Nekem egy jó nagy érett citrom jutott az eszembe.",gy ny r mad rka nekem egy j nagy rett citrom jutott az eszembe ,8,11,mad
+0_40_2,"Nem sértésként mondtam, attól Ő még érdekes, aranyos!",nem s rt sk nt mondtam att l m g rdekes aranyos ,33,39,rdekes
+0_41_2,"I always noticed the pretty birds in the Midwest, but I never realized how many there were on this Earth.",i always noticed the pretty birds in the midwest but i never realized how many there were on this earth ,9,16,noticed
+0_41_2,"I always noticed the pretty birds in the Midwest, but I never realized how many there were on this Earth.",i always noticed the pretty birds in the midwest but i never realized how many there were on this earth ,21,27,pretty
+0_41_2,"I always noticed the pretty birds in the Midwest, but I never realized how many there were on this Earth.",i always noticed the pretty birds in the midwest but i never realized how many there were on this earth ,28,33,birds
+0_41_2,"I always noticed the pretty birds in the Midwest, but I never realized how many there were on this Earth.",i always noticed the pretty birds in the midwest but i never realized how many there were on this earth ,61,69,realized
+0_41_2,"I always noticed the pretty birds in the Midwest, but I never realized how many there were on this Earth.",i always noticed the pretty birds in the midwest but i never realized how many there were on this earth ,98,103,earth
+0_41_4,Love the pictures and the knowledge.,love the pictures and the knowledge ,0,4,love
+0_41_4,Love the pictures and the knowledge.,love the pictures and the knowledge ,9,17,pictures
+0_41_4,Love the pictures and the knowledge.,love the pictures and the knowledge ,26,35,knowledge
+0_42_1,What a very beautiful bird!!,what a very beautiful bird ,12,21,beautiful
+0_42_1,What a very beautiful bird!!,what a very beautiful bird ,22,26,bird
+0_42_2,So bright and cheery!,so bright and cheery ,3,9,bright
+0_42_2,So bright and cheery!,so bright and cheery ,14,20,cheery
+0_44_1,So pretty big yellow belly,so pretty big yellow belly,3,9,pretty
+0_44_1,So pretty big yellow belly,so pretty big yellow belly,10,13,big
+0_44_1,So pretty big yellow belly,so pretty big yellow belly,14,20,yellow
+0_44_1,So pretty big yellow belly,so pretty big yellow belly,21,26,belly
+0_45_1,cute little bird with a bright yellow belly... nice picture,cute little bird with a bright yellow belly nice picture,0,4,cute
+0_45_1,cute little bird with a bright yellow belly... nice picture,cute little bird with a bright yellow belly nice picture,5,11,little
+0_45_1,cute little bird with a bright yellow belly... nice picture,cute little bird with a bright yellow belly nice picture,12,16,bird
+0_45_1,cute little bird with a bright yellow belly... nice picture,cute little bird with a bright yellow belly nice picture,24,30,bright
+0_45_1,cute little bird with a bright yellow belly... nice picture,cute little bird with a bright yellow belly nice picture,31,37,yellow
+0_45_1,cute little bird with a bright yellow belly... nice picture,cute little bird with a bright yellow belly nice picture,38,43,belly
+0_45_1,cute little bird with a bright yellow belly... nice picture,cute little bird with a bright yellow belly nice picture,44,48,nice
+0_45_1,cute little bird with a bright yellow belly... nice picture,cute little bird with a bright yellow belly nice picture,49,56,picture
+0_46_1,Where in Ecuador did you see these beauties?,where in ecuador did you see these beauties ,35,43,beauties
+0_47_1,Beautiful Yellow Color!,beautiful yellow color ,0,9,beautiful
+0_47_1,Beautiful Yellow Color!,beautiful yellow color ,10,16,yellow
+0_47_1,Beautiful Yellow Color!,beautiful yellow color ,17,22,color
+0_48_1,what a gorgeous creature!,what a gorgeous creature ,7,15,gorgeous
+0_48_1,what a gorgeous creature!,what a gorgeous creature ,16,24,creature
+0_49_1,So beautiful.,so beautiful ,3,12,beautiful
+0_49_2,What a great photo!!,what a great photo ,7,12,great
+0_49_2,What a great photo!!,what a great photo ,13,18,photo
+0_50_1,Mary Earles hello,mary earles hello,5,11,earles
+0_51_1,Looks like it should be a bird of Barbados.,looks like it should be a bird of barbados ,0,5,looks
+0_51_1,Looks like it should be a bird of Barbados.,looks like it should be a bird of barbados ,26,30,bird
+0_51_2,"Blue, yellow and black",blue yellow and black,5,11,yellow
+0_51_2,"Blue, yellow and black",blue yellow and black,16,21,black
+0_52_1,"When we lived on our farm in Idaho, Tanagers were frequent visitors.",when we lived on our farm in idaho tanagers were frequent visitors ,8,13,lived
+0_52_1,"When we lived on our farm in Idaho, Tanagers were frequent visitors.",when we lived on our farm in idaho tanagers were frequent visitors ,21,25,farm
+0_52_1,"When we lived on our farm in Idaho, Tanagers were frequent visitors.",when we lived on our farm in idaho tanagers were frequent visitors ,35,43,tanagers
+0_52_1,"When we lived on our farm in Idaho, Tanagers were frequent visitors.",when we lived on our farm in idaho tanagers were frequent visitors ,49,57,frequent
+0_52_1,"When we lived on our farm in Idaho, Tanagers were frequent visitors.",when we lived on our farm in idaho tanagers were frequent visitors ,58,66,visitors
+0_52_2,Always looked forward to their arrival.,always looked forward to their arrival ,7,13,looked
+0_52_2,Always looked forward to their arrival.,always looked forward to their arrival ,14,21,forward
+0_52_2,Always looked forward to their arrival.,always looked forward to their arrival ,31,38,arrival
+0_53_1,I TRULY LOVE birds!,i truly love birds ,2,7,truly
+0_53_1,I TRULY LOVE birds!,i truly love birds ,8,12,love
+0_53_1,I TRULY LOVE birds!,i truly love birds ,13,18,birds
+0_53_2,"I love their beautiful, colorful plumage and their songs, chattering, and calling and, I think most of all .",i love their beautiful colorful plumage and their songs chattering and calling and i think most of all ,2,6,love
+0_53_2,"I love their beautiful, colorful plumage and their songs, chattering, and calling and, I think most of all .",i love their beautiful colorful plumage and their songs chattering and calling and i think most of all ,13,22,beautiful
+0_53_2,"I love their beautiful, colorful plumage and their songs, chattering, and calling and, I think most of all .",i love their beautiful colorful plumage and their songs chattering and calling and i think most of all ,23,31,colorful
+0_53_2,"I love their beautiful, colorful plumage and their songs, chattering, and calling and, I think most of all .",i love their beautiful colorful plumage and their songs chattering and calling and i think most of all ,32,39,plumage
+0_53_2,"I love their beautiful, colorful plumage and their songs, chattering, and calling and, I think most of all .",i love their beautiful colorful plumage and their songs chattering and calling and i think most of all ,50,55,songs
+0_53_2,"I love their beautiful, colorful plumage and their songs, chattering, and calling and, I think most of all .",i love their beautiful colorful plumage and their songs chattering and calling and i think most of all ,56,66,chattering
+0_53_2,"I love their beautiful, colorful plumage and their songs, chattering, and calling and, I think most of all .",i love their beautiful colorful plumage and their songs chattering and calling and i think most of all ,71,78,calling
+0_53_2,"I love their beautiful, colorful plumage and their songs, chattering, and calling and, I think most of all .",i love their beautiful colorful plumage and their songs chattering and calling and i think most of all ,85,90,think
+0_53_5,their ability to FLY THE HELL AWAY!!,their ability to fly the hell away ,6,13,ability
+0_53_5,their ability to FLY THE HELL AWAY!!,their ability to fly the hell away ,17,20,fly
+0_53_5,their ability to FLY THE HELL AWAY!!,their ability to fly the hell away ,25,29,hell
+0_53_5,their ability to FLY THE HELL AWAY!!,their ability to fly the hell away ,30,34,away
+0_53_6,Something that I have desired to do - most of my life!,something that i have desired to do most of my life ,22,29,desired
+0_53_6,Something that I have desired to do - most of my life!,something that i have desired to do most of my life ,47,51,life
+0_54_1,How gorgeous are God's creatures?,how gorgeous are gods creatures ,4,12,gorgeous
+0_54_1,How gorgeous are God's creatures?,how gorgeous are gods creatures ,17,21,gods
+0_54_1,How gorgeous are God's creatures?,how gorgeous are gods creatures ,22,31,creatures
+0_55_1,i've seen the western tanager here in cali in the eastern sierras.,i have seen the western tanager here in cali in the eastern sierras ,7,11,seen
+0_55_1,i've seen the western tanager here in cali in the eastern sierras.,i have seen the western tanager here in cali in the eastern sierras ,16,23,western
+0_55_1,i've seen the western tanager here in cali in the eastern sierras.,i have seen the western tanager here in cali in the eastern sierras ,24,31,tanager
+0_55_2,another spectacular display of color.,another spectacular display of color ,8,19,spectacular
+0_55_2,another spectacular display of color.,another spectacular display of color ,20,27,display
+0_55_2,another spectacular display of color.,another spectacular display of color ,31,36,color
+0_56_1,So many  beautiful birds the colours are stunning,so many beautiful birds the colours are stunning,8,17,beautiful
+0_56_1,So many  beautiful birds the colours are stunning,so many beautiful birds the colours are stunning,18,23,birds
+0_56_1,So many  beautiful birds the colours are stunning,so many beautiful birds the colours are stunning,28,35,colours
+0_56_1,So many  beautiful birds the colours are stunning,so many beautiful birds the colours are stunning,40,48,stunning
+0_57_1,Beautiful bird!,beautiful bird ,0,9,beautiful
+0_57_1,Beautiful bird!,beautiful bird ,10,14,bird
+0_57_2,Looks like she ate too much and her belly is full.,looks like she ate too much and her belly is full ,0,5,looks
+0_57_2,Looks like she ate too much and her belly is full.,looks like she ate too much and her belly is full ,15,18,ate
+0_57_2,Looks like she ate too much and her belly is full.,looks like she ate too much and her belly is full ,36,41,belly
+0_58_1,maybe she's about to lay some eggs.,maybe she is about to lay some eggs ,0,5,maybe
+0_58_1,maybe she's about to lay some eggs.,maybe she is about to lay some eggs ,22,25,lay
+0_58_1,maybe she's about to lay some eggs.,maybe she is about to lay some eggs ,31,35,eggs
+0_59_1,"GOD sure makes beautiful animals, all shapes, all colors and never runs out of ideas.",god sure makes beautiful animals all shapes all colors and never runs out of ideas ,4,8,sure
+0_59_1,"GOD sure makes beautiful animals, all shapes, all colors and never runs out of ideas.",god sure makes beautiful animals all shapes all colors and never runs out of ideas ,9,14,makes
+0_59_1,"GOD sure makes beautiful animals, all shapes, all colors and never runs out of ideas.",god sure makes beautiful animals all shapes all colors and never runs out of ideas ,15,24,beautiful
+0_59_1,"GOD sure makes beautiful animals, all shapes, all colors and never runs out of ideas.",god sure makes beautiful animals all shapes all colors and never runs out of ideas ,25,32,animals
+0_59_1,"GOD sure makes beautiful animals, all shapes, all colors and never runs out of ideas.",god sure makes beautiful animals all shapes all colors and never runs out of ideas ,37,43,shapes
+0_59_1,"GOD sure makes beautiful animals, all shapes, all colors and never runs out of ideas.",god sure makes beautiful animals all shapes all colors and never runs out of ideas ,48,54,colors
+0_59_1,"GOD sure makes beautiful animals, all shapes, all colors and never runs out of ideas.",god sure makes beautiful animals all shapes all colors and never runs out of ideas ,65,69,runs
+0_59_1,"GOD sure makes beautiful animals, all shapes, all colors and never runs out of ideas.",god sure makes beautiful animals all shapes all colors and never runs out of ideas ,77,82,ideas
+0_59_2,Isn't HE Wonderful?,is not he wonderful ,10,19,wonderful
+0_60_1,Daniel Godwin...  Do you see  these Beautiful Birds where you live ?,daniel godwin do you see these beautiful birds where you live ,31,40,beautiful
+0_60_1,Daniel Godwin...  Do you see  these Beautiful Birds where you live ?,daniel godwin do you see these beautiful birds where you live ,41,46,birds
+0_60_1,Daniel Godwin...  Do you see  these Beautiful Birds where you live ?,daniel godwin do you see these beautiful birds where you live ,57,61,live
+0_61_1,Debbie Hale Mason I have seen some beauties there.,debbie hale mason i have seen some beauties there ,25,29,seen
+0_61_1,Debbie Hale Mason I have seen some beauties there.,debbie hale mason i have seen some beauties there ,35,43,beauties
+0_61_2,But I'm in the states now.,but i am in the states now ,16,22,states
+0_62_2,I had no idea ... lol,i had no idea lol,9,13,idea
+0_62_2,I had no idea ... lol,i had no idea lol,14,17,lol
+0_65_1,So gorgeous!,so gorgeous ,3,11,gorgeous
+0_67_1,Lovely birds......,lovely birds ,0,6,lovely
+0_67_1,Lovely birds......,lovely birds ,7,12,birds
+0_71_1,So beautiful .,so beautiful ,3,12,beautiful
+0_73_1,Beautiful picture,beautiful picture,0,9,beautiful
+0_73_1,Beautiful picture,beautiful picture,10,17,picture
+0_76_1,Beautiful colors.,beautiful colors ,0,9,beautiful
+0_76_1,Beautiful colors.,beautiful colors ,10,16,colors
+0_79_1,Very pretty bird,very pretty bird,5,11,pretty
+0_79_1,Very pretty bird,very pretty bird,12,16,bird
+0_81_1,Good heavens there’s lots of them - gorgeous,good heavens there is lots of them gorgeous,0,4,good
+0_81_1,Good heavens there’s lots of them - gorgeous,good heavens there is lots of them gorgeous,22,26,lots
+0_81_1,Good heavens there’s lots of them - gorgeous,good heavens there is lots of them gorgeous,35,43,gorgeous
+0_84_1,Kathryn Ricketts hello,kathryn ricketts hello,8,16,ricketts
+0_86_1,Beautiful birds,beautiful birds,0,9,beautiful
+0_86_1,Beautiful birds,beautiful birds,10,15,birds
+0_89_1,Splendid thanks good sunday friendships,splendid thanks good sunday friendships,0,8,splendid
+0_89_1,Splendid thanks good sunday friendships,splendid thanks good sunday friendships,9,15,thanks
+0_89_1,Splendid thanks good sunday friendships,splendid thanks good sunday friendships,16,20,good
+0_89_1,Splendid thanks good sunday friendships,splendid thanks good sunday friendships,28,39,friendships
+0_90_1,This is god creation wow so beautiful living thing lord thank you,this is god creation wow so beautiful living thing lord thank you,12,20,creation
+0_90_1,This is god creation wow so beautiful living thing lord thank you,this is god creation wow so beautiful living thing lord thank you,28,37,beautiful
+0_90_1,This is god creation wow so beautiful living thing lord thank you,this is god creation wow so beautiful living thing lord thank you,38,44,living
+0_90_1,This is god creation wow so beautiful living thing lord thank you,this is god creation wow so beautiful living thing lord thank you,45,50,thing
+0_90_1,This is god creation wow so beautiful living thing lord thank you,this is god creation wow so beautiful living thing lord thank you,56,61,thank
+0_92_2,Bila lah nak boleh pergi birding balik ni.,bila lah nak boleh pergi birding balik ni ,25,32,birding
+0_95_1,So very pretty!,so very pretty ,8,14,pretty
+0_98_1,Just BEAUTIFUL!!!,just beautiful ,5,14,beautiful
+0_100_1,Wow very beautiful,wow very beautiful,9,18,beautiful
+0_104_1,Beautiful bird..,beautiful bird ,0,9,beautiful
+0_104_1,Beautiful bird..,beautiful bird ,10,14,bird
+0_106_1,Cute birdie!,cute birdie ,0,4,cute
+0_110_1,Gorgeousness,gorgeousness,0,12,gorgeousness
+0_115_1,Beautiful  bird,beautiful bird,0,9,beautiful
+0_115_1,Beautiful  bird,beautiful bird,10,14,bird
+0_120_1,I love God's beautiful creation.,i love gods beautiful creation ,2,6,love
+0_120_1,I love God's beautiful creation.,i love gods beautiful creation ,7,11,gods
+0_120_1,I love God's beautiful creation.,i love gods beautiful creation ,12,21,beautiful
+0_120_1,I love God's beautiful creation.,i love gods beautiful creation ,22,30,creation
+0_127_1,So beautiful!,so beautiful ,3,12,beautiful
+0_128_1,Your a beautiful fatso!,your a beautiful fatso ,7,16,beautiful
+0_128_1,Your a beautiful fatso!,your a beautiful fatso ,17,22,fatso
+0_129_1,Hes so cute,hes so cute,2,3,s
+0_129_1,Hes so cute,hes so cute,7,11,cute
+0_132_1,Big and beautiful!,big and beautiful ,0,3,big
+0_132_1,Big and beautiful!,big and beautiful ,8,17,beautiful
+0_138_1,Os Beautiful,os beautiful,0,2,os
+0_138_1,Os Beautiful,os beautiful,3,12,beautiful
+0_139_1,So beautiful,so beautiful,3,12,beautiful
+0_143_1,Beautiful birds!,beautiful birds ,0,9,beautiful
+0_143_1,Beautiful birds!,beautiful birds ,10,15,birds
+0_153_1,So colorful,so colorful,3,11,colorful
+0_154_1,Beautiful colors,beautiful colors,0,9,beautiful
+0_154_1,Beautiful colors,beautiful colors,10,16,colors
+0_156_1,Beautiful bird,beautiful bird,0,9,beautiful
+0_156_1,Beautiful bird,beautiful bird,10,14,bird
+0_0_0,YouTube video of Tanagers in Ecuador: 22 species,youtube video of tanagers in ecuador 22 species,8,13,video
+0_0_0,YouTube video of Tanagers in Ecuador: 22 species,youtube video of tanagers in ecuador 22 species,17,25,tanagers
+0_0_0,YouTube video of Tanagers in Ecuador: 22 species,youtube video of tanagers in ecuador 22 species,40,47,species

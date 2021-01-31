@@ -12,8 +12,9 @@ wiki.simple
 features/
 results/
 wandb/
-data_files/data/*
-data_files/temp_data/*
+testing_data/data_files/data/*
+testing_data/data_files/temp_data/*
+json_files/
 
 # compiled output
 /dist
