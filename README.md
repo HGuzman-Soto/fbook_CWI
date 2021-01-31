@@ -59,11 +59,11 @@ Training data - Options are '-a' for all data, '-tn' for news data, 'tw' for wik
 
 The model - Options are '-rf' for random forest, '-ab' for adaboost, and '-cm' for adaboost and randomforest combined. You give it a 1 for that option.
 
-The name of the model - Denoted by '-mn', you type out what you want to call the model. </br>
+The name of the model - Denoted by '-mn', you type out what you want to call the model. 
 
 Output - A pickled model
 
-Example: python3 train_model -tn 1 -ab 1 -mn news_ada
+Example: python3 train_model -tn 1 -ab 1 -mn news_ada <br>
 Output: models/news_ada.sav
 
 ### 3. To use a model (run_model.py), these are the following instructions
@@ -76,11 +76,11 @@ OR - If you are using your own test data, you need to do '-t' followed by the na
 
 Name of model - From your models folder, type out the name of the model you want to use (not including .sav), using '-mn'
 
-Optionally - Predictions and evaluation scripts are ran automatically for shared task data. Though you may turned these off with a 0. The options are '-p' and '-e'. </br>
+Optionally - Predictions and evaluation scripts are ran automatically for shared task data. Though you may turned these off with a 0. The options are '-p' and '-e'. 
 
 Output - A csv file contaning all the outputs and features in results folder
 
-Example: python3 run_model -t my_data_file -mn news_ada
+Example: python3 run_model -t my_data_file -mn news_ada <br>
 Output - results/my_data_file_model_name\_\_results.csv
 
 ## Features
