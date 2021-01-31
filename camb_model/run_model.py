@@ -1,25 +1,11 @@
-from os import pipe
-from sklearn.naive_bayes import GaussianNB
 import scipy.stats as stats
 from sklearn.metrics import f1_score
 from sklearn.metrics import precision_score
 from sklearn.metrics import recall_score
 from sklearn.metrics import accuracy_score
-from sklearn.ensemble import AdaBoostClassifier
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.ensemble import VotingClassifier
-from sklearn.pipeline import FeatureUnion
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.base import BaseEstimator, TransformerMixin
-import matplotlib.pyplot as plt
-import string
 import numpy as np
 import argparse
 import pandas as pd
-import sys
 import pickle
 import wandb
 from wandb.keras import WandbCallback
@@ -107,9 +93,10 @@ if __name__ == "__main__":
     parser.add_argument('--wikipedia', '-w', type=int, default=0)
     parser.add_argument('--wikinews', '-i', type=int, default=0)
     parser.add_argument('--news', '-n', type=int, default=0)
-    parser.add_argument('--test', '-t', type=str, default=None)
-    parser.add_argument('--predict', '-p', type=int, default=0)
-    parser.add_argument('--evaluation', '-e', type=int, default=0)
+    parser.add_argument(
+        '--test', '-t', help="name of test file", type=str, default=None)
+    parser.add_argument('--predict', '-p', type=int, default=1)
+    parser.add_argument('--evaluation', '-e', type=int, default=1)
     parser.add_argument('--model_name', '-mn', type=str, default=None)
 
     args = parser.parse_args()

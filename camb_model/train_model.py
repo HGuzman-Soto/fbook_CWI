@@ -334,7 +334,8 @@ def plot_results(model, X_train, X_test, y_train, y_test, y_pred, y_probas, labe
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run feature extraction')
-    parser.add_argument('--wandb', '-wb', type=int, default=0)
+    parser.add_argument('--wandb', '-wb', help="Run Wandb",
+                        type=int, default=0)
     parser.add_argument('--all', '-a', type=int, default=0)
     parser.add_argument('--train_wikipedia', '-tw', type=int, default=0)
     parser.add_argument('--train_wikinews', '-ti', type=int, default=0)
@@ -342,12 +343,14 @@ if __name__ == "__main__":
     parser.add_argument('--random_forest', '-rf', type=int, default=0)
     parser.add_argument('--ada_boost', '-ab', type=int, default=0)
     parser.add_argument('--combine_models', '-cm', type=int, default=0)
-    parser.add_argument('--model_name', '-mn', type=str, default=None)
+    parser.add_argument(
+        '--model_name', help="The name of the model" '-mn', type=str, default=None)
 
     train_frames = []
     test_frames = []
     train_names = []
     args = parser.parse_args()
+
     if (args.all == 1):
         train_names = ['wikipedia_train', 'wikinews_train', 'news_train']
         wikipedia_training_data = pd.read_pickle(
