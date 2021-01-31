@@ -23,7 +23,7 @@ import sys
 import pickle
 import wandb
 from wandb.keras import WandbCallback
-from model import TextSelector, NumberSelector
+from train_model import TextSelector, NumberSelector
 
 
 def main():
@@ -125,8 +125,10 @@ def get_results(name, array):
 
 ##########################################################################################################
 def get_outputs(name, data):
+    loaded_model = pickle.load(
+        open("models/" + args.model_name + ".sav", 'rb'))
 
-    predictions = pipeline.predict(data)
+    predictions = loaded_model.predict(data)
     df = pd.DataFrame(data=data)
     df = df.drop(columns=['parse', 'count', 'split', 'original word'])
     df['output'] = predictions
@@ -200,7 +202,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if (args.wikipedia == 1):
-        test_name = ["wikipedia_test"]
+        test_name = "wikipedia_test"
         wikipedia_test_data = pd.read_pickle('features/Wikipedia_Test_allInfo')
         wikipedia_training_data = pd.read_pickle(
             'features/Wikipedia_Train_allInfo')
@@ -209,7 +211,7 @@ if __name__ == "__main__":
         test_frames = [wikipedia_test_data]
 
     if (args.wikinews == 1):
-        test_name = ["wikinews_test"]
+        test_name = "wikinews_test"
         wiki_test_data = pd.read_pickle('features/WikiNews_Test_allInfo')
         wiki_training_data = pd.read_pickle('features/WikiNews_Train_allInfo')
         wiki_test_data.name = 'WikiNews'
@@ -217,15 +219,15 @@ if __name__ == "__main__":
         test_frames = [wiki_test_data]
 
     if (args.news == 1):
-        test_name = ['news_test']
+        test_name = 'news_test'
         news_test_data = pd.read_pickle('features/News_Test_allInfo')
         news_training_data = pd.read_pickle('features/News_Test_allInfo')
         news_test_data.name = 'News'
         news_training_data.name = 'News'
         test_frames = [news_test_data]
 
-    elif (len(args.test) > 0):
-        test_name = ["test"]
+    elif(args.test):
+        test_name = args.test
         testing_data = pd.read_pickle('features/' + args.test + '_allInfo')
         testing_data.name = 'testing'
         test_frames = [testing_data]
@@ -237,7 +239,7 @@ if __name__ == "__main__":
     if (args.test):
         get_outputs(args.test, total_test)
     else:
-        apply_algorithm(str(test_name) + "_" + args.model_name, [total_test])
+        apply_algorithm(test_name + "_" + args.model_name, [total_test])
 
     if args.wandb == 1:
         wandB()

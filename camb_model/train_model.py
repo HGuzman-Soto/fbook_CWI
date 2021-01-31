@@ -211,15 +211,15 @@ def feature_extraction():
         ('freq', frequency),
         ('subimdb', subimdb),
         ('cald', cald),
-        # ('aoa', aoa),
-        # ('cnc', conc),
-        # ('fam', fam),
-        # ('img', img),
-        # ('KFCAT', KFCAT),
-        # ('KFSMP', KFSMP),
-        # ('KFFRQ', KFFRQ),
-        # ('NPHN', NPHN),
-        # ('TLFRQ', TLFRQ)
+        ('aoa', aoa),
+        ('cnc', conc),
+        ('fam', fam),
+        ('img', img),
+        ('KFCAT', KFCAT),
+        ('KFSMP', KFSMP),
+        ('KFFRQ', KFFRQ),
+        ('NPHN', NPHN),
+        ('TLFRQ', TLFRQ)
     ])
     return feats
 
