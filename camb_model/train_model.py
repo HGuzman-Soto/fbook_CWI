@@ -24,6 +24,7 @@ import numpy as np
 import argparse
 import pandas as pd
 import sys
+import wandb
 import pickle
 
 
@@ -42,6 +43,18 @@ def main():
     model = train_model(training_data, feats)
     pickle_model(model)
 
+    if args.wandb == 1:
+        test_name = "wikipedia_test"
+        wikipedia_test_data = pd.read_pickle('features/Wikipedia_Test_allInfo')
+        wikipedia_training_data = pd.read_pickle(
+            'features/Wikipedia_Train_allInfo')
+        wikipedia_test_data.name = 'Wikipedia'
+        wikipedia_training_data.name = 'Wikipedia'
+        test_frames = [wikipedia_test_data]
+
+        total_test = pd.concat(test_frames)
+        total_test.fillna(0.0, inplace=True)
+        wandB(model, total_test)
 
 ##########################################################################################################
 
@@ -222,6 +235,7 @@ def feature_extraction():
         ('TLFRQ', TLFRQ)
     ])
     return feats
+##########################################################################################################
 
 
 def train_model(training_data, feats):
@@ -261,9 +275,61 @@ def train_model(training_data, feats):
     pipeline = models[-1]
     return pipeline
 
+##########################################################################################################
+
 
 def pickle_model(model):
     pickle.dump(model, open("models/" + args.model_name + ".sav", 'wb'))
+
+##########################################################################################################
+
+
+def wandB(model, total_test):
+    wandb.init(project="fbook_CWI")
+    y_data = total_test
+
+    y_test = y_data['complex_binary'].values
+    y_pred = model.predict(y_data)
+    y_probas = model.predict_proba(y_data)
+
+    vectorizer = CountVectorizer()
+    words_test = vectorizer.fit_transform(y_data['word'])
+
+    y_data['word'] = pd.DataFrame(
+        words_test.toarray(), columns=vectorizer.get_feature_names())
+
+    X_test = y_data.drop(columns=['complex_binary', 'parse', 'count', 'split', 'original word',
+                                  'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_probabilistic', 'sentence', 'ID', 'clean sentence', 'start_index', 'end_index',  'pos', 'lemma'])
+
+    train = total_training
+    words_train = vectorizer.fit_transform(train['word'])
+    train['word'] = pd.DataFrame(
+        words_train.toarray(), columns=vectorizer.get_feature_names())
+    y_train = train['complex_binary'].values
+    X_train = train.drop(columns=['complex_binary', 'parse', 'count', 'split', 'original word',
+                                  'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_probabilistic', 'sentence', 'ID', 'clean sentence', 'start_index', 'end_index', 'pos', 'lemma'])
+
+    feature_names = X_train.values
+
+    labels = ['non_complex', 'complex']
+
+    plot_results(model, X_train, X_test, y_train, y_test, y_pred,
+                 y_probas, labels, str(model), feature_names)
+
+
+##########################################################################################################
+
+def plot_results(model, X_train, X_test, y_train, y_test, y_pred, y_probas, labels, model_name, feature_names):
+    wandb.sklearn.plot_classifier(model,
+                                  X_train, X_test,
+                                  y_train, y_test,
+                                  y_pred, y_probas,
+                                  labels,
+                                  False,
+                                  model_name,
+                                  feature_names)
+
+##########################################################################################################
 
 
 if __name__ == "__main__":
