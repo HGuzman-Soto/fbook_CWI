@@ -58,5 +58,5 @@ if __name__ == "__main__":
 
     elif (len(args.test) > 0):
         testing_data = pd.read_pickle('features/' + args.test + '_allInfo')
-        testing_data.name = 'testing'
-        test_df = get_features(testing_data, "test")
+        testing_data.name = args.test
+        test_df = get_features(testing_data, args.test)
