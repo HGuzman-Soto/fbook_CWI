@@ -44,7 +44,7 @@ ex: python3 run.py
 
 ## Instructions for Camb_model
 
-Make sure to unzip the features.zip file
+Make sure to unzip the features.zip and results.zip file
 
 ### 1. Run feature_extracton.py on the test set with the following argument:
 
