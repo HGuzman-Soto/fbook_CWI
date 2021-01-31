@@ -15,6 +15,7 @@ wandb/
 data/
 temp_data/
 json_files/
+models/
 
 # compiled output
 /dist
