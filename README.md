@@ -11,15 +11,19 @@ Currently a work in progress
 
 ## Instructions For testing data
 
-### 1. Run unpack_json.py to unpack json object into proper data format (text, id)
+### 1. Run python3 unpack_json.py to unpack json object into proper data format (text, id)
 
-Note: you can either <br> 1. manually place the json file in the directory and run unpack_json.py <br> 2. or run unpack_json.py with --j command to automatically retrieve the last
+Note: you can either <br> 1. manually place the json file in the directory and run unpack_json.py <br> 2. or run unpack_json.py with -j command to automatically retrieve the last
 downloaded json file from the scraper
+
+ex: python3 unpack_json.py -j 1 
 
 ### 2. Next, run.py
 
 This will run preprocessing on the text and extract content words using POS tagging and NER.
 It will also attach the starting and ending indexes of each content word
+
+ex: python3 run.py
 
 ### Columns are identified as such:
 
@@ -40,13 +44,11 @@ It will also attach the starting and ending indexes of each content word
 
 ## Instructions for Camb_model
 
-### 1. (WIP) (optional for testing data) Run get_testing_data.py to copy data.csv folder to camb directory
+### 1. Run feature_extracton.py on the test set with the following argument:
 
-For now, you need to manually drag a data\_{number}.csv folder to the camb directory
+python3 feature_extraction.py -t {name of data file}
 
-### 2. Run feature_extracton.py on the test set with the following argument:
-
-example: python3 feature_extraction.py -t data_1
+ex: python3 feature_extraction.py -t data_1
 
 ### 3. Run model.py with the following arguements:
 
@@ -61,7 +63,7 @@ example: python3 feature_extraction.py -t data_1
 
 #### Testing options:
 
-- n = test news, w = test wikipedia, i = test wikinews, t = test testing data
+- n = test news, w = test wikipedia, i = test wikinews, t = test testing data {name of data file}
 
 Example: python3 model.py -a 1 -t data_1 -ab 1
 
@@ -71,9 +73,6 @@ Example: python3 model.py -a 1 -t data_1 -ab 1
 
 - testing_data - Process and format data for input to CAMB model
 
-#### Possible errors
-
-You may have to do: python -m spacy download en_core_web_sm
 
 ### Maintainers
 
