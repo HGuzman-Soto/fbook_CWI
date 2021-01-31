@@ -3,14 +3,6 @@
 Developed as a part of Dr. Yudong Liu research lab (https://cs.wwu.edu/liuy2) </br>
 Currently a work in progress
 
-## Installation
-
-1. Run pip3 install -r requirements.txt to get all packages\
-
-# Facebook Complex Word Identification
-
-Developed as a part of Dr. Yudong Liu research lab (https://cs.wwu.edu/liuy2) </br>
-Currently a work in progress
 
 ## Installation
 
