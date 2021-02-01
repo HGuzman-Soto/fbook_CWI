@@ -240,49 +240,49 @@ def feature_extraction():
 
 def grid_search(training_data, feats, model_type):
     if(model_type == "rf"):
-        '''
-        Grid Search Implementation
-        '''
-        # grid = {'classifier__n_estimators': [int(x) for x in np.linspace(start = 200, stop = 2000, num = 10)],
-        #             'classifier__max_features': ['auto', 'sqrt'],
-        #             'classifier__max_depth': ([int(x) for x in np.linspace(10, 110, num = 11)]),
-        #             'classifier__min_samples_split': [2, 5, 10],
-        #             'classifier__min_samples_leaf': [1, 2, 4],
-        #             'classifier__bootstrap': [True, False]
-        #             }
-
-        #smaller param set for testing 
-        grid = {'classifier__n_estimators': [int(x) for x in np.linspace(start = 1000, stop = 2000, num = 2)],
+        grid = {'classifier__n_estimators': [int(x) for x in np.linspace(start = 200, stop = 2000, num = 10)],
                     'classifier__max_features': ['auto', 'sqrt'],
-                    'classifier__max_depth': ([int(x) for x in np.linspace(10, 110, num = 1)]),
+                    'classifier__max_depth': ([int(x) for x in np.linspace(10, 110, num = 11)]),
                     'classifier__min_samples_split': [2, 5, 10],
                     'classifier__min_samples_leaf': [1, 2, 4],
                     'classifier__bootstrap': [True, False]
                     }
         
-        rf = RandomForestClassifier()
+        model = RandomForestClassifier()
 
-        pipeline_rf = Pipeline([
+    if model_type == "ab":
+        grid = {'classifier__n_estimators':[int(x) for x in np.linspace(start = 500, stop = 5000, num = 10)],
+                'classifier__learning_rate':[float(x) for x in np.linspace(start = 0.05, stop = 0.1, num = 10)]}
+        
+        model = AdaBoostClassifier()
+
+
+    pipeline = Pipeline([
             ('features', feats),
-            ('classifier', rf),
-        ])
+            ('classifier', model),
+            ])
 
-        grid_search = GridSearchCV(estimator = pipeline_rf, param_grid = grid, cv = 3, n_jobs = -1, verbose = 2)
+    grid_search = GridSearchCV(estimator = pipeline, param_grid = grid, cv = 3, n_jobs = -1, verbose = 2)
 
-        grid_search.fit(training_data, train_targets)
+    grid_search.fit(training_data, train_targets)
 
-        print('/n',grid_search.best_params_)
-
-        return grid_search.best_params_
-
+    #format param keys for non-search use
+    old = grid_search.best_params_
+    params = dict(zip([k[12:] for k in old.keys()], list(old.values())))
+    print(params)
+    return params
 
 def train_model(training_data, feats):
 
     models = []
 
-    if (args.ada_boost or args.combine_models):
+    if (args.ada_boost == 1 or args.combine_models == 1):
+        
+        if(args.grid_search == 1):
+            model = AdaBoostClassifier(**grid_search(training_data, feats, "ab"))
+        else:
+            model = AdaBoostClassifier(n_estimators=5000, random_state=67)
 
-        model = AdaBoostClassifier(n_estimators=5000, random_state=67)
         pipeline = Pipeline([
             ('features', feats),
             ('classifier', model),
@@ -291,10 +291,10 @@ def train_model(training_data, feats):
 
         models.append(pipeline)
 
-    if (args.random_forest or args.combine_models):
+    if (args.random_forest == 1 or args.combine_models == 1):
 
-        if(args.grid_search):
-            model = RandomForestClassifier(grid_search(training_data, feats, 'rf'))
+        if(args.grid_search == 1):
+            model = RandomForestClassifier(**grid_search(training_data, feats, "rf"))
         else:
             model = RandomForestClassifier(n_estimators=1000)
 
@@ -302,12 +302,11 @@ def train_model(training_data, feats):
             ('features', feats),
             ('classifier', model)
         ])
-
         pipeline_rf.fit(training_data, train_targets)
 
         models.append(pipeline_rf)
 
-    if (args.combine_models):
+    if (args.combine_models == 1):
 
         estimators = [('rf', models[1]), ('ada', models[0])]
         ensemble = VotingClassifier(estimators, voting='hard')
@@ -316,6 +315,7 @@ def train_model(training_data, feats):
         models.append(model)
 
     pipeline = models[-1]
+    return pipeline
 
 ##########################################################################################################
 
