@@ -13,6 +13,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import VotingClassifier
 from sklearn.pipeline import FeatureUnion
 from sklearn.pipeline import Pipeline
+from sklearn.model_selection import GridSearchCV
 from sklearn.preprocessing import StandardScaler
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_extraction.text import CountVectorizer
@@ -241,6 +242,44 @@ def feature_extraction():
 def train_model(training_data, feats):
 
     models = []
+
+    '''
+Grid Search Implementation
+'''
+if (args.grid_search == 1):
+
+    # grid = {'classifier__n_estimators': [int(x) for x in np.linspace(start = 200, stop = 2000, num = 10)],
+    #             'classifier__max_features': ['auto', 'sqrt'],
+    #             'classifier__max_depth': ([int(x) for x in np.linspace(10, 110, num = 11)]),
+    #             'classifier__min_samples_split': [2, 5, 10],
+    #             'classifier__min_samples_leaf': [1, 2, 4],
+    #             'classifier__bootstrap': [True, False]
+    #             }
+
+    grid = {'classifier__n_estimators': [int(x) for x in np.linspace(start = 1000, stop = 2000, num = 2)],
+                'classifier__max_features': ['auto', 'sqrt'],
+                'classifier__max_depth': ([int(x) for x in np.linspace(10, 110, num = 11)]),
+                'classifier__min_samples_split': [2, 5, 10],
+                'classifier__min_samples_leaf': [1, 2, 4],
+                'classifier__bootstrap': [True, False]
+                }
+    
+    rf = RandomForestClassifier()
+
+    pipeline_rf = Pipeline([
+        ('features', feats),
+        ('classifier', rf),
+    ])
+
+    grid_search = GridSearchCV(estimator = pipeline_rf, param_grid = grid, cv = 3, n_jobs = -1, verbose = 2)
+
+    grid_search.fit(training_data, train_targets)
+
+    print(grid_search.best_params_)
+
+    new_grid = grid_search.best_params_
+
+    models.append(grid_search)
 
     if (args.ada_boost == 1 or args.combine_models == 1):
 
