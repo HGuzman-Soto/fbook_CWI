@@ -240,9 +240,9 @@ def feature_extraction():
 
 def grid_search(training_data, feats, model_type):
     if(model_type == "rf"):
-        grid = {'classifier__n_estimators': [int(x) for x in np.linspace(start = 200, stop = 2000, num = 10)],
+        grid = {'classifier__n_estimators': [int(x) for x in np.linspace(start = 2000, stop = 10000, num = 5)],
                     'classifier__max_features': ['auto', 'sqrt'],
-                    'classifier__max_depth': ([int(x) for x in np.linspace(10, 110, num = 11)]),
+                    'classifier__max_depth': ([int(x) for x in np.linspace(10, 110, num = 5)]),
                     'classifier__min_samples_split': [2, 5, 10],
                     'classifier__min_samples_leaf': [1, 2, 4],
                     'classifier__bootstrap': [True, False]
@@ -251,7 +251,7 @@ def grid_search(training_data, feats, model_type):
         model = RandomForestClassifier()
 
     if model_type == "ab":
-        grid = {'classifier__n_estimators':[int(x) for x in np.linspace(start = 500, stop = 5000, num = 11)],
+        grid = {'classifier__n_estimators':[int(x) for x in np.linspace(start = 2000, stop = 20000, num = 11)],
                 'classifier__learning_rate':[float(x) for x in np.linspace(start = 0.01, stop = 0.1, num = 10)]}
         
         model = AdaBoostClassifier()
@@ -259,8 +259,7 @@ def grid_search(training_data, feats, model_type):
 
     pipeline = Pipeline([
             ('features', feats),
-            ('classifier', model),
-            ])
+            ('classifier', model)])
 
     grid_search = GridSearchCV(estimator = pipeline, param_grid = grid, cv = 3, n_jobs = -1, verbose = 2)
 
@@ -269,7 +268,8 @@ def grid_search(training_data, feats, model_type):
     #format param keys for non-search use
     old = grid_search.best_params_
     params = dict(zip([k[12:] for k in old.keys()], list(old.values())))
-    [print(p) for p in params]
+    print("OPTIMAL HYPERPARAMETERS:")
+    [print(p) for p in params.items()]
     return params
 
 ##########################################################################################################
