@@ -247,12 +247,12 @@ def grid_search(training_data, feats, model_type):
                     'classifier__min_samples_leaf': [1, 2, 4],
                     'classifier__bootstrap': [True, False]
                     }
-        
+
         model = RandomForestClassifier()
 
     if model_type == "ab":
-        grid = {'classifier__n_estimators':[int(x) for x in np.linspace(start = 500, stop = 5000, num = 10)],
-                'classifier__learning_rate':[float(x) for x in np.linspace(start = 0.05, stop = 0.1, num = 10)]}
+        grid = {'classifier__n_estimators':[int(x) for x in np.linspace(start = 500, stop = 5000, num = 11)],
+                'classifier__learning_rate':[float(x) for x in np.linspace(start = 0.01, stop = 0.1, num = 10)]}
         
         model = AdaBoostClassifier()
 
@@ -269,8 +269,10 @@ def grid_search(training_data, feats, model_type):
     #format param keys for non-search use
     old = grid_search.best_params_
     params = dict(zip([k[12:] for k in old.keys()], list(old.values())))
-    print(params)
+    [print(p) for p in params]
     return params
+
+##########################################################################################################
 
 def train_model(training_data, feats):
 
@@ -387,7 +389,7 @@ if __name__ == "__main__":
     parser.add_argument('--combine_models', '-cm', type=int, default=0)
     parser.add_argument('--grid_search', '-gs', type=int, default=0)
     parser.add_argument(
-        '--model_name', help="The name of the model" '-mn', type=str, default=None)
+        '--model_name', '-mn', type=str, default=None)
 
     train_frames = []
     test_frames = []
