@@ -6,29 +6,27 @@ import argparse
 from sklearn.preprocessing import MinMaxScaler
 
 
-def main(df):
-    correct_df = get_correct_words(df)
-    wrong_df = get_wrong_words(df)
+def main(df_list):
+    name = ["all_data", "correct_outputs", "wrong_outputs"]
+    i = 0
+    for df in df_list:
 
-    if(args.plot == 'dist'):
-        dist_plot(df, "all_data", x_var, y_var)
-        dist_plot(correct_df, "correct_outputs", x_var, y_var)
-        dist_plot(wrong_df, "wrong_outputs", x_var, y_var)
+        if(args.plot == 'dist'):
+            dist_plot(df, name[i], x_var, y_var)
 
-    if (args.plot == 'scatter'):
-        scatter_plot(df, "all_data", x_var, y_var)
-        scatter_plot(correct_df, "correct_outputs", x_var, y_var)
-        scatter_plot(wrong_df, "wrong_outputs", x_var, y_var)
+        if (args.plot == 'scatter'):
+            scatter_plot(df, name[i], x_var, y_var)
 
-    if (args.plot == 'box'):
-        boxplot(df, "all_data", x_var, y_var)
-        boxplot(correct_df, "correct_output", x_var, y_var)
-        boxplot(wrong_df, "wrong_outputs", x_var, y_var)
+        if (args.plot == 'box'):
+            boxplot(df, name[i], x_var, y_var)
 
-    if (args.plot == "violin"):
-        violin(df, "all_data", x_var, y_var)
-        violin(correct_df, "correct_outputs", x_var, y_var)
-        violin(wrong_df, "wrong_outputs", x_var, y_var)
+        if (args.plot == "violin"):
+            violin(df, name[i], x_var, y_var)
+
+        if (args.plot == "cluster"):
+            cluster(df, name[i])
+
+        i += 1
 
     plt.show()
 
@@ -93,6 +91,13 @@ def violin(df, name, x_var, y_var):
 
 
 ##########################################################################################################
+def cluster(df, name):
+    df_features = df.drop(
+        ['pos', 'lemma', 'word', 'sentence', "ID", "clean sentence", "start_index", "end_index"], axis=1)
+    sns.clustermap(df_features)
+    plt.show()
+
+##########################################################################################################
 
 
 def parse_args():
@@ -120,4 +125,11 @@ if __name__ == "__main__":
     y_var = args.y_var
 
     df = pd.read_csv("results/" + data_name + ".csv")
-    main(df)
+    try:
+        correct_df = get_correct_words(df)
+        wrong_df = get_wrong_words(df)
+        df_list = [df, correct_df, wrong_df]
+    except:
+        df_list = [df]
+
+    main(df_list)
