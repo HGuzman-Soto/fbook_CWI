@@ -67,21 +67,23 @@ def predict(name, model, array):
 
         data = x
         predictions = model.predict(data)
+        probabilities = model.predict_proba(data)[:, 1]
         df = pd.DataFrame(data=data)
 
         """
         Messy code down here
         """
-        if (args.test):
-            df = df.drop(columns=['parse', 'count', 'split', 'original word'])
-        else:
-            df = df.drop(columns=['parse', 'count', 'split', 'original word',
-                                  'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_probabilistic'])
+
+        df = df.drop(columns=['parse', 'count', 'split', 'original word'])
 
         df['output'] = predictions
-        predict_df = df['output']
-        df.drop(labels=['output'], axis=1, inplace=True)
+        df['probability'] = probabilities
+
+        predict_df, probab_df = df['output'], df['probability']
+        df.drop(labels=['output', 'probability'], axis=1, inplace=True)
         df.insert(7, 'output', predict_df)
+        df.insert(8, 'probability', probab_df)
+
         df.to_csv("results/" + name + "_results.csv", index=False)
 
         print("results outputted in results folder", "\n")
