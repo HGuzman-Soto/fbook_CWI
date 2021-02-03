@@ -15,13 +15,17 @@ def heat_map():
     # independent columns
     X = data.iloc[:, 9:31]
     print(X.describe())
+
+    f, ax = plt.subplots(figsize=(18, 18))
+
     y = data['complex_binary']
     # get correlations of each features in dataset
     corrmat = X.corr()
     top_corr_features = corrmat.index
     plt.figure(figsize=(20, 20))
     # plot heat map
-    g = sns.heatmap(data[top_corr_features].corr(), annot=True, cmap="RdYlGn")
+    g = sns.heatmap(data[top_corr_features].corr(),
+                    linewidths=.5, annot=True, fmt='.1f', cmap="RdYlGn")
 
     plt.show()
 
@@ -52,4 +56,19 @@ def chi_square():
     print(featureScores.nlargest(10, 'Score'))  # print 10 best features
 
 
+def matrix_plot(data):
+    outputs = data['output']
+    data = data.iloc[:, 7:15]
+    print(data.describe)
+    sns.set_theme(style="ticks")
+
+    # df = sns.load_dataset("penguins")
+    sns.pairplot(data, hue="output")
+    plt.show()
+
+
 chi_square()
+
+
+heat_map()
+matrix_plot(data)
