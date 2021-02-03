@@ -24,8 +24,6 @@ def heat_map(df):
     # independent columns
     X = df.iloc[:, 6:31]
 
-    f, ax = plt.subplots(figsize=(18, 18))
-
     y = df['complex_binary']
     # get correlations of each features in dataset
     corrmat = X.corr()
@@ -33,7 +31,7 @@ def heat_map(df):
     plt.figure(figsize=(20, 20))
     # plot heat map
     sns.heatmap(df[top_corr_features].corr(),
-                linewidths=.5, annot=True, fmt='.1f', cmap="RdYlGn")
+                linewidths=.5, annot=True, fmt='.2f', cmap="RdYlGn")
 
     plt.show()
 
@@ -76,13 +74,16 @@ Make like 5-7 matrix plot
 """
 
 
-def matrix_plot(data):
-    outputs = data['output']
-    data = data.iloc[:, 7:15]
+def matrix_plot(df):
+    outputs = df['output']
+    print(type(args.matrix_2))
+    subset_df = df[[args.matrix_1, args.matrix_2,
+                    args.matrix_3, args.matrix_4, args.matrix_5]]
+    subset_df['output'] = outputs
     sns.set_theme(style="ticks")
 
     # df = sns.load_dataset("penguins")
-    sns.pairplot(data, hue="output")
+    sns.pairplot(subset_df, hue="output")
     plt.show()
 ##########################################################################################################
 
@@ -90,7 +91,13 @@ def matrix_plot(data):
 def parse_args():
     parser = argparse.ArgumentParser(description='Plot data')
     parser.add_argument('data', type=str, default=None)
-    parser.add_argument('option',  type=str, default=None)
+    parser.add_argument('option', type=str, default=None)
+    parser.add_argument('-matrix_1', "-1",  type=str, default=None)
+    parser.add_argument('-matrix_2', "-2",  type=str, default=None)
+    parser.add_argument('-matrix_3', "-3", type=str, default=None)
+    parser.add_argument('-matrix_4', "-4", type=str, default=None)
+    parser.add_argument('-matrix_5', "-5",  type=str, default=None)
+
     args = parser.parse_args()
     return args
 ##########################################################################################################
