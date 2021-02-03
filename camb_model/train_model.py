@@ -13,6 +13,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import VotingClassifier
 from sklearn.pipeline import FeatureUnion
 from sklearn.pipeline import Pipeline
+from sklearn.model_selection import GridSearchCV
 from sklearn.preprocessing import StandardScaler
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_extraction.text import CountVectorizer
@@ -237,14 +238,53 @@ def feature_extraction():
     return feats
 ##########################################################################################################
 
+def grid_search(training_data, feats, model_type):
+    if(model_type == "rf"):
+        grid = {'classifier__n_estimators': [int(x) for x in np.linspace(start = 2000, stop = 10000, num = 5)],
+                    'classifier__max_features': ['auto', 'sqrt'],
+                    'classifier__max_depth': ([int(x) for x in np.linspace(10, 110, num = 5)]),
+                    'classifier__min_samples_split': [2, 5, 10],
+                    'classifier__min_samples_leaf': [1, 2, 4],
+                    'classifier__bootstrap': [True, False]
+                    }
+
+        model = RandomForestClassifier()
+
+    if model_type == "ab":
+        grid = {'classifier__n_estimators':[int(x) for x in np.linspace(start = 2000, stop = 20000, num = 11)],
+                'classifier__learning_rate':[float(x) for x in np.linspace(start = 0.01, stop = 0.1, num = 10)]}
+        
+        model = AdaBoostClassifier()
+
+
+    pipeline = Pipeline([
+            ('features', feats),
+            ('classifier', model)])
+
+    grid_search = GridSearchCV(estimator = pipeline, param_grid = grid, cv = 3, n_jobs = -1, verbose = 2)
+
+    grid_search.fit(training_data, train_targets)
+
+    #format param keys for non-search use
+    old = grid_search.best_params_
+    params = dict(zip([k[12:] for k in old.keys()], list(old.values())))
+    print("OPTIMAL HYPERPARAMETERS:")
+    [print(p) for p in params.items()]
+    return params
+
+##########################################################################################################
 
 def train_model(training_data, feats):
 
     models = []
 
     if (args.ada_boost == 1 or args.combine_models == 1):
+        
+        if(args.grid_search == 1):
+            model = AdaBoostClassifier(**grid_search(training_data, feats, "ab"))
+        else:
+            model = AdaBoostClassifier(n_estimators=5000, random_state=67)
 
-        model = AdaBoostClassifier(n_estimators=5000, random_state=67)
         pipeline = Pipeline([
             ('features', feats),
             ('classifier', model),
@@ -255,7 +295,11 @@ def train_model(training_data, feats):
 
     if (args.random_forest == 1 or args.combine_models == 1):
 
-        model = RandomForestClassifier(n_estimators=1000)
+        if(args.grid_search == 1):
+            model = RandomForestClassifier(**grid_search(training_data, feats, "rf"))
+        else:
+            model = RandomForestClassifier(n_estimators=1000)
+
         pipeline_rf = Pipeline([
             ('features', feats),
             ('classifier', model)
@@ -343,8 +387,9 @@ if __name__ == "__main__":
     parser.add_argument('--random_forest', '-rf', type=int, default=0)
     parser.add_argument('--ada_boost', '-ab', type=int, default=0)
     parser.add_argument('--combine_models', '-cm', type=int, default=0)
+    parser.add_argument('--grid_search', '-gs', type=int, default=0)
     parser.add_argument(
-        '--model_name', help="The name of the model" '-mn', type=str, default=None)
+        '--model_name', '-mn', type=str, default=None)
 
     train_frames = []
     test_frames = []
