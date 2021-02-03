@@ -261,7 +261,7 @@ def grid_search(training_data, feats, model_type):
             ('features', feats),
             ('classifier', model)])
 
-    grid_search = GridSearchCV(estimator = pipeline, param_grid = grid, cv = 3, n_jobs = -1, verbose = 2)
+    grid_search = GridSearchCV(estimator = pipeline, param_grid = grid, cv = 3, verbose = 2)
 
     grid_search.fit(training_data, train_targets)
 
