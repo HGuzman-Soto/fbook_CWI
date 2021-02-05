@@ -11,8 +11,11 @@ def main(df_list):
     i = 0
     for df in df_list:
 
-        if(args.plot == 'dist'):
-            dist_plot(df, name[i], x_var, y_var)
+        if (args.plot == 'kde'):
+            kde_plot(df, name[i], x_var)
+
+        if(args.plot == 'hist'):
+            hist_plot(df, name[i], x_var, y_var)
 
         if (args.plot == 'scatter'):
             scatter_plot(df, name[i], x_var, y_var)
@@ -54,19 +57,28 @@ def get_wrong_words(df):
 ##########################################################################################################
 
 
-def dist_plot(df, name, x_var, y_var):
+def kde_plot(df, name, x_var):
+    # scale = MinMaxScaler().fit(df[[x_var]])
+    # df[x_var] = scale.transform(df[[x_var]])
+    sns.histplot(df, x=x_var, hue="complex_binary", kde=True, element="step")
+    plt.title(name)
+    plt.show()
+
+
+def hist_plot(df, name, x_var, y_var):
     # scale = MinMaxScaler().fit(df[[x_var]])
     # df[x_var] = scale.transform(df[[x_var]])
 
-    sns.displot(df, x=x_var, hue=y_var, multiple="stack")
+    sns.histplot(df, x=x_var, hue="complex_binary", element="step")
     # plt.ylabel('normalized count')
     plt.title(name)
+    plt.show()
 
 ##########################################################################################################
 
 
 def scatter_plot(df, name, x_var, y_var):
-    sns.scatterplot(data=df, x=x_var, y=y_var, hue="output")
+    sns.scatterplot(data=df, x=x_var, y_var=y_var, hue="output")
     plt.title(name)
     plt.show()
 
@@ -105,7 +117,8 @@ def parse_args():
     parser.add_argument('data', type=str, default=None)
     parser.add_argument('x_var',  type=str, default=None)
     parser.add_argument('y_var', type=str, default=None)
-    parser.add_argument('plot',  type=str, default=None)
+    parser.add_argument('plot', type=str, default=None)
+
     args = parser.parse_args()
     return args
 
