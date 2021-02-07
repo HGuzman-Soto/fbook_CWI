@@ -38,13 +38,13 @@ if __name__ == "__main__":
         array += 'WikiNews_Test', 'WikiNews_Train'
     if (args.news == 1):
         array += 'News_Test', 'News_Train'
-    elif (len(args.test) > 1):
+    elif (args.test):
         array = [args.test]
 
 ##########################################################################################################
 
 for x in array:
-    if (len(args.test) > 0):
+    if (args.test):
         location = "testing_data/data_files/data/" + args.test + ".csv"
         data_frame = pd.read_csv(location, encoding='utf-8-sig')
         # data_frame = data_frame.astype(str)
@@ -524,7 +524,6 @@ for x in array:
             frequency = word_results[0]['tags'][-1][2:]
 
             frequency = float(frequency)
-            print("nofreq normal:", frequency)
 
             if tag in tag_list:
                 print("frequency_1:", frequency)
@@ -541,7 +540,6 @@ for x in array:
                         print("frequency_2:", frequency)
                         return frequency
                     else:
-                        print("nofreq lemma:", frequency)
                         print("nofreq")
                         return nofreq
                 except:
@@ -585,8 +583,16 @@ for x in array:
     print("end syn, hyper, hypo")
 
 ##########################################################################################################
-    learner_corpus = pd.read_csv("test.csv")
-    # word_parse_features['learner_corpus'] = word_parse_features['word'].apply(lambda )
+
+    learner_corpus = pd.read_csv("corpus/learner_corpus.csv")
+    word_parse_features['learner_corpus'] = word_parse_features['word'].apply(lambda x: int(
+        learner_corpus.loc[learner_corpus.word == x, 'frequency']) if any(learner_corpus.word == x) else 0)
+
+##########################################################################################################
+    word_complexity_lexicon = pd.read_csv(
+        "corpus/lexicon.csv")
+    word_parse_features['complex_lexicon'] = word_parse_features['word'].apply(lambda x: int(
+        word_complexity_lexicon.loc[word_complexity_lexicon.word == x, 'score']) if any(word_complexity_lexicon.word == x) else 0)
 
 ##########################################################################################################
 
