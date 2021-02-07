@@ -21,6 +21,8 @@ Might need to do some pre-processing
 Issue: When converting series to dataframe, the index column is made when converting to csv
 I just manually label the first colummn as word
 
+
+Need the wiki.simple dataset to run
 """
 from nltk.corpus import stopwords
 stop = stopwords.words('english')
@@ -64,6 +66,7 @@ def simple_wiki():
 
 """
 For subtitles
+Using subtitles.txt
 
 1) Use collection dictionaries to map each word to a frequency
 2) Turn this into a pandas dataframe

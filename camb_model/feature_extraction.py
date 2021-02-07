@@ -356,7 +356,6 @@ for x in array:
 
     # CNC, KFCAT, FAM, KFSMP, KFFRQ, NPHN, T-LFRQ
 
-
     def CNC_fun(word):
 
         table = mrc_features[mrc_features['word'] == word.upper()]
@@ -373,6 +372,7 @@ for x in array:
 
 
 ##########################################################################################################
+
 
     def KFCAT_fun(word):
 
@@ -406,6 +406,7 @@ for x in array:
 
 
 ##########################################################################################################
+
 
     def KFSMP_fun(word):
 
@@ -471,7 +472,6 @@ for x in array:
 ##########################################################################################################
 
     # Convert tree bank tags to ones that are compatible w google
-
 
     def is_noun(tag):
         return tag in ['NN', 'NNS', 'NNP', 'NNPS']
@@ -584,6 +584,9 @@ for x in array:
         lambda x: hyponyms(x))
     print("end syn, hyper, hypo")
 
+##########################################################################################################
+    learner_corpus = pd.read_csv("test.csv")
+    # word_parse_features['learner_corpus'] = word_parse_features['word'].apply(lambda )
 
 ##########################################################################################################
 
