@@ -73,14 +73,16 @@ Using subtitles.txt
 3) Keep the top 1000 word frequencies
 
 
+""
+used for subimbd_500 and subimd corpus
+
 """
-"subimbd_500"
 
 
 def subtitles():
 
     words = re.findall(
-        '\w+', open('subtitles.txt').read().lower())
+        '\w+', open('subtitles_all.txt').read().lower())
 
     word_dict = collections.Counter(words)
     df_top = pd.DataFrame.from_dict(
@@ -89,21 +91,21 @@ def subtitles():
     # filter and keep top 1000 word frequency
     df_top['words'] = df_top.index
     # remove stop words
-    df_top['words'] = df_top.words.apply(lambda x: ' '.join(
-        [word for word in x.split() if word not in (stop)]))
+    # df_top['words'] = df_top.words.apply(lambda x: ' '.join(
+    #     [word for word in x.split() if word not in (stop)]))
 
     # print(df_wiki)
-    df_top['words'] = df_top.words[df_top.words.str.len() > 2]
+    # df_top['words'] = df_top.words[df_top.words.str.len() > 2]
     df_top = df_top.dropna(axis=0)
     print(df_top)
 
-    df_top = df_top.nlargest(6386, 'frequency')
+    # df_top = df_top.nlargest(6386, 'frequency')
     print(df_top)
 
     df_top = df_top[['words', 'frequency']]
 
     # make csv file
-    df_top.to_csv("subtitles.csv", index=False)
+    df_top.to_csv("subtitles_corpus.csv", index=False)
 
 
 # simple_wiki()
