@@ -18,6 +18,7 @@ json_files/
 models/
 wp_1gram.txt
 
+
 # compiled output
 /dist
 /tmp
