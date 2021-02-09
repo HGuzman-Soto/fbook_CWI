@@ -45,12 +45,11 @@ def main():
     pickle_model(model)
 
     if args.wandb == 1:
-        test_name = "wikipedia_test"
-        wikipedia_test_data = pd.read_pickle('features/Wikipedia_Test_allInfo')
+        wikipedia_test_data = pd.read_pickle(
+            'features/' + args.test + '_Test_allInfo')
         wikipedia_training_data = pd.read_pickle(
             'features/Wikipedia_Train_allInfo')
-        wikipedia_test_data.name = 'Wikipedia'
-        wikipedia_training_data.name = 'Wikipedia'
+
         test_frames = [wikipedia_test_data]
 
         total_test = pd.concat(test_frames)
@@ -99,11 +98,6 @@ class NumberSelector(BaseEstimator, TransformerMixin):
 
 
 def feature_extraction():
-    first_fixation = Pipeline([
-        ('selector', NumberSelector(key='IA_FIRST_FIXATION_DURATION')),
-        ('standard', StandardScaler())
-    ])
-
     words = Pipeline([
         ('selector', TextSelector(key='word')),
         ('vect', CountVectorizer())
@@ -211,6 +205,31 @@ def feature_extraction():
         ('standard', StandardScaler())
     ])
 
+    Wikipedia = Pipeline([
+        ('selector', NumberSelector(key='wikipedia_freq')),
+        ('standard', StandardScaler())
+    ])
+
+    BNC = Pipeline([
+        ('selector', NumberSelector(key='bnc_freq')),
+        ('standard', StandardScaler())
+    ])
+
+    lexicon = Pipeline([
+        ('selector', NumberSelector(key='complex_lexicon')),
+        ('standard', StandardScaler())
+    ])
+
+    learners = Pipeline([
+        ('selector', NumberSelector(key='learner_corpus_freq')),
+        ('standard', StandardScaler())
+    ])
+
+    subtitles_corpus = Pipeline([
+        ('selector', NumberSelector(key='subtitles_freq')),
+        ('standard', StandardScaler())
+    ])
+
     feats = FeatureUnion([
         ('words', words),
         ('word_length', word_length),
@@ -233,39 +252,46 @@ def feature_extraction():
         ('KFSMP', KFSMP),
         ('KFFRQ', KFFRQ),
         ('NPHN', NPHN),
-        ('TLFRQ', TLFRQ)
+        ('TLFRQ', TLFRQ),
+        ('wikipedia_freq', Wikipedia),
+        ('bnc_freq', BNC),
+        ('complex_lexicon', lexicon),
+        ('learner_corpus_freq', learners),
+        ('subtitles_freq', subtitles_corpus)
+
     ])
     return feats
 ##########################################################################################################
 
+
 def grid_search(training_data, feats, model_type):
     if(model_type == "rf"):
-        grid = {'classifier__n_estimators': [int(x) for x in np.linspace(start = 2000, stop = 10000, num = 5)],
-                    'classifier__max_features': ['auto', 'sqrt'],
-                    'classifier__max_depth': ([int(x) for x in np.linspace(10, 110, num = 5)]),
-                    'classifier__min_samples_split': [2, 5, 10],
-                    'classifier__min_samples_leaf': [1, 2, 4],
-                    'classifier__bootstrap': [True, False]
-                    }
+        grid = {'classifier__n_estimators': [int(x) for x in np.linspace(start=2000, stop=10000, num=5)],
+                'classifier__max_features': ['auto', 'sqrt'],
+                'classifier__max_depth': ([int(x) for x in np.linspace(10, 110, num=5)]),
+                'classifier__min_samples_split': [2, 5, 10],
+                'classifier__min_samples_leaf': [1, 2, 4],
+                'classifier__bootstrap': [True, False]
+                }
 
         model = RandomForestClassifier()
 
     if model_type == "ab":
-        grid = {'classifier__n_estimators':[int(x) for x in np.linspace(start = 2000, stop = 20000, num = 11)],
-                'classifier__learning_rate':[float(x) for x in np.linspace(start = 0.01, stop = 0.1, num = 10)]}
-        
+        grid = {'classifier__n_estimators': [int(x) for x in np.linspace(start=2000, stop=20000, num=11)],
+                'classifier__learning_rate': [float(x) for x in np.linspace(start=0.01, stop=0.1, num=10)]}
+
         model = AdaBoostClassifier()
 
-
     pipeline = Pipeline([
-            ('features', feats),
-            ('classifier', model)])
+        ('features', feats),
+        ('classifier', model)])
 
-    grid_search = GridSearchCV(estimator = pipeline, param_grid = grid, cv = 3, verbose = 2)
+    grid_search = GridSearchCV(
+        estimator=pipeline, param_grid=grid, cv=3, verbose=2)
 
     grid_search.fit(training_data, train_targets)
 
-    #format param keys for non-search use
+    # format param keys for non-search use
     old = grid_search.best_params_
     params = dict(zip([k[12:] for k in old.keys()], list(old.values())))
     print("OPTIMAL HYPERPARAMETERS:")
@@ -274,14 +300,16 @@ def grid_search(training_data, feats, model_type):
 
 ##########################################################################################################
 
+
 def train_model(training_data, feats):
 
     models = []
 
     if (args.ada_boost == 1 or args.combine_models == 1):
-        
+
         if(args.grid_search == 1):
-            model = AdaBoostClassifier(**grid_search(training_data, feats, "ab"))
+            model = AdaBoostClassifier(
+                **grid_search(training_data, feats, "ab"))
         else:
             model = AdaBoostClassifier(n_estimators=5000, random_state=67)
 
@@ -296,7 +324,8 @@ def train_model(training_data, feats):
     if (args.random_forest == 1 or args.combine_models == 1):
 
         if(args.grid_search == 1):
-            model = RandomForestClassifier(**grid_search(training_data, feats, "rf"))
+            model = RandomForestClassifier(
+                **grid_search(training_data, feats, "rf"))
         else:
             model = RandomForestClassifier(n_estimators=1000)
 
@@ -380,6 +409,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run feature extraction')
     parser.add_argument('--wandb', '-wb', help="Run Wandb",
                         type=int, default=0)
+    parser.add_argument('--test', '-t', help="test data for Wandb",
+                        type=str, default=None)
     parser.add_argument('--all', '-a', type=int, default=0)
     parser.add_argument('--train_wikipedia', '-tw', type=int, default=0)
     parser.add_argument('--train_wikinews', '-ti', type=int, default=0)
