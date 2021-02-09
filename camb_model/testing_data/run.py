@@ -59,7 +59,7 @@ df = df.explode('word')
 
 print("Attaching indexes to each content words \n")
 df[['start_index', 'end_index']] = df.apply(lambda x: (
- x.word[-1][0], x.word[-1][1]), axis=1, result_type='expand')
+    x.word[-1][0], x.word[-1][1]), axis=1, result_type='expand')
 
 # reformatting content words from set members back to single tokens
 df['word'] = df['word'].apply(lambda x: x[0])
