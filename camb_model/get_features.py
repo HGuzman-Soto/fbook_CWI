@@ -11,7 +11,7 @@ Given a dataset which contains features, and a name, the function outputs featur
 
 def get_features(data, name):
     df = pd.DataFrame(data=data)
-    if (len(args.test) > 0):
+    if (args.test):
         df = df.drop(columns=['parse', 'count', 'split', 'original word'])
     else:
         df = df.drop(columns=['parse', 'count', 'split', 'original word',
@@ -56,7 +56,7 @@ if __name__ == "__main__":
         get_features(news_training_data, "news_train")
         get_features(news_test_data, "news_test")
 
-    elif (len(args.test) > 0):
+    elif (args.test):
         testing_data = pd.read_pickle('features/' + args.test + '_allInfo')
         testing_data.name = args.test
         test_df = get_features(testing_data, args.test)
