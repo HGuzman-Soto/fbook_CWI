@@ -18,11 +18,11 @@ fi
 cd testing_data/
 
 printf "\n\n"
-read -p "Use downloaded FB data? (y) (n for arbitrary data):   " prescraped
+read -p "Use your scraped FB data in Downloads? (y) (n for arbitrary data):   " prescraped
 if [ "$prescraped" == "n" ];
 then
-    testFile=$(ls json_files -t | head -1)
-    mv "json_files/$testFile" "$testFile"
+    testFile=$(find json_files -print0 | xargs -r -0 ls -1 -t | head -1)
+    mv "$testFile" "threads.json"
     python3 unpack_json.py
 else
     python3 unpack_json.py --j 1
@@ -37,12 +37,12 @@ read -p "(Enter) Clean Text"
 python3 run.py
 
 
-newFile=$(ls data_files/data -t | head -1)
+newFile=$(find data_files/data -print0 | xargs -r -0 ls -1 -t | head -1)
 
 printf "\n\n"
 printf '%.s-' {1..50}
 printf "\nFirst 10 lines of the cleaned data file:\n\n"
-head -10 "data_files/data/$newFile"
+head -10 "$newFile"
 printf "\n"
 read -p "(Enter) Feature Extraction"
 
@@ -62,6 +62,7 @@ java -mx4g -cp "*" edu.stanford.nlp.pipeline.StanfordCoreNLPServer -annotators "
 cd ../camb_model
 
 filename=$(echo "$newFile" | cut -f 1 -d '.')
+filename=$(basename $filename)
 python3 feature_extraction.py -t "$filename"
 
 # printf "\nModel Training:\n"
