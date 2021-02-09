@@ -143,11 +143,11 @@ for x in array:
         return x
 
     if 'WikiNews' in x:
-        sentences['clean_sentence'] = sentences['sentence'].apply(
+        sentences['clean sentence'] = sentences['sentence'].apply(
             lambda x: removefirsttoken(x))
 
     else:
-        sentences['clean_sentence'] = sentences['sentence']
+        sentences['clean sentence'] = sentences['sentence']
 
     # sentences.to_csv("debugging/sentences_noparse.csv", index=False) debugging
 
@@ -164,7 +164,7 @@ for x in array:
         return output
 
     # apply parsing to sentences
-    sentences['parse'] = sentences['clean_sentence'].apply(lambda x: parse(x))
+    sentences['parse'] = sentences['clean sentence'].apply(lambda x: parse(x))
 
     # sentences.to_csv("debugging/sentences.csv", index=False) #debugging purposes
 
@@ -355,6 +355,7 @@ for x in array:
 
     # CNC, KFCAT, FAM, KFSMP, KFFRQ, NPHN, T-LFRQ
 
+
     def CNC_fun(word):
 
         table = mrc_features[mrc_features['word'] == word.upper()]
@@ -371,7 +372,6 @@ for x in array:
 
 
 ##########################################################################################################
-
 
     def KFCAT_fun(word):
 
@@ -405,7 +405,6 @@ for x in array:
 
 
 ##########################################################################################################
-
 
     def KFSMP_fun(word):
 
@@ -471,6 +470,7 @@ for x in array:
 ##########################################################################################################
 
     # Convert tree bank tags to ones that are compatible w google
+
 
     def is_noun(tag):
         return tag in ['NN', 'NNS', 'NNP', 'NNPS']
@@ -557,7 +557,7 @@ for x in array:
 
     print("start get dep")
 
-    word_parse_features['dep_num'] = word_parse_features.apply(get_dep, axis=1)
+    word_parse_features['dep num'] = word_parse_features.apply(get_dep, axis=1)
 
     print("end get dep")
 
@@ -580,6 +580,30 @@ for x in array:
     word_parse_features['hyponyms'] = word_parse_features['lemma'].apply(
         lambda x: hyponyms(x))
     print("end syn, hyper, hypo")
+
+##########################################################################################################
+    """
+    Wikipedia word may appear multiple times, we get the first instance. 
+    We may have to sort frequency
+    """
+    def get_wiki(word):
+        df = wikipedia_corpus[wikipedia_corpus['word'] == word.lower()]
+        if (len(df) > 0):
+
+            wikipedia_freq = df['frequency'].values[0]
+
+            wikipedia_freq = int(wikipedia_freq)
+
+            return wikipedia_freq
+        else:
+            y = 0
+            return y
+
+    print("start wikipedia corpus")
+    wikipedia_corpus = pd.read_csv('corpus/wikipedia_corpus.csv')
+    word_parse_features['wikipedia_freq'] = word_parse_features['word'].apply(
+        lambda x: get_wiki(x))
+    print("end wikipedia corpus")
 
 ##########################################################################################################
     print("start subtitles corpus, ogden, simple wiki, cald, learner, complex lexicon, and bnc corpus")
@@ -674,7 +698,7 @@ for x in array:
 
     # Apply function for google freq
     print("get google frequency")
-    word_parse_features['google_frequency'] = word_parse_features.apply(
+    word_parse_features['google frequency'] = word_parse_features.apply(
         get_frequency, axis=1)
     print("end google frequency")
 

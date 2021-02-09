@@ -16,7 +16,7 @@ data/
 temp_data/
 json_files/
 models/
-wikipedia_corpus.txt
+wp_1gram.txt
 
 # compiled output
 /dist
