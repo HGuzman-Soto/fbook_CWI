@@ -16,6 +16,7 @@ data/
 temp_data/
 json_files/
 models/
+wikipedia_corpus.txt
 
 # compiled output
 /dist
