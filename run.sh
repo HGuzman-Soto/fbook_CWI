@@ -2,8 +2,6 @@
 
 echo "running pipeline.."
 
-python3 setup.py
-
 cd camb_model
 
 if [ ! -d "features" ] 
@@ -20,7 +18,7 @@ fi
 cd testing_data/
 
 printf "\n\n"
-read -p "Use YOUR downloaded FB data? (y) (n for arbitrary data):   " prescraped
+read -p "Use downloaded FB data? (y) (n for arbitrary data):   " prescraped
 if [ "$prescraped" == "n" ];
 then
     testFile=$(ls json_files -t | head -1)
@@ -53,6 +51,7 @@ cd ../..
 if [ ! -d "stanford-corenlp-4.2.0" ]
 then
     echo "This may take a while..."
+    python3 setup.py
     curl -O https://nlp.stanford.edu/software/stanford-corenlp-latest.zip
     unzip stanford-corenlp-latest.zip && rm stanford-corenlp-latest.zip
 fi
@@ -122,6 +121,8 @@ read -p "Which model to test on?:   " modelname
 
 cmd=$"python3 run_model.py -t $filename -mn $modelname"
 eval $cmd
+
+python3 bash_results.py
 
 results=$(ls results -t | head -1)
 cat results/"$results" | column -t -s, | less -S
