@@ -143,11 +143,11 @@ for x in array:
         return x
 
     if 'WikiNews' in x:
-        sentences['clean sentence'] = sentences['sentence'].apply(
+        sentences['clean_sentence'] = sentences['sentence'].apply(
             lambda x: removefirsttoken(x))
 
     else:
-        sentences['clean sentence'] = sentences['sentence']
+        sentences['clean_sentence'] = sentences['sentence']
 
     # sentences.to_csv("debugging/sentences_noparse.csv", index=False) debugging
 
@@ -164,7 +164,7 @@ for x in array:
         return output
 
     # apply parsing to sentences
-    sentences['parse'] = sentences['clean sentence'].apply(lambda x: parse(x))
+    sentences['parse'] = sentences['clean_sentence'].apply(lambda x: parse(x))
 
     # sentences.to_csv("debugging/sentences.csv", index=False) #debugging purposes
 
@@ -557,7 +557,7 @@ for x in array:
 
     print("start get dep")
 
-    word_parse_features['dep num'] = word_parse_features.apply(get_dep, axis=1)
+    word_parse_features['dep_num'] = word_parse_features.apply(get_dep, axis=1)
 
     print("end get dep")
 
@@ -582,10 +582,14 @@ for x in array:
     print("end syn, hyper, hypo")
 
 ##########################################################################################################
-    print("start ogden, simple wiki, cald, learner, complex lexicon, and bnc corpus")
+    print("start subtitles corpus, ogden, simple wiki, cald, learner, complex lexicon, and bnc corpus")
+    subtitles_corpus = pd.read_csv("corpus/subtitles_corpus.csv")
+    word_parse_features['subtitles_freq'] = word_parse_features['word'].apply(lambda x: int(
+        subtitles_corpus.loc[subtitles_corpus.word == x, 'frequency']) if any(subtitles_corpus.word == x) else 0)
 
+##########################################################################################################
     learner_corpus = pd.read_csv("corpus/learner_corpus.csv")
-    word_parse_features['learner_corpus'] = word_parse_features['word'].apply(lambda x: int(
+    word_parse_features['learner_corpus_freq'] = word_parse_features['word'].apply(lambda x: int(
         learner_corpus.loc[learner_corpus.word == x, 'frequency']) if any(learner_corpus.word == x) else 0)
 
 ##########################################################################################################
@@ -614,7 +618,7 @@ for x in array:
 
     bnc_corpus = pd.read_csv("corpus/bnc_corpus.csv")
 
-    word_parse_features['bnc'] = word_parse_features['word'].apply(
+    word_parse_features['bnc_freq'] = word_parse_features['word'].apply(
         lambda x: get_bnc(x))
 
 
@@ -670,7 +674,7 @@ for x in array:
 
     # Apply function for google freq
     print("get google frequency")
-    word_parse_features['google frequency'] = word_parse_features.apply(
+    word_parse_features['google_frequency'] = word_parse_features.apply(
         get_frequency, axis=1)
     print("end google frequency")
 
