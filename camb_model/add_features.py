@@ -105,7 +105,6 @@ def feat_bnc_corpus(word_parse_features):
 
 
 ##########################################################################################################
-
 array = ['News_Test_allinfo', 'News_Train_allinfo', 'WikiNews_Test_allinfo',
          'WikiNews_Train_allinfo', 'Wikipedia_Test_allinfo', 'Wikipedia_Train_allinfo']
 

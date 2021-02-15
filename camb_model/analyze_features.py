@@ -22,7 +22,7 @@ def main(df):
 
 def heat_map(df):
     # independent columns
-    X = df.iloc[:, 6:31]
+    X = df.iloc[:, 6:]
 
     y = df['complex_binary']
     # get correlations of each features in dataset
@@ -31,7 +31,7 @@ def heat_map(df):
     plt.figure(figsize=(20, 20))
     # plot heat map
     sns.heatmap(df[top_corr_features].corr(),
-                linewidths=.5, annot=True, fmt='.2f', cmap="RdYlGn")
+                linewidths=.5, annot=True, fmt='.1f', cmap="RdYlGn")
 
     plt.show()
 

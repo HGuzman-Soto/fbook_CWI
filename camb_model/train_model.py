@@ -13,6 +13,8 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import VotingClassifier
 from sklearn.pipeline import FeatureUnion
 from sklearn.pipeline import Pipeline
+from sklearn.feature_selection import RFE
+
 from sklearn.model_selection import GridSearchCV
 from sklearn.preprocessing import StandardScaler
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -46,9 +48,9 @@ def main():
 
     if args.wandb == 1:
         wikipedia_test_data = pd.read_pickle(
-            'features/' + args.test + '_Test_allInfo')
-        wikipedia_training_data = pd.read_pickle(
-            'features/Wikipedia_Train_allInfo')
+            'features/Wikipedia_Test_allInfo')
+        # wiki_test_data = pd.read_pickle('features/WikiNews_Test_allInfo')
+        # news_test_data = pd.read_pickle('features/News_Test_allInfo')
 
         test_frames = [wikipedia_test_data]
 
@@ -233,17 +235,17 @@ def feature_extraction():
     feats = FeatureUnion([
         ('words', words),
         ('word_length', word_length),
-        ('Tag', tag),
-        ('dep_num', dep_num),
-        ('hypernyms', hypernyms),
-        ('hyponyms', hyponyms),
-        ('synonyms', synonyms),
+        # ('Tag', tag),
+        # ('dep_num', dep_num),
+        # ('hypernyms', hypernyms),
+        # ('hyponyms', hyponyms),
+        # ('synonyms', synonyms),
         ('Syllables', syllables),
-        ('ogden', ogden),
-        ('simple_wiki', simple_wiki),
+        # ('ogden', ogden),
+        # ('simple_wiki', simple_wiki),
         ('freq', frequency),
-        ('subimdb', subimdb),
-        ('cald', cald),
+        # ('subimdb', subimdb),
+        # ('cald', cald),
         ('aoa', aoa),
         ('cnc', conc),
         ('fam', fam),
@@ -317,6 +319,15 @@ def train_model(training_data, feats):
             ('features', feats),
             ('classifier', model),
         ])
+
+        if args.recursive_feature == 1:
+            rfe = RFE(estimator=model, n_features_to_select=10)
+            pipeline = Pipeline([
+                ('features', feats),
+                ('rfe', rfe),
+
+                ('classifier', model),
+            ])
         pipeline.fit(training_data, train_targets)
 
         models.append(pipeline)
@@ -333,6 +344,7 @@ def train_model(training_data, feats):
             ('features', feats),
             ('classifier', model)
         ])
+
         pipeline_rf.fit(training_data, train_targets)
 
         models.append(pipeline_rf)
@@ -419,6 +431,8 @@ if __name__ == "__main__":
     parser.add_argument('--ada_boost', '-ab', type=int, default=0)
     parser.add_argument('--combine_models', '-cm', type=int, default=0)
     parser.add_argument('--grid_search', '-gs', type=int, default=0)
+    parser.add_argument('--recursive_feature', '-rfe', type=int, default=0)
+
     parser.add_argument(
         '--model_name', '-mn', type=str, default=None)
 

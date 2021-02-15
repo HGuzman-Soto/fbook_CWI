@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import argparse
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 
 def main(df_list):
@@ -58,16 +58,16 @@ def get_wrong_words(df):
 
 
 def kde_plot(df, name, x_var):
-    # scale = MinMaxScaler().fit(df[[x_var]])
-    # df[x_var] = scale.transform(df[[x_var]])
+    scale = StandardScaler().fit(df[[x_var]])
+    df[x_var] = scale.transform(df[[x_var]])
     sns.histplot(df, x=x_var, hue="complex_binary", kde=True, element="step")
     plt.title(name)
     plt.show()
 
 
 def hist_plot(df, name, x_var, y_var):
-    # scale = MinMaxScaler().fit(df[[x_var]])
-    # df[x_var] = scale.transform(df[[x_var]])
+    scale = StandardScaler().fit(df[[x_var]])
+    df[x_var] = scale.transform(df[[x_var]])
 
     sns.histplot(df, x=x_var, hue="complex_binary", element="step")
     # plt.ylabel('normalized count')

@@ -17,14 +17,14 @@ def main():
         open("models/" + args.model_name + ".sav", 'rb'))
 
     if (args.test):
-        predict(args.test, loaded_model, [total_test])
+        predict(args.test, loaded_model, test_frames)
     else:
         if (args.predict == 1):
             predict(test_name + "_" + args.model_name,
-                    loaded_model, [total_test])
+                    loaded_model, test_frames)
         if (args.evaluation == 1):
             evaluation(test_name + "_" + args.model_name,
-                       loaded_model, [total_test])
+                       loaded_model, test_frames)
 
 ##########################################################################################################
 
@@ -50,20 +50,23 @@ def evaluation(name, model, array):
         recall = recall_score(targets, predictions)
         F_Score = f1_score(targets, predictions, average='macro')
 
-        model_stats.loc[len(model_stats)] = [i, (str(model))[
-            :100], precision, recall, F_Score]
+        model_stats.loc[len(model_stats)] = [
+            i, (str(model)), precision, recall, F_Score]
         print("Accuracy", accuracy)
         print("Precision:", model_stats.Precision)
         print("Recall:", model_stats.Recall)
         print("F-Score:", model_stats['F-Score'], "\n")
+        model_stats.to_csv('results/metrics/' + name +
+                           "_metrics.csv", index=False)
 
 ##########################################################################################################
 
 
 def predict(name, model, array):
     i = 0
+    arr = ['test', 'train']
     for x in array:
-        print("predicting for", name)
+        print("predicting for", name + "_" + arr[i])
 
         data = x
         predictions = model.predict(data)
@@ -84,13 +87,16 @@ def predict(name, model, array):
         df.insert(7, 'output', predict_df)
         df.insert(8, 'probability', probab_df)
 
-        df.to_csv("results/" + name + "_results.csv", index=False)
+        df.to_csv("results/" + name + "_" +
+                  arr[i] + "_results.csv", index=False)
 
         print("results outputted in results folder", "\n")
-
+        i += 1
 
 ##########################################################################################################
-if __name__ == "__main__":
+
+
+def parse_all_args():
     parser = argparse.ArgumentParser(description='Run feature extraction')
     parser.add_argument('--wikipedia', '-w', type=int, default=0)
     parser.add_argument('--wikinews', '-i', type=int, default=0)
@@ -103,30 +109,37 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    return args
+
+
+##########################################################################################################
+if __name__ == "__main__":
+    args = parse_all_args()
+
     if (args.wikipedia == 1):
-        test_name = "wikipedia_test"
+        test_name = "wikipedia"
         wikipedia_test_data = pd.read_pickle('features/Wikipedia_Test_allInfo')
         wikipedia_training_data = pd.read_pickle(
             'features/Wikipedia_Train_allInfo')
         wikipedia_test_data.name = 'Wikipedia'
         wikipedia_training_data.name = 'Wikipedia'
-        test_frames = [wikipedia_test_data]
+        test_frames = [wikipedia_test_data, wikipedia_training_data]
 
     if (args.wikinews == 1):
-        test_name = "wikinews_test"
+        test_name = "wikinews"
         wiki_test_data = pd.read_pickle('features/WikiNews_Test_allInfo')
         wiki_training_data = pd.read_pickle('features/WikiNews_Train_allInfo')
         wiki_test_data.name = 'WikiNews'
         wiki_training_data.name = 'WikiNews'
-        test_frames = [wiki_test_data]
+        test_frames = [wiki_test_data, wiki_training_data]
 
     if (args.news == 1):
-        test_name = 'news_test'
+        test_name = 'news'
         news_test_data = pd.read_pickle('features/News_Test_allInfo')
-        news_training_data = pd.read_pickle('features/News_Test_allInfo')
+        news_training_data = pd.read_pickle('features/News_Train_allInfo')
         news_test_data.name = 'News'
         news_training_data.name = 'News'
-        test_frames = [news_test_data]
+        test_frames = [news_test_data, news_training_data]
 
     elif(args.test):
         test_name = args.test
@@ -134,6 +147,6 @@ if __name__ == "__main__":
         testing_data.name = 'testing'
         test_frames = [testing_data]
 
-    total_test = pd.concat(test_frames)
-    total_test.fillna(0.0, inplace=True)
+    # total_test = pd.concat(test_frames)
+    # total_test.fillna(0.0, inplace=True)
     main()
