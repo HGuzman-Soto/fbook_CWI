@@ -166,14 +166,7 @@ for x in array:
     # apply parsing to sentences
     sentences['parse'] = sentences['clean sentence'].apply(lambda x: parse(x))
 
-    # sentences.to_csv("debugging/sentences.csv", index=False) #debugging purposes
-
-    # Merge
-    # word_parse_features = pd.merge(sentences, word_features, on=[
-    #                                'ID', 'sentence'], how='left')
-
     word_parse_features = pd.merge(sentences, word_features)
-    print(len(word_parse_features))
 
     print("finish parsing sentence")
 ###########################################################################################################
@@ -355,7 +348,6 @@ for x in array:
 
     # CNC, KFCAT, FAM, KFSMP, KFFRQ, NPHN, T-LFRQ
 
-
     def CNC_fun(word):
 
         table = mrc_features[mrc_features['word'] == word.upper()]
@@ -372,6 +364,7 @@ for x in array:
 
 
 ##########################################################################################################
+
 
     def KFCAT_fun(word):
 
@@ -405,6 +398,7 @@ for x in array:
 
 
 ##########################################################################################################
+
 
     def KFSMP_fun(word):
 
@@ -470,7 +464,6 @@ for x in array:
 ##########################################################################################################
 
     # Convert tree bank tags to ones that are compatible w google
-
 
     def is_noun(tag):
         return tag in ['NN', 'NNS', 'NNP', 'NNPS']
@@ -715,8 +708,6 @@ for x in array:
     print('get rest of mrc')
     word_parse_features['KFCAT'] = word_parse_features['lemma'].apply(
         lambda x: KFCAT_fun(x))
-    # word_parse_features['FAM'] = word_parse_features['lemma'].apply(
-    #     lambda x: FAM_fun(x))
     word_parse_features['KFSMP'] = word_parse_features['lemma'].apply(
         lambda x: KFSMP_fun(x))
     word_parse_features['KFFRQ'] = word_parse_features['lemma'].apply(
