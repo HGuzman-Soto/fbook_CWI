@@ -110,6 +110,10 @@ for x in array:
     # Apply function to get word length
     word_set['length'] = word_set['word'].apply(lambda x: len(x))
 
+    #apply function to get vowel count
+    word_set['vowels'] = word_set['word'].apply(
+    lambda x: sum([x.count(y) for y in "aeiou"]))
+
     # take words and merge with values first you will need to clean the phrase column
     words['original word'] = words['word']
     words['word'] = words['word'].str.lower()
