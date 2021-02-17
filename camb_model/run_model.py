@@ -150,12 +150,9 @@ if __name__ == "__main__":
     if (args.features):
         used_feats = args.features.strip("[]").split(",")
         used_feats = ["sentence", "ID", "clean sentence", "word", "complex_binary"] + used_feats
-        print("it is:")
-        print(used_feats)
+
         for i in range(len(test_frames)):
-            print(test_frames[i])
             test_frames[i]= test_frames[i][used_feats]
-            print(test_frames[i])
 
     #if features are not specified, remove unnecessary features
     else:

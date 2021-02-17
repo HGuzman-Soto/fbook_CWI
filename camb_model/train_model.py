@@ -271,9 +271,7 @@ def feature_extraction():
 
     if(args.features):
         feats_in = args.features.strip("[]").split(",")
-        pipe_feats = [x for x in pipe_feats if x[0] in feats_in ]
-    print(feats_in)
-    print(pipe_feats)
+        pipe_feats = [x for x in pipe_feats if x[0] in feats_in]
     feats = FeatureUnion(pipe_feats)
     return feats
 ##########################################################################################################
