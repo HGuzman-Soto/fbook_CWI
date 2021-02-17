@@ -235,17 +235,17 @@ def feature_extraction():
     feats = FeatureUnion([
         ('words', words),
         ('word_length', word_length),
-        # ('Tag', tag),
+        ('Tag', tag),
         # ('dep_num', dep_num),
         # ('hypernyms', hypernyms),
-        # ('hyponyms', hyponyms),
-        # ('synonyms', synonyms),
+        ('hyponyms', hyponyms),
+        ('synonyms', synonyms),
         ('Syllables', syllables),
-        # ('ogden', ogden),
-        # ('simple_wiki', simple_wiki),
+        ('ogden', ogden),
+        ('simple_wiki', simple_wiki),
         ('freq', frequency),
-        # ('subimdb', subimdb),
-        # ('cald', cald),
+        ('subimdb', subimdb),
+        ('cald', cald),
         ('aoa', aoa),
         ('cnc', conc),
         ('fam', fam),
@@ -258,7 +258,7 @@ def feature_extraction():
         ('wikipedia_freq', Wikipedia),
         ('bnc_freq', BNC),
         ('complex_lexicon', lexicon),
-        ('learner_corpus_freq', learners),
+        # ('learner_corpus_freq', learners),
         ('subtitles_freq', subtitles_corpus)
 
     ])
@@ -321,7 +321,7 @@ def train_model(training_data, feats):
         ])
 
         if args.recursive_feature == 1:
-            rfe = RFE(estimator=model, n_features_to_select=10)
+            rfe = RFE(estimator=model, n_features_to_select=25)
             pipeline = Pipeline([
                 ('features', feats),
                 ('rfe', rfe),
