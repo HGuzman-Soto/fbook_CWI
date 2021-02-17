@@ -103,6 +103,7 @@ def parse_all_args():
     parser.add_argument('--news', '-n', type=int, default=0)
     parser.add_argument(
         '--test', '-t', help="name of test file", type=str, default=None)
+    parser.add_argument('--features', '-f', type=str, default="")
     parser.add_argument('--predict', '-p', type=int, default=1)
     parser.add_argument('--evaluation', '-e', type=int, default=1)
     parser.add_argument('--model_name', '-mn', type=str, default=None)
@@ -146,6 +147,15 @@ if __name__ == "__main__":
         testing_data = pd.read_pickle('features/' + args.test + '_allInfo')
         testing_data.name = 'testing'
         test_frames = [testing_data]
+    
+    if (args.features):
+        used_feats = args.features.strip("[]").split(",")
+        print("it is:")
+        print(used_feats)
+        for i in range(len(test_frames)):
+            print(test_frames[i])
+            test_frames[i]= test_frames[i][used_feats]
+            print(test_frames[i])
 
     # total_test = pd.concat(test_frames)
     # total_test.fillna(0.0, inplace=True)

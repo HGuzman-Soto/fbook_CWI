@@ -438,6 +438,7 @@ if __name__ == "__main__":
     parser.add_argument('--combine_models', '-cm', type=int, default=0)
     parser.add_argument('--grid_search', '-gs', type=int, default=0)
     parser.add_argument('--recursive_feature', '-rfe', type=int, default=0)
+    parser.add_argument('--features', '-f', type=str, default="")
 
     parser.add_argument(
         '--model_name', '-mn', type=str, default=None)
