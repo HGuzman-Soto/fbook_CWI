@@ -77,15 +77,14 @@ def predict(name, model, array):
         Messy code down here
         """
 
-        df = df.drop(columns=['parse', 'count', 'split', 'original word'])
-
         df['output'] = predictions
         df['probability'] = probabilities
 
         predict_df, probab_df = df['output'], df['probability']
         df.drop(labels=['output', 'probability'], axis=1, inplace=True)
-        df.insert(7, 'output', predict_df)
-        df.insert(8, 'probability', probab_df)
+        index = df.columns.get_loc("word")
+        df.insert(index + 1, 'output', predict_df)
+        df.insert(index + 2, 'probability', probab_df)
 
         df.to_csv("results/" + name + "_" +
                   arr[i] + "_results.csv", index=False)
@@ -150,6 +149,7 @@ if __name__ == "__main__":
     
     if (args.features):
         used_feats = args.features.strip("[]").split(",")
+        used_feats = ["sentence", "ID", "clean sentence", "word", "complex_binary"] + used_feats
         print("it is:")
         print(used_feats)
         for i in range(len(test_frames)):
@@ -157,6 +157,10 @@ if __name__ == "__main__":
             test_frames[i]= test_frames[i][used_feats]
             print(test_frames[i])
 
+    #if features are not specified, remove unnecessary features
+    else:
+        for i in range(len(test_frames)):
+            test_frames[i] = test_frames[i].drop(columns=['parse', 'count', 'split', 'original word'])
     # total_test = pd.concat(test_frames)
     # total_test.fillna(0.0, inplace=True)
     main()

@@ -110,7 +110,7 @@ def feature_extraction():
         ('standard', StandardScaler())
     ])
 
-    vowel_count = Pipeline([
+    vowels = Pipeline([
         ('selector', NumberSelector(key='vowels')),
         ('standard', StandardScaler())
     ])
@@ -237,10 +237,10 @@ def feature_extraction():
         ('standard', StandardScaler())
     ])
 
-    feats = FeatureUnion([
+    pipe_feats = [
         ('words', words),
         ('word_length', word_length),
-        ('vowel_count', vowel_count),
+        ('vowels', vowels),
         # ('Tag', tag),
         # ('dep_num', dep_num),
         # ('hypernyms', hypernyms),
@@ -267,7 +267,14 @@ def feature_extraction():
         ('learner_corpus_freq', learners),
         ('subtitles_freq', subtitles_corpus)
 
-    ])
+    ]
+
+    if(args.features):
+        feats_in = args.features.strip("[]").split(",")
+        pipe_feats = [x for x in pipe_feats if x[0] in feats_in ]
+    print(feats_in)
+    print(pipe_feats)
+    feats = FeatureUnion(pipe_feats)
     return feats
 ##########################################################################################################
 
