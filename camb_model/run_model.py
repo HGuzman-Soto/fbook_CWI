@@ -8,6 +8,7 @@ import argparse
 import pandas as pd
 import pickle
 import wandb
+import os
 from wandb.keras import WandbCallback
 from train_model import TextSelector, NumberSelector
 
@@ -56,8 +57,10 @@ def evaluation(name, model, array):
         print("Precision:", model_stats.Precision)
         print("Recall:", model_stats.Recall)
         print("F-Score:", model_stats['F-Score'], "\n")
-        model_stats.to_csv('results/metrics/' + name +
-                           "_metrics.csv", index=False)
+
+    os.mkdir('results/metrics/' + args.model_name)
+    model_stats.to_csv('results/metrics/' + args.model_name + "/" + name +
+                       "_metrics.csv", index=False)
 
 ##########################################################################################################
 
@@ -82,7 +85,6 @@ def predict(name, model, array):
             df = df.drop(columns=['parse', 'count', 'split', 'original word', 'total_native',
                                   'total_non_native', 'native_complex', 'non_native_complex', 'complex_probabilistic'])
 
-
         df['output'] = predictions
         df['probability'] = probabilities
 
@@ -91,7 +93,11 @@ def predict(name, model, array):
         df.insert(7, 'output', predict_df)
         df.insert(8, 'probability', probab_df)
 
-        df.to_csv("results/" + name + "_" +
+        path = 'results/' + args.model_name
+        if not path:
+            os.mkdir('results/' + args.model_name)
+
+        df.to_csv("results/" + args.model_name + "/" + name + "_" +
                   arr[i] + "_results.csv", index=False)
 
         print("results outputted in results folder", "\n")
