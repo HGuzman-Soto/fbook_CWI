@@ -36,27 +36,35 @@ Script will train the models only and pickle them
 
 """
 
+
 ##########################################################################################################
+
+"""
+Either run feature importance or train a model. Since doing both will take twice as long, its best to 
+just have a good model already that you want to run feature importance. This means keep track of the name of your model
+and what features you used to train it. 
+
+"""
 
 
 def main():
-    feats = feature_extraction()
-    feature_processing = Pipeline([('feats', feats)])
-    feature_processing.fit_transform(training_data)
-    model = train_model(training_data, feats)
-    pickle_model(model)
 
-    if args.wandb == 1:
-        wikipedia_test_data = pd.read_pickle(
-            'features/Wikipedia_Test_allInfo')
-        # wiki_test_data = pd.read_pickle('features/WikiNews_Test_allInfo')
-        # news_test_data = pd.read_pickle('features/News_Test_allInfo')
+    if args.feature_importance == 1:
+        feats_for_graph = feature_extraction(indice=2)
+        model_graph = train_model(training_data, feats_for_graph)
+        feature_list = ['pos', 'length', 'syllables', 'dep num', 'synonyms', 'hypernyms',
+                        'hyponyms', 'ogden', 'simple_wiki', 'cald', 'cnc', 'img', 'aoa', 'fam',
+                        'sub_imdb', 'google frequency', 'KFCAT', 'KFSMP', 'KFFRQ', 'NPHN',
+                        'TLFRQ', 'complex_lexicon', 'subtitles_freq', 'wikipedia_freq',
+                        'learner_corpus_freq', 'bnc_freq']
+        feature_importance(model_graph, feature_list=feature_list)
+    else:
+        feats = feature_extraction()
+        feature_processing = Pipeline([('feats', feats)])
+        feature_processing.fit_transform(training_data)
+        model = train_model(training_data, feats)
+        pickle_model(model)
 
-        test_frames = [wikipedia_test_data]
-
-        total_test = pd.concat(test_frames)
-        total_test.fillna(0.0, inplace=True)
-        wandB(model, total_test)
 
 ##########################################################################################################
 
@@ -99,10 +107,15 @@ class NumberSelector(BaseEstimator, TransformerMixin):
 ##########################################################################################################
 
 
-def feature_extraction():
+def feature_extraction(indice=0):
     words = Pipeline([
         ('selector', TextSelector(key='word')),
         ('vect', CountVectorizer())
+    ])
+
+    ngram = Pipeline([
+        ('selector', TextSelector(key='word')),
+        ('vect', CountVectorizer(analyzer='char', ngram_range=(2, 2)))
     ])
 
     word_length = Pipeline([
@@ -237,38 +250,16 @@ def feature_extraction():
         ('standard', StandardScaler())
     ])
 
-    feats = FeatureUnion([
+    feature_list = [('words', words), ('ngram', ngram), ('Tag', tag), ('word_length', word_length), ('Syllables', syllables),
+                    ('dep_num', dep_num), ('synonyms', synonyms), ('hypernyms',
+                                                                   hypernyms), ('hyponyms', hyponyms), ('ogden', ogden),
+                    ('simple_wiki', simple_wiki), ('cald', cald), ('cnc', conc), ('img',
+                                                                                  img), ('aoa', aoa), ('fam', fam), ('subimdb', subimdb),
+                    ('freq', frequency), ('KFCAT', KFCAT), ('KFSMP', KFSMP), ('KFFRQ',
+                                                                              KFFRQ), ('NPHN', NPHN), ('TLFRQ', TLFRQ),
+                    ('complex_lexicon', lexicon),  ('subtitles_freq', subtitles_corpus), ('wikipedia_freq', Wikipedia), ('learner_corpus_freq', learners), ('bnc_freq', BNC)]
 
-        ('words', words),
-        ('word_length', word_length),
-        ('vowel_count', vowel_count),
-        # ('Tag', tag),
-        # ('dep_num', dep_num),
-        # ('hypernyms', hypernyms),
-        # ('hyponyms', hyponyms),
-        # ('synonyms', synonyms),
-        # ('Syllables', syllables),
-        # ('ogden', ogden),
-        # ('simple_wiki', simple_wiki),
-        # ('freq', frequency),
-        # ('subimdb', subimdb),
-        # ('cald', cald),
-        # ('aoa', aoa),
-        # ('cnc', conc),
-        # ('fam', fam),
-        # ('img', img),
-        # ('KFCAT', KFCAT),
-        # ('KFSMP', KFSMP),
-        # ('KFFRQ', KFFRQ),
-        # ('NPHN', NPHN),
-        # ('TLFRQ', TLFRQ),
-        # ('wikipedia_freq', Wikipedia),
-        # ('bnc_freq', BNC),
-        ('complex_lexicon', lexicon),
-        # ('learner_corpus_freq', learners),
-        # ('subtitles_freq', subtitles_corpus)
-
-    ])
+    feats = FeatureUnion(feature_list[indice:])
     return feats
 ##########################################################################################################
 
@@ -345,7 +336,7 @@ def train_model(training_data, feats):
             model = RandomForestClassifier(
                 **grid_search(training_data, feats, "rf"))
         else:
-            model = RandomForestClassifier(n_estimators=1000)
+            model = RandomForestClassifier(n_estimators=10)
 
         pipeline_rf = Pipeline([
             ('features', feats),
@@ -353,6 +344,7 @@ def train_model(training_data, feats):
         ])
 
         pipeline_rf.fit(training_data, train_targets)
+        feature_importance = pipeline_rf.named_steps['classifier'].feature_importances_
 
         models.append(pipeline_rf)
 
@@ -370,46 +362,55 @@ def train_model(training_data, feats):
 ##########################################################################################################
 
 
+"""
+Given a pipline with features and a classifier + the names of features
+Function plots feature importance 
+
+The words and n-gram features are always ommitted, and the pos-tag will have 30 features. A work 
+around was I summed up these first 30 'features' and created a category for pos tags. Then I append
+it to the rest of the 24 features.
+
+
+One area of concern is defining feature list and how to define a susbset of features to train. Defining the feature
+list you could just do manually to be honest as you run the code (there's only a few times we will run it). But
+how to subset a features when training the model is an ongoing issue.
+
+"""
+
+
+def feature_importance(pipeline, feature_list):
+
+    pipeline.fit(training_data, train_targets)
+    feature_importance = pipeline.named_steps['classifier'].feature_importances_
+    # also need to denote that word is a feature, same with pos tag (22)
+    if (args.all):
+        tag_indice = 30
+    elif (args.train_news):
+        tag_indice = 22
+
+    print(len(feature_importance))
+    tag_importance = sum(
+        feature_importance[0: tag_indice])
+
+    tag_list = list(tag_importance.flatten())
+    final_importance = tag_list + \
+        list(feature_importance[tag_indice:].flatten())
+
+    # plot graph of feature importances for better visualization
+    feat_importances = pd.Series(
+        final_importance, index=feature_list)
+    feat_importances.plot(kind='barh')
+    plt.show()
+
+
+##########################################################################################################
+
+
 def pickle_model(model):
     pickle.dump(model, open("models/" + args.model_name + ".sav", 'wb'))
 
 ##########################################################################################################
 
-
-def wandB(model, total_test):
-    wandb.init(project="fbook_CWI")
-    y_data = total_test
-
-    y_test = y_data['complex_binary'].values
-    y_pred = model.predict(y_data)
-    y_probas = model.predict_proba(y_data)
-
-    vectorizer = CountVectorizer()
-    words_test = vectorizer.fit_transform(y_data['word'])
-
-    y_data['word'] = pd.DataFrame(
-        words_test.toarray(), columns=vectorizer.get_feature_names())
-
-    X_test = y_data.drop(columns=['complex_binary', 'parse', 'count', 'split', 'original word',
-                                  'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_probabilistic', 'sentence', 'ID', 'clean sentence', 'start_index', 'end_index',  'pos', 'lemma'])
-
-    train = total_training
-    words_train = vectorizer.fit_transform(train['word'])
-    train['word'] = pd.DataFrame(
-        words_train.toarray(), columns=vectorizer.get_feature_names())
-    y_train = train['complex_binary'].values
-    X_train = train.drop(columns=['complex_binary', 'parse', 'count', 'split', 'original word',
-                                  'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_probabilistic', 'sentence', 'ID', 'clean sentence', 'start_index', 'end_index', 'pos', 'lemma'])
-
-    feature_names = X_train.values
-
-    labels = ['non_complex', 'complex']
-
-    plot_results(model, X_train, X_test, y_train, y_test, y_pred,
-                 y_probas, labels, str(model), feature_names)
-
-
-##########################################################################################################
 
 def plot_results(model, X_train, X_test, y_train, y_test, y_pred, y_probas, labels, model_name, feature_names):
     wandb.sklearn.plot_classifier(model,
@@ -426,8 +427,6 @@ def plot_results(model, X_train, X_test, y_train, y_test, y_pred, y_probas, labe
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run feature extraction')
-    parser.add_argument('--wandb', '-wb', help="Run Wandb",
-                        type=int, default=0)
     parser.add_argument('--test', '-t', help="test data for Wandb",
                         type=str, default=None)
     parser.add_argument('--all', '-a', type=int, default=0)
@@ -439,7 +438,8 @@ if __name__ == "__main__":
     parser.add_argument('--combine_models', '-cm', type=int, default=0)
     parser.add_argument('--grid_search', '-gs', type=int, default=0)
     parser.add_argument('--recursive_feature', '-rfe', type=int, default=0)
-
+    parser.add_argument('--feature_importance',
+                        '-feature', type=int, default=0)
     parser.add_argument(
         '--model_name', '-mn', type=str, default=None)
 

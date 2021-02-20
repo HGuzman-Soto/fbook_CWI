@@ -1,0 +1,7 @@
+0
+"FeatureUnion(transformer_list=[('complex_lexicon',
+                                Pipeline(steps=[('selector',
+                                                 NumberSelector(key='complex_lexicon')),
+                                                ('standard',
+                                                 StandardScaler())]))])"
+RandomForestClassifier(n_estimators=10)
