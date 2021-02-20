@@ -78,7 +78,7 @@ def hist_plot(df, name, x_var, y_var):
 
 
 def scatter_plot(df, name, x_var, y_var):
-    sns.scatterplot(data=df, x=x_var, y_var=y_var, hue="output")
+    sns.scatterplot(data=df, x=x_var, y=y_var, hue="output")
     plt.title(name)
     plt.show()
 

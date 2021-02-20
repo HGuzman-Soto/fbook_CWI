@@ -238,6 +238,7 @@ def feature_extraction():
     ])
 
     feats = FeatureUnion([
+
         ('words', words),
         ('word_length', word_length),
         ('vowel_count', vowel_count),
@@ -246,26 +247,26 @@ def feature_extraction():
         # ('hypernyms', hypernyms),
         # ('hyponyms', hyponyms),
         # ('synonyms', synonyms),
-        ('Syllables', syllables),
+        # ('Syllables', syllables),
         # ('ogden', ogden),
         # ('simple_wiki', simple_wiki),
-        ('freq', frequency),
+        # ('freq', frequency),
         # ('subimdb', subimdb),
         # ('cald', cald),
-        ('aoa', aoa),
-        ('cnc', conc),
-        ('fam', fam),
-        ('img', img),
-        ('KFCAT', KFCAT),
-        ('KFSMP', KFSMP),
-        ('KFFRQ', KFFRQ),
-        ('NPHN', NPHN),
-        ('TLFRQ', TLFRQ),
-        ('wikipedia_freq', Wikipedia),
-        ('bnc_freq', BNC),
+        # ('aoa', aoa),
+        # ('cnc', conc),
+        # ('fam', fam),
+        # ('img', img),
+        # ('KFCAT', KFCAT),
+        # ('KFSMP', KFSMP),
+        # ('KFFRQ', KFFRQ),
+        # ('NPHN', NPHN),
+        # ('TLFRQ', TLFRQ),
+        # ('wikipedia_freq', Wikipedia),
+        # ('bnc_freq', BNC),
         ('complex_lexicon', lexicon),
-        ('learner_corpus_freq', learners),
-        ('subtitles_freq', subtitles_corpus)
+        # ('learner_corpus_freq', learners),
+        # ('subtitles_freq', subtitles_corpus)
 
     ])
     return feats
@@ -327,7 +328,7 @@ def train_model(training_data, feats):
         ])
 
         if args.recursive_feature == 1:
-            rfe = RFE(estimator=model, n_features_to_select=10)
+            rfe = RFE(estimator=model, n_features_to_select=25)
             pipeline = Pipeline([
                 ('features', feats),
                 ('rfe', rfe),
