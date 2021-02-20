@@ -105,8 +105,8 @@ def feat_bnc_corpus(word_parse_features):
 
 
 ##########################################################################################################
-array = ['News_Test_allinfo', 'News_Train_allinfo', 'WikiNews_Test_allinfo',
-         'WikiNews_Train_allinfo', 'Wikipedia_Test_allinfo', 'Wikipedia_Train_allinfo']
+array = ['News_Test_allInfo', 'News_Train_allInfo', 'WikiNews_Test_allInfo',
+         'WikiNews_Train_allInfo', 'Wikipedia_Test_allInfo', 'Wikipedia_Train_allInfo']
 
 for x in array:
     word_parse_features = pd.read_pickle('features/' + x)
