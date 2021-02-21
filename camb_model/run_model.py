@@ -8,6 +8,7 @@ import argparse
 import pandas as pd
 import pickle
 import wandb
+import os
 from wandb.keras import WandbCallback
 from train_model import TextSelector, NumberSelector
 
@@ -27,6 +28,41 @@ def main():
                        loaded_model, test_frames)
 
 ##########################################################################################################
+
+
+def feature_importance(model):
+    # feature_importance = pipeline.named_steps['classifier'].feature_importances_
+    feature_importance = model.feature_importances_
+    # also need to denote that word is a feature, same with pos tag (22)
+    if (args.all):
+        word_indice = 6891
+        tag_indice = 30
+    elif (args.train_news):
+        word_indice = 3152
+        tag_indice = 22
+
+    print(len(feature_importance))
+    tag_importance = sum(
+        feature_importance[0: tag_indice])
+
+    tag_list = list(tag_importance.flatten())
+    final_importance = tag_list + \
+        list(feature_importance[tag_indice:].flatten())
+
+    # final_importance = list(itertools.chain)
+
+    print(tag_importance)
+    print(final_importance)
+
+    features_names = training_data.columns[16:-5]
+    features_names = features_names.drop('lemma')
+    print(features_names)
+
+    # plot graph of feature importances for better visualization
+    feat_importances = pd.Series(
+        final_importance, index=features_names)
+    feat_importances.plot(kind='barh')
+    plt.show()
 
 
 """
@@ -56,8 +92,11 @@ def evaluation(name, model, array):
         print("Precision:", model_stats.Precision)
         print("Recall:", model_stats.Recall)
         print("F-Score:", model_stats['F-Score'], "\n")
-        model_stats.to_csv('results/metrics/' + name +
-                           "_metrics.csv", index=False)
+
+    if not os.path.isdir('results/metrics/' + args.model_name):
+        os.mkdir('results/metrics/' + args.model_name)
+    model_stats.to_csv('results/metrics/' + args.model_name + "/" + name +
+                       "_metrics.csv", index=False)
 
 ##########################################################################################################
 
@@ -77,6 +116,12 @@ def predict(name, model, array):
         Messy code down here
         """
 
+        if(args.test):
+            df = df.drop(columns=['parse', 'count', 'split', 'original word'])
+        else:
+            df = df.drop(columns=['parse', 'count', 'split', 'original word', 'total_native',
+                                  'total_non_native', 'native_complex', 'non_native_complex', 'complex_probabilistic'])
+
         df['output'] = predictions
         df['probability'] = probabilities
 
@@ -86,7 +131,11 @@ def predict(name, model, array):
         df.insert(index + 1, 'output', predict_df)
         df.insert(index + 2, 'probability', probab_df)
 
-        df.to_csv("results/" + name + "_" +
+        path = 'results/' + args.model_name
+        if not os.path.isdir(path):
+            os.mkdir('results/' + args.model_name)
+
+        df.to_csv("results/" + args.model_name + "/" + name + "_" +
                   arr[i] + "_results.csv", index=False)
 
         print("results outputted in results folder", "\n")

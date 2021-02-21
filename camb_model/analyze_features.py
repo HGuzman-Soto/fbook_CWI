@@ -39,7 +39,7 @@ def heat_map(df):
 
 
 def chi_square(df):
-    X = df.iloc[:, 9:31]
+    X = df.iloc[:, 9:]
     y = df['complex_binary']
 
     vectorizer = CountVectorizer()
@@ -61,7 +61,7 @@ def chi_square(df):
     # concat two dataframes for better visualization
     featureScores = pd.concat([dfcolumns, dfscores], axis=1)
     featureScores.columns = ['Specs', 'Score']  # naming the dataframe columns
-    print(featureScores.nlargest(10, 'Score'))  # print 10 best features
+    print(featureScores.nlargest(40, 'Score'))  # print 10 best features
 
     sns.barplot(x="Specs", y="Score", data=featureScores)
     plt.show()
