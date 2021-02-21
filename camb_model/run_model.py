@@ -30,41 +30,6 @@ def main():
 ##########################################################################################################
 
 
-def feature_importance(model):
-    # feature_importance = pipeline.named_steps['classifier'].feature_importances_
-    feature_importance = model.feature_importances_
-    # also need to denote that word is a feature, same with pos tag (22)
-    if (args.all):
-        word_indice = 6891
-        tag_indice = 30
-    elif (args.train_news):
-        word_indice = 3152
-        tag_indice = 22
-
-    print(len(feature_importance))
-    tag_importance = sum(
-        feature_importance[0: tag_indice])
-
-    tag_list = list(tag_importance.flatten())
-    final_importance = tag_list + \
-        list(feature_importance[tag_indice:].flatten())
-
-    # final_importance = list(itertools.chain)
-
-    print(tag_importance)
-    print(final_importance)
-
-    features_names = training_data.columns[16:-5]
-    features_names = features_names.drop('lemma')
-    print(features_names)
-
-    # plot graph of feature importances for better visualization
-    feat_importances = pd.Series(
-        final_importance, index=features_names)
-    feat_importances.plot(kind='barh')
-    plt.show()
-
-
 """
 Evaluation script gives train, test, and later dev results
 
@@ -113,7 +78,7 @@ def predict(name, model, array):
         df = pd.DataFrame(data=data)
 
         """
-        Messy code down here
+        Messy code down here,  also maybe keep annotation data 
         """
         if(args.test):
             df = df.drop(columns=['parse', 'count', 'split', 'original word'])
@@ -147,6 +112,9 @@ def parse_all_args():
     parser.add_argument('--wikipedia', '-w', type=int, default=0)
     parser.add_argument('--wikinews', '-i', type=int, default=0)
     parser.add_argument('--news', '-n', type=int, default=0)
+    parser.add_argument('--dev_wikipedia', '-dw', type=int, default=0)
+    parser.add_argument('--dev_wikinews', '-di', type=int, default=0)
+    parser.add_argument('--dev_news', '-dn', type=int, default=0)
     parser.add_argument(
         '--test', '-t', help="name of test file", type=str, default=None)
     parser.add_argument('--predict', '-p', type=int, default=1)
@@ -187,12 +155,35 @@ if __name__ == "__main__":
         news_training_data.name = 'News'
         test_frames = [news_test_data, news_training_data]
 
+    if (args.dev_wikipedia == 1):
+        test_name = "dev_wikipedia"
+        wikipedia_dev_data = pd.read_pickle('features/Wikipedia_Dev_allInfo')
+        wikipedia_training_data = pd.read_pickle(
+            'features/Wikipedia_Train_allInfo')
+        wikipedia_dev_data.name = 'Wikipedia_Dev'
+        wikipedia_training_data.name = 'Wikipedia_Dev'
+        test_frames = [wikipedia_dev_data, wikipedia_training_data]
+
+    if (args.dev_wikinews == 1):
+        test_name = "dev_wikinews"
+        wiki_dev_data = pd.read_pickle('features/WikiNews_Dev_allInfo')
+        wiki_training_data = pd.read_pickle('features/WikiNews_Train_allInfo')
+        wiki_dev_data.name = 'WikiNews_Dev'
+        wiki_training_data.name = 'WikiNews_Dev'
+        test_frames = [wiki_dev_data, wiki_training_data]
+
+    if (args.dev_news == 1):
+        test_name = 'dev_news'
+        news_dev_data = pd.read_pickle('features/News_Dev_allInfo')
+        news_training_data = pd.read_pickle('features/News_Train_allInfo')
+        news_dev_data.name = 'News_Dev'
+        news_training_data.name = 'News_Dev'
+        test_frames = [news_dev_data, news_training_data]
+
     elif(args.test):
         test_name = args.test
         testing_data = pd.read_pickle('features/' + args.test + '_allInfo')
         testing_data.name = 'testing'
         test_frames = [testing_data]
 
-    # total_test = pd.concat(test_frames)
-    # total_test.fillna(0.0, inplace=True)
     main()

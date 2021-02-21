@@ -25,6 +25,7 @@ if __name__ == "__main__":
     parser.add_argument('--wikipedia', '-w', type=int, default=0)
     parser.add_argument('--wikinews', '-i', type=int, default=0)
     parser.add_argument('--news', '-n', type=int, default=0)
+    parser.add_argument('--dev', '-d', type=str, default=None)
     parser.add_argument('--test', '-t', type=str, default=None)
 
     array = []
@@ -38,6 +39,8 @@ if __name__ == "__main__":
         array += 'WikiNews_Test', 'WikiNews_Train'
     if (args.news == 1):
         array += 'News_Test', 'News_Train'
+    if (args.dev):
+        array += ['News_Dev', 'WikiNews_Dev', 'Wikipedia_Dev']
     elif (args.test):
         array = [args.test]
 
@@ -48,6 +51,11 @@ for x in array:
         location = "testing_data/data_files/data/" + args.test + ".csv"
         data_frame = pd.read_csv(location, encoding='utf-8-sig')
         # data_frame = data_frame.astype(str)
+    if (args.dev):
+        location = 'dev_data/'+x+'.tsv'
+        data_frame = pd.read_table(location, names=('ID', 'sentence', 'start_index', 'end_index', 'word', 'total_native',
+                                                    'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic'), encoding='utf-8-sig')
+
     else:
         location = 'training_data/'+x+'.tsv'
         data_frame = pd.read_table(location, names=('ID', 'sentence', 'start_index', 'end_index', 'word', 'total_native',
@@ -110,9 +118,9 @@ for x in array:
     # Apply function to get word length
     word_set['length'] = word_set['word'].apply(lambda x: len(x))
 
-    #apply function to get vowel count
+    # apply function to get vowel count
     word_set['vowels'] = word_set['word'].apply(
-    lambda x: sum([x.count(y) for y in "aeiou"]))
+        lambda x: sum([x.count(y) for y in "aeiou"]))
 
     # take words and merge with values first you will need to clean the phrase column
     words['original word'] = words['word']
@@ -352,6 +360,7 @@ for x in array:
 
     # CNC, KFCAT, FAM, KFSMP, KFFRQ, NPHN, T-LFRQ
 
+
     def CNC_fun(word):
 
         table = mrc_features[mrc_features['word'] == word.upper()]
@@ -368,7 +377,6 @@ for x in array:
 
 
 ##########################################################################################################
-
 
     def KFCAT_fun(word):
 
@@ -402,7 +410,6 @@ for x in array:
 
 
 ##########################################################################################################
-
 
     def KFSMP_fun(word):
 
@@ -468,6 +475,7 @@ for x in array:
 ##########################################################################################################
 
     # Convert tree bank tags to ones that are compatible w google
+
 
     def is_noun(tag):
         return tag in ['NN', 'NNS', 'NNP', 'NNPS']
