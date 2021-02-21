@@ -123,7 +123,7 @@ def feature_extraction(indice=0):
         ('standard', StandardScaler())
     ])
 
-    vowel_count = Pipeline([
+    vowels = Pipeline([
         ('selector', NumberSelector(key='vowels')),
         ('standard', StandardScaler())
     ])
@@ -249,6 +249,43 @@ def feature_extraction(indice=0):
         ('selector', NumberSelector(key='subtitles_freq')),
         ('standard', StandardScaler())
     ])
+
+    pipe_feats = [
+        ('words', words),
+        ('word_length', word_length),
+        ('vowels', vowels),
+        # ('Tag', tag),
+        # ('dep_num', dep_num),
+        # ('hypernyms', hypernyms),
+        # ('hyponyms', hyponyms),
+        # ('synonyms', synonyms),
+        ('Syllables', syllables),
+        # ('ogden', ogden),
+        # ('simple_wiki', simple_wiki),
+        ('freq', frequency),
+        # ('subimdb', subimdb),
+        # ('cald', cald),
+        ('aoa', aoa),
+        ('cnc', conc),
+        ('fam', fam),
+        ('img', img),
+        ('KFCAT', KFCAT),
+        ('KFSMP', KFSMP),
+        ('KFFRQ', KFFRQ),
+        ('NPHN', NPHN),
+        ('TLFRQ', TLFRQ),
+        ('wikipedia_freq', Wikipedia),
+        ('bnc_freq', BNC),
+        ('complex_lexicon', lexicon),
+        ('learner_corpus_freq', learners),
+        ('subtitles_freq', subtitles_corpus)
+
+    ]
+
+    if(args.features):
+        feats_in = args.features.strip("[]").split(",")
+        pipe_feats = [x for x in pipe_feats if x[0] in feats_in]
+    feats = FeatureUnion(pipe_feats)
 
     feature_list = [('words', words), ('ngram', ngram), ('Tag', tag), ('word_length', word_length), ('Syllables', syllables),
                     ('dep_num', dep_num), ('synonyms', synonyms), ('hypernyms',
@@ -438,6 +475,7 @@ if __name__ == "__main__":
     parser.add_argument('--combine_models', '-cm', type=int, default=0)
     parser.add_argument('--grid_search', '-gs', type=int, default=0)
     parser.add_argument('--recursive_feature', '-rfe', type=int, default=0)
+    parser.add_argument('--features', '-fp', type=str, default="")
     parser.add_argument('--feature_importance',
                         '-feature', type=int, default=0)
     parser.add_argument(
