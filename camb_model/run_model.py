@@ -83,8 +83,9 @@ def predict(name, model, array):
         if(args.test):
             df = df.drop(columns=['parse', 'count', 'split', 'original word'])
         else:
-            df = df.drop(columns=['parse', 'count', 'split', 'original word', 'total_native',
-                                  'total_non_native', 'native_complex', 'non_native_complex', 'complex_probabilistic'])
+            # df = df.drop(columns=['parse', 'count', 'split', 'original word', 'total_native',
+            #                       'total_non_native', 'native_complex', 'non_native_complex', 'complex_probabilistic'])
+            df = df.drop(columns=['parse', 'count', 'split', 'original word'])
 
         df['output'] = predictions
         df['probability'] = probabilities
@@ -112,6 +113,7 @@ def parse_all_args():
     parser.add_argument('--wikipedia', '-w', type=int, default=0)
     parser.add_argument('--wikinews', '-i', type=int, default=0)
     parser.add_argument('--news', '-n', type=int, default=0)
+    parser.add_argument('--old_data', '-o', type=int, default=0)
     parser.add_argument('--dev_wikipedia', '-dw', type=int, default=0)
     parser.add_argument('--dev_wikinews', '-di', type=int, default=0)
     parser.add_argument('--dev_news', '-dn', type=int, default=0)
@@ -179,6 +181,15 @@ if __name__ == "__main__":
         news_dev_data.name = 'News_Dev'
         news_training_data.name = 'News_Dev'
         test_frames = [news_dev_data, news_training_data]
+    
+    if (args.old_data == 1):
+        test_name = 'old_data'
+        old_test_data = pd.read_pickle('features/2016_Test_allInfo')
+        old_data_train = pd.read_pickle('features/2016_Train_allInfo')
+        old_test_data.name = 'old_data_Test'
+        old_data_train.name = 'old_data_Train'
+        test_frames = [old_test_data, old_data_train]
+
 
     elif(args.test):
         test_name = args.test

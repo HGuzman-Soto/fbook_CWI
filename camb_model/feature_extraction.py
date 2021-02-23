@@ -26,6 +26,7 @@ if __name__ == "__main__":
     parser.add_argument('--wikinews', '-i', type=int, default=0)
     parser.add_argument('--news', '-n', type=int, default=0)
     parser.add_argument('--dev', '-d', type=str, default=None)
+    parser.add_argument('--old_dataset', '-old', type=str, default=None)
     parser.add_argument('--test', '-t', type=str, default=None)
 
     array = []
@@ -40,7 +41,9 @@ if __name__ == "__main__":
     if (args.news == 1):
         array += 'News_Test', 'News_Train'
     if (args.dev):
-        array += ['News_Dev', 'WikiNews_Dev', 'Wikipedia_Dev']
+        array += ['WikiNews_Dev', 'Wikipedia_Dev', 'News_Dev']
+    if (args.old_dataset):
+        array += ['2016_test', '2016_train']
     elif (args.test):
         array = [args.test]
 
@@ -55,6 +58,13 @@ for x in array:
         location = 'dev_data/'+x+'.tsv'
         data_frame = pd.read_table(location, names=('ID', 'sentence', 'start_index', 'end_index', 'word', 'total_native',
                                                     'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic'), encoding='utf-8-sig')
+
+    if (args.old_dataset):
+        location = "training_data/" + x + '.txt'
+        data_frame = pd.read_table(location, names=(
+            'sentence', 'word', 'index', 'complex_binary'))
+        data_frame['word'] = data_frame['word'].astype(str)
+        data_frame['sentence'] = data_frame['sentence'].astype(str)
 
     else:
         location = 'training_data/'+x+'.tsv'
@@ -141,7 +151,11 @@ for x in array:
     print("start core")
     nlp = StanfordCoreNLP('http://localhost:9000')
 
-    sentences = data_frame[['sentence', 'ID']].copy()
+    if (args.old_dataset):
+        sentences = data_frame[['sentence']].copy()
+    else:
+        sentences = data_frame[['sentence', 'ID']].copy()
+
 
     sentences = sentences.drop_duplicates()
 
@@ -360,7 +374,6 @@ for x in array:
 
     # CNC, KFCAT, FAM, KFSMP, KFFRQ, NPHN, T-LFRQ
 
-
     def CNC_fun(word):
 
         table = mrc_features[mrc_features['word'] == word.upper()]
@@ -377,6 +390,7 @@ for x in array:
 
 
 ##########################################################################################################
+
 
     def KFCAT_fun(word):
 
@@ -410,6 +424,7 @@ for x in array:
 
 
 ##########################################################################################################
+
 
     def KFSMP_fun(word):
 
@@ -475,7 +490,6 @@ for x in array:
 ##########################################################################################################
 
     # Convert tree bank tags to ones that are compatible w google
-
 
     def is_noun(tag):
         return tag in ['NN', 'NNS', 'NNP', 'NNPS']
