@@ -80,6 +80,7 @@ def predict(name, model, array):
         """
         Messy code down here,  also maybe keep annotation data 
         """
+
         if(args.test):
             df = df.drop(columns=['parse', 'count', 'split', 'original word'])
         else:
@@ -92,8 +93,9 @@ def predict(name, model, array):
 
         predict_df, probab_df = df['output'], df['probability']
         df.drop(labels=['output', 'probability'], axis=1, inplace=True)
-        df.insert(7, 'output', predict_df)
-        df.insert(8, 'probability', probab_df)
+        index = df.columns.get_loc("word")
+        df.insert(index + 1, 'output', predict_df)
+        df.insert(index + 2, 'probability', probab_df)
 
         path = 'results/' + args.model_name
         if not os.path.isdir(path):
@@ -119,6 +121,7 @@ def parse_all_args():
     parser.add_argument('--dev_news', '-dn', type=int, default=0)
     parser.add_argument(
         '--test', '-t', help="name of test file", type=str, default=None)
+    parser.add_argument('--features', '-f', type=str, default="")
     parser.add_argument('--predict', '-p', type=int, default=1)
     parser.add_argument('--evaluation', '-e', type=int, default=1)
     parser.add_argument('--model_name', '-mn', type=str, default=None)
@@ -196,5 +199,19 @@ if __name__ == "__main__":
         testing_data = pd.read_pickle('features/' + args.test + '_allInfo')
         testing_data.name = 'testing'
         test_frames = [testing_data]
+    
+    if (args.features):
+        used_feats = args.features.strip("[]").split(",")
+        used_feats = ["sentence", "ID", "clean sentence", "word", "complex_binary"] + used_feats
 
+        for i in range(len(test_frames)):
+            test_frames[i]= test_frames[i][used_feats]
+
+
+    #if features are not specified, remove unnecessary features
+    else:
+        for i in range(len(test_frames)):
+            test_frames[i] = test_frames[i].drop(columns=['parse', 'count', 'split', 'original word'])
+    # total_test = pd.concat(test_frames)
+    # total_test.fillna(0.0, inplace=True)
     main()
