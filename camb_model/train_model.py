@@ -13,7 +13,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import VotingClassifier
 from sklearn.pipeline import FeatureUnion
 from sklearn.pipeline import Pipeline
-from sklearn.feature_selection import RFE
+from sklearn.feature_selection import RFECV
 
 from sklearn.model_selection import GridSearchCV
 from sklearn.preprocessing import StandardScaler
@@ -58,6 +58,10 @@ def main():
                         'TLFRQ', 'complex_lexicon', 'subtitles_freq', 'wikipedia_freq',
                         'learner_corpus_freq', 'bnc_freq']
         feature_importance(model_graph, feature_list=feature_list)
+    
+    if args.recursive_feature:
+        recursive_feat()
+
     else:
         feats = feature_extraction()
         feature_processing = Pipeline([('feats', feats)])
@@ -282,7 +286,7 @@ def feature_extraction(indice=0):
 
     ]
 
-    if(args.features):
+    if args.features:
         feats_in = args.features.strip("[]").split(",")
         pipe_feats = [x for x in pipe_feats if x[0] in feats_in]
     feats = FeatureUnion(pipe_feats)
@@ -303,9 +307,9 @@ def feature_extraction(indice=0):
 
 def grid_search(training_data, feats, model_type):
     if(model_type == "rf"):
-        grid = {'classifier__n_estimators': [int(x) for x in np.linspace(start=2000, stop=10000, num=5)],
+        grid = {'classifier__n_estimators': [2000,5000,10000],
                 'classifier__max_features': ['auto', 'sqrt'],
-                'classifier__max_depth': ([int(x) for x in np.linspace(10, 110, num=5)]),
+                'classifier__max_depth': (10,25,50,75,100),
                 'classifier__min_samples_split': [2, 5, 10],
                 'classifier__min_samples_leaf': [1, 2, 4],
                 'classifier__bootstrap': [True, False]
@@ -314,8 +318,8 @@ def grid_search(training_data, feats, model_type):
         model = RandomForestClassifier()
 
     if model_type == "ab":
-        grid = {'classifier__n_estimators': [int(x) for x in np.linspace(start=2000, stop=20000, num=11)],
-                'classifier__learning_rate': [float(x) for x in np.linspace(start=0.01, stop=0.1, num=10)]}
+        grid = {'classifier__n_estimators': [int(x) for x in np.linspace(start=4000, stop=6000, num=3)],
+                'classifier__learning_rate': [float(x) for x in np.linspace(start=0.01, stop=0.1, num=5)]}
 
         model = AdaBoostClassifier()
 
@@ -355,25 +359,13 @@ def train_model(training_data, feats):
             ('classifier', model),
         ])
 
-        if args.recursive_feature == 1:
-            rfe = RFE(estimator=model, n_features_to_select=25)
-            pipeline = Pipeline([
-                ('features', feats),
-                ('rfe', rfe),
-
-                ('classifier', model),
-            ])
-        pipeline.fit(training_data, train_targets)
-
-        models.append(pipeline)
-
     if (args.random_forest == 1 or args.combine_models == 1):
 
         if(args.grid_search == 1):
             model = RandomForestClassifier(
                 **grid_search(training_data, feats, "rf"))
         else:
-            model = RandomForestClassifier(n_estimators=10)
+            model = RandomForestClassifier(n_estimators=5000)
 
         pipeline_rf = Pipeline([
             ('features', feats),
@@ -381,7 +373,6 @@ def train_model(training_data, feats):
         ])
 
         pipeline_rf.fit(training_data, train_targets)
-        feature_importance = pipeline_rf.named_steps['classifier'].feature_importances_
 
         models.append(pipeline_rf)
 
@@ -439,6 +430,44 @@ def feature_importance(pipeline, feature_list):
     feat_importances.plot(kind='barh')
     plt.show()
 
+
+##########################################################################################################
+
+"""
+Implementation of Recursive Feature Elimination
+"""
+
+def recursive_feat():
+    if args.ada_boost == 1:
+        model = AdaBoostClassifier(n_estimators=5000)
+    else:
+        model = RandomForestClassifier(n_estimators=5000)
+    
+    rfecv = RFECV(model, n_jobs=7)
+    pipeline = Pipeline([
+                ('rfecv', rfecv),
+                ('classifier', model),
+            ])
+
+    useful_data = training_data.drop(['sentence', 'ID', 'clean sentence', 'parse', 'start_index', 'end_index', 
+    'word', 'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic',
+    'split', 'count', 'word', 'original word', 'lemma', 'pos'], axis=1)
+
+    pipeline.fit(useful_data, train_targets)
+
+    print("optimal # of features: %d" % rfecv.n_features_)
+    print("used features:")
+    best_feats = [useful_data.columns[x] for x in range(len(useful_data.columns)) if rfecv.support_[x]]
+    for f in best_feats:
+        print(f)
+
+    plt.figure()
+    plt.xlabel("Number of features selected")
+    plt.ylabel("Cross validation score (fraction of correct classifications)")
+    plt.plot(rfecv.grid_scores_)
+    plt.show()
+
+    print("\n",rfecv.grid_scores_)
 
 ##########################################################################################################
 
@@ -527,5 +556,6 @@ if __name__ == "__main__":
 
     training_data = total_training
     train_targets = training_data['complex_binary'].values
+
 
     main()
