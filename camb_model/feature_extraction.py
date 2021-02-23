@@ -25,6 +25,8 @@ if __name__ == "__main__":
     parser.add_argument('--wikipedia', '-w', type=int, default=0)
     parser.add_argument('--wikinews', '-i', type=int, default=0)
     parser.add_argument('--news', '-n', type=int, default=0)
+    parser.add_argument('--dev', '-d', type=str, default=None)
+    parser.add_argument('--old_dataset', '-old', type=str, default=None)
     parser.add_argument('--test', '-t', type=str, default=None)
 
     array = []
@@ -38,6 +40,10 @@ if __name__ == "__main__":
         array += 'WikiNews_Test', 'WikiNews_Train'
     if (args.news == 1):
         array += 'News_Test', 'News_Train'
+    if (args.dev):
+        array += ['WikiNews_Dev', 'Wikipedia_Dev', 'News_Dev']
+    if (args.old_dataset):
+        array += ['2016_test', '2016_train']
     elif (args.test):
         array = [args.test]
 
@@ -48,6 +54,18 @@ for x in array:
         location = "testing_data/data_files/data/" + args.test + ".csv"
         data_frame = pd.read_csv(location, encoding='utf-8-sig')
         # data_frame = data_frame.astype(str)
+    if (args.dev):
+        location = 'dev_data/'+x+'.tsv'
+        data_frame = pd.read_table(location, names=('ID', 'sentence', 'start_index', 'end_index', 'word', 'total_native',
+                                                    'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic'), encoding='utf-8-sig')
+
+    if (args.old_dataset):
+        location = "training_data/" + x + '.txt'
+        data_frame = pd.read_table(location, names=(
+            'sentence', 'word', 'index', 'complex_binary'))
+        data_frame['word'] = data_frame['word'].astype(str)
+        data_frame['sentence'] = data_frame['sentence'].astype(str)
+
     else:
         location = 'training_data/'+x+'.tsv'
         data_frame = pd.read_table(location, names=('ID', 'sentence', 'start_index', 'end_index', 'word', 'total_native',
@@ -110,9 +128,9 @@ for x in array:
     # Apply function to get word length
     word_set['length'] = word_set['word'].apply(lambda x: len(x))
 
-    #apply function to get vowel count
+    # apply function to get vowel count
     word_set['vowels'] = word_set['word'].apply(
-    lambda x: sum([x.count(y) for y in "aeiou"]))
+        lambda x: sum([x.count(y) for y in "aeiou"]))
 
     # take words and merge with values first you will need to clean the phrase column
     words['original word'] = words['word']
@@ -133,7 +151,11 @@ for x in array:
     print("start core")
     nlp = StanfordCoreNLP('http://localhost:9000')
 
-    sentences = data_frame[['sentence', 'ID']].copy()
+    if (args.old_dataset):
+        sentences = data_frame[['sentence']].copy()
+    else:
+        sentences = data_frame[['sentence', 'ID']].copy()
+
 
     sentences = sentences.drop_duplicates()
 

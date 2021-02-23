@@ -104,16 +104,26 @@ def feat_bnc_corpus(word_parse_features):
     return word_parse_features
 
 
+def vowels(word_parse_features):
+    print("get vowels")
+    word_parse_features['vowels'] = word_parse_features['word'].apply(
+        lambda x: sum([x.count(y) for y in "aeiou"]))
+    return word_parse_features
+    
+    print("end vowels")
+
 ##########################################################################################################
-array = ['News_Test_allInfo', 'News_Train_allInfo', 'WikiNews_Test_allInfo',
-         'WikiNews_Train_allInfo', 'Wikipedia_Test_allInfo', 'Wikipedia_Train_allInfo']
+array = ['News_Test_allInfo', 'News_Train_allInfo', 'WikiNews_Test_allInfo', 'News_Dev_allInfo', 'WikiNews_Dev_allInfo', 'Wikipedia_Dev_allInfo',
+         'WikiNews_Train_allInfo', 'Wikipedia_Test_allInfo', 'Wikipedia_Train_allInfo', '2016_train_allInfo','2016_test_allInfo']
 
 for x in array:
     word_parse_features = pd.read_pickle('features/' + x)
-    word_parse_features = word_complexity(word_parse_features)
-    word_parse_features = subtitle_corpus(word_parse_features)
-    word_parse_features = feat_wikipedia_corpus(word_parse_features)
-    word_parse_features = learner_corpus(word_parse_features)
-    word_parse_features = feat_bnc_corpus(word_parse_features)
+    # word_parse_features = word_complexity(word_parse_features)
+    # word_parse_features = subtitle_corpus(word_parse_features)
+    # word_parse_features = feat_wikipedia_corpus(word_parse_features)
+    # word_parse_features = learner_corpus(word_parse_features)
+    # word_parse_features = feat_bnc_corpus(word_parse_features)
+    
+    word_parse_features = vowels(word_parse_features)
     word_parse_features.to_pickle(
-        'new_features/' + x)
+        'features/' + x)

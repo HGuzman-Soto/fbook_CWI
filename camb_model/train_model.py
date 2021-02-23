@@ -50,9 +50,9 @@ and what features you used to train it.
 def main():
 
     if args.feature_importance == 1:
-        feats_for_graph = feature_extraction(indice=2)
+        feats_for_graph = feature_extraction(indice=1)
         model_graph = train_model(training_data, feats_for_graph)
-        feature_list = ['pos', 'length', 'syllables', 'dep num', 'synonyms', 'hypernyms',
+        feature_list = ['pos', 'length', 'vowels', 'syllables', 'dep num', 'synonyms', 'hypernyms',
                         'hyponyms', 'ogden', 'simple_wiki', 'cald', 'cnc', 'img', 'aoa', 'fam',
                         'sub_imdb', 'google frequency', 'KFCAT', 'KFSMP', 'KFFRQ', 'NPHN',
                         'TLFRQ', 'complex_lexicon', 'subtitles_freq', 'wikipedia_freq',
@@ -254,6 +254,38 @@ def feature_extraction(indice=0):
         ('standard', StandardScaler())
     ])
 
+    #('ngram', ngram) is omitted
+    feature_list = [
+    ('words', words),
+    ('ngram', ngram),
+    ('Tag', tag),
+    ('word_length', word_length),
+    # ('vowels', vowels),
+    ('Syllables', syllables),
+    ('dep_num', dep_num),
+    ('synonyms', synonyms),
+    ('hypernyms', hypernyms),
+    ('hyponyms', hyponyms),
+    ('ogden', ogden),
+    ('simple_wiki', simple_wiki),
+    ('cald', cald),
+    ('cnc', conc),
+    ('img', img),
+    ('aoa', aoa),
+    ('fam', fam),
+    ('subimdb', subimdb),
+    ('freq', frequency),
+    ('KFCAT', KFCAT),
+    ('KFSMP', KFSMP),
+    ('KFFRQ', KFFRQ),
+    ('NPHN', NPHN),
+    ('TLFRQ', TLFRQ),
+    # ('complex_lexicon', lexicon),
+    # ('subtitles_freq', subtitles_corpus),
+    # ('wikipedia_freq', Wikipedia),
+    # ('learner_corpus_freq', learners),
+    # ('bnc_freq', BNC)
+    ]
     pipe_feats = [
         ('words', words),
         ('word_length', word_length),
@@ -499,6 +531,7 @@ if __name__ == "__main__":
     parser.add_argument('--train_wikipedia', '-tw', type=int, default=0)
     parser.add_argument('--train_wikinews', '-ti', type=int, default=0)
     parser.add_argument('--train_news', '-tn', type=int, default=0)
+    parser.add_argument('--train_old', '-to', type=int, default=0)
     parser.add_argument('--random_forest', '-rf', type=int, default=0)
     parser.add_argument('--ada_boost', '-ab', type=int, default=0)
     parser.add_argument('--combine_models', '-cm', type=int, default=0)
@@ -549,6 +582,13 @@ if __name__ == "__main__":
         wiki_training_data = pd.read_pickle('features/WikiNews_Train_allInfo')
         wiki_training_data.name = 'WikiNews'
         train_frames.append(wiki_training_data)
+    
+    if (args.train_old == 1):
+        train_names.append('2016_train')
+        old_train_dataset = pd.read_pickle('features/2016_Train_allInfo')
+        old_train_dataset.name = '2016_train'
+        train_frames.append(old_train_dataset)
+    
 
     total_training = pd.concat(train_frames)
 
