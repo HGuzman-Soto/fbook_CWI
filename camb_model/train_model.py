@@ -14,7 +14,6 @@ from sklearn.ensemble import VotingClassifier
 from sklearn.pipeline import FeatureUnion
 from sklearn.pipeline import Pipeline
 from sklearn.feature_selection import RFECV
-from sklearn.model_selection import StratifiedKFold
 
 from sklearn.model_selection import GridSearchCV
 from sklearn.preprocessing import StandardScaler
@@ -61,8 +60,7 @@ def main():
         feature_importance(model_graph, feature_list=feature_list)
     
     if args.recursive_feature:
-        feats = feature_extraction()
-        recursive_feat(feats)
+        recursive_feat()
 
     else:
         feats = feature_extraction()
@@ -320,7 +318,7 @@ def grid_search(training_data, feats, model_type):
         model = RandomForestClassifier()
 
     if model_type == "ab":
-        grid = {'classifier__n_estimators': [int(x) for x in np.linspace(start=2000, stop=20000, num=5)],
+        grid = {'classifier__n_estimators': [int(x) for x in np.linspace(start=4000, stop=6000, num=3)],
                 'classifier__learning_rate': [float(x) for x in np.linspace(start=0.01, stop=0.1, num=5)]}
 
         model = AdaBoostClassifier()
@@ -367,7 +365,7 @@ def train_model(training_data, feats):
             model = RandomForestClassifier(
                 **grid_search(training_data, feats, "rf"))
         else:
-            model = RandomForestClassifier(n_estimators=10)
+            model = RandomForestClassifier(n_estimators=5000)
 
         pipeline_rf = Pipeline([
             ('features', feats),
@@ -375,7 +373,6 @@ def train_model(training_data, feats):
         ])
 
         pipeline_rf.fit(training_data, train_targets)
-        feature_importance = pipeline_rf.named_steps['classifier'].feature_importances_
 
         models.append(pipeline_rf)
 
@@ -436,13 +433,17 @@ def feature_importance(pipeline, feature_list):
 
 ##########################################################################################################
 
-def recursive_feat(feats):
+"""
+Implementation of Recursive Feature Elimination
+"""
+
+def recursive_feat():
     if args.ada_boost == 1:
-        model = AdaBoostClassifier(n_estimators=5000, random_state=67)
+        model = AdaBoostClassifier(n_estimators=5000)
     else:
-        model = RandomForestClassifier(n_estimators=50)
+        model = RandomForestClassifier(n_estimators=5000)
     
-    rfecv = RFECV(model, cv=StratifiedKFold(5), )
+    rfecv = RFECV(model, n_jobs=7)
     pipeline = Pipeline([
                 ('rfecv', rfecv),
                 ('classifier', model),
@@ -455,14 +456,18 @@ def recursive_feat(feats):
     pipeline.fit(useful_data, train_targets)
 
     print("optimal # of features: %d" % rfecv.n_features_)
-    print("used columns:")
-    print([useful_data.columns[x] for x in range(len(useful_data.columns)) if rfecv.support_[x]])
+    print("used features:")
+    best_feats = [useful_data.columns[x] for x in range(len(useful_data.columns)) if rfecv.support_[x]]
+    for f in best_feats:
+        print(f)
 
     plt.figure()
     plt.xlabel("Number of features selected")
-    plt.ylabel("Cross validation score (nb of correct classifications)")
+    plt.ylabel("Cross validation score (fraction of correct classifications)")
     plt.plot(rfecv.grid_scores_)
     plt.show()
+
+    print("\n",rfecv.grid_scores_)
 
 ##########################################################################################################
 
