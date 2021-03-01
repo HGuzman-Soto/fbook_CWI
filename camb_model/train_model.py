@@ -21,6 +21,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.base import BaseEstimator, TransformerMixin
 import matplotlib.pyplot as plt
+from boruta import BorutaPy
 
 import string
 import numpy as np
@@ -61,6 +62,9 @@ def main():
     
     if args.recursive_feature:
         recursive_feat()
+    
+    if args.boruta:
+        Boruta()
 
     else:
         feats = feature_extraction()
@@ -501,6 +505,61 @@ def recursive_feat():
 
 ##########################################################################################################
 
+"""
+Implementation of Boruta Feature Selection
+"""
+
+def Boruta():
+
+    model = RandomForestClassifier(class_weight='balanced', n_estimators=1000)
+
+    #remove unnecesary columns
+    train_cleaned = training_data.drop(['sentence', 'ID', 'clean sentence', 'parse', 'start_index', 'end_index', 
+        'word', 'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic',
+        'split', 'count', 'word', 'original word', 'lemma', 'pos'], axis=1)
+
+    #make numpy arrays from x df
+    x = train_cleaned.values
+
+    feat_selector = BorutaPy(model, n_estimators='auto', verbose=2, random_state=1)
+
+    feat_selector.fit(x,train_targets)
+
+    #get results
+
+    # get names of best features
+    best_feats = [train_cleaned.columns[x] for x in range(len(train_cleaned.columns)) if feat_selector.support_[x]]
+
+    print("Best Features: \n")
+    if len(best_feats) == 0: print("none")
+    for f in best_feats:
+        print(f)
+
+    # get names of undecided features
+    und_feats = [train_cleaned.columns[x] for x in range(len(train_cleaned.columns)) if feat_selector.support_weak_[x]]
+
+    print("Undecided Features: \n")
+    if len(und_feats) == 0: print("none")
+    for f in und_feats:
+        print(f)
+    
+    # get names of non-selected features
+    bad_feats = [x for x in train_cleaned.columns if x not in (best_feats + und_feats)]
+
+    print("Unselected Features: \n")
+    if len(bad_feats) == 0: print("none")
+    for f in bad_feats:
+        print(f)
+
+    
+    # check ranking of features
+    ranking = [x for x,y in train_cleaned.columns, len(train_cleaned.columns) if list(feat_selector.ranking_)[y]]
+
+    print("ranking: ")
+    print(ranking)
+
+##########################################################################################################
+
 
 def pickle_model(model):
     print("pickling model")
@@ -536,6 +595,7 @@ if __name__ == "__main__":
     parser.add_argument('--combine_models', '-cm', type=int, default=0)
     parser.add_argument('--grid_search', '-gs', type=int, default=0)
     parser.add_argument('--recursive_feature', '-rfe', type=int, default=0)
+    parser.add_argument('--boruta', '-bor', type=int, default=0)
     parser.add_argument('--features', '-fp', type=str, default="")
     parser.add_argument('--feature_importance',
                         '-feature', type=int, default=0)
