@@ -511,6 +511,7 @@ Implementation of Boruta Feature Selection
 
 def Boruta():
 
+    #initialize model
     model = RandomForestClassifier(class_weight='balanced', n_estimators=1000)
 
     #remove unnecesary columns
@@ -521,8 +522,8 @@ def Boruta():
     #make numpy arrays from x df
     x = train_cleaned.values
 
+    #do feature selection
     feat_selector = BorutaPy(model, n_estimators='auto', verbose=2, random_state=1)
-
     feat_selector.fit(x,train_targets)
 
     #get results
@@ -530,33 +531,23 @@ def Boruta():
     # get names of best features
     best_feats = [train_cleaned.columns[x] for x in range(len(train_cleaned.columns)) if feat_selector.support_[x]]
 
-    print("Best Features: \n")
-    if len(best_feats) == 0: print("none")
+    print("\nBest Features: (ranked)\n")
     for f in best_feats:
         print(f)
 
     # get names of undecided features
     und_feats = [train_cleaned.columns[x] for x in range(len(train_cleaned.columns)) if feat_selector.support_weak_[x]]
-
-    print("Undecided Features: \n")
-    if len(und_feats) == 0: print("none")
+    
+    if len(und_feats) > 0: print("\nUndecided Features: \n")
     for f in und_feats:
         print(f)
     
     # get names of non-selected features
     bad_feats = [x for x in train_cleaned.columns if x not in (best_feats + und_feats)]
 
-    print("Unselected Features: \n")
-    if len(bad_feats) == 0: print("none")
+    print("\nUnselected Features: \n")
     for f in bad_feats:
         print(f)
-
-    
-    # check ranking of features
-    ranking = [x for x,y in train_cleaned.columns, len(train_cleaned.columns) if list(feat_selector.ranking_)[y]]
-
-    print("ranking: ")
-    print(ranking)
 
 ##########################################################################################################
 
