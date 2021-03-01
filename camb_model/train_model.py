@@ -286,21 +286,27 @@ def feature_extraction(indice=0):
     # ('learner_corpus_freq', learners),
     # ('bnc_freq', BNC)
     ]
+
+    if(args.feature_importance == 1):    
+        feats = FeatureUnion(feature_list[indice:])
+
+
+
     pipe_feats = [
         ('words', words),
         ('word_length', word_length),
-        ('vowels', vowels),
-        # ('Tag', tag),
-        # ('dep_num', dep_num),
-        # ('hypernyms', hypernyms),
-        # ('hyponyms', hyponyms),
-        # ('synonyms', synonyms),
+        # ('vowels', vowels),
+        ('Tag', tag),
+        ('dep_num', dep_num),
+        ('hypernyms', hypernyms),
+        ('hyponyms', hyponyms),
+        ('synonyms', synonyms),
         ('Syllables', syllables),
-        # ('ogden', ogden),
-        # ('simple_wiki', simple_wiki),
+        ('ogden', ogden),
+        ('simple_wiki', simple_wiki),
         ('freq', frequency),
-        # ('subimdb', subimdb),
-        # ('cald', cald),
+        ('subimdb', subimdb),
+        ('cald', cald),
         ('aoa', aoa),
         ('cnc', conc),
         ('fam', fam),
@@ -310,11 +316,11 @@ def feature_extraction(indice=0):
         ('KFFRQ', KFFRQ),
         ('NPHN', NPHN),
         ('TLFRQ', TLFRQ),
-        ('wikipedia_freq', Wikipedia),
-        ('bnc_freq', BNC),
-        ('complex_lexicon', lexicon),
-        ('learner_corpus_freq', learners),
-        ('subtitles_freq', subtitles_corpus)
+        # ('wikipedia_freq', Wikipedia),
+        # ('bnc_freq', BNC),
+        # ('complex_lexicon', lexicon),
+        # ('learner_corpus_freq', learners),
+        # ('subtitles_freq', subtitles_corpus)
 
     ]
 
@@ -323,16 +329,7 @@ def feature_extraction(indice=0):
         pipe_feats = [x for x in pipe_feats if x[0] in feats_in]
     feats = FeatureUnion(pipe_feats)
 
-    feature_list = [('words', words), ('ngram', ngram), ('Tag', tag), ('word_length', word_length), ('Syllables', syllables),
-                    ('dep_num', dep_num), ('synonyms', synonyms), ('hypernyms',
-                                                                   hypernyms), ('hyponyms', hyponyms), ('ogden', ogden),
-                    ('simple_wiki', simple_wiki), ('cald', cald), ('cnc', conc), ('img',
-                                                                                  img), ('aoa', aoa), ('fam', fam), ('subimdb', subimdb),
-                    ('freq', frequency), ('KFCAT', KFCAT), ('KFSMP', KFSMP), ('KFFRQ',
-                                                                              KFFRQ), ('NPHN', NPHN), ('TLFRQ', TLFRQ),
-                    ('complex_lexicon', lexicon),  ('subtitles_freq', subtitles_corpus), ('wikipedia_freq', Wikipedia), ('learner_corpus_freq', learners), ('bnc_freq', BNC)]
 
-    feats = FeatureUnion(feature_list[indice:])
     return feats
 ##########################################################################################################
 
@@ -390,6 +387,8 @@ def train_model(training_data, feats):
             ('features', feats),
             ('classifier', model),
         ])
+        pipeline.fit(training_data, train_targets)
+        models.append(pipeline)
 
     if (args.random_forest == 1 or args.combine_models == 1):
 
@@ -415,7 +414,6 @@ def train_model(training_data, feats):
         ensemble.fit(training_data, train_targets)
         model = ensemble
         models.append(model)
-
     pipeline = models[-1]
     return pipeline
 
@@ -505,6 +503,7 @@ def recursive_feat():
 
 
 def pickle_model(model):
+    print("pickling model")
     pickle.dump(model, open("models/" + args.model_name + ".sav", 'wb'))
 
 ##########################################################################################################

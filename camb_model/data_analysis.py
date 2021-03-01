@@ -7,7 +7,8 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 
 def main(df_list):
-    name = ["all_data", "correct_outputs", "wrong_outputs"]
+    # name = ["all_data", "correct_outputs", "wrong_outputs"]
+    name = ["all_data"]
     i = 0
     for df in df_list:
 
@@ -144,5 +145,7 @@ if __name__ == "__main__":
         df_list = [df, correct_df, wrong_df]
     except:
         df_list = [df]
+    
+    df_list = [df]
 
     main(df_list)

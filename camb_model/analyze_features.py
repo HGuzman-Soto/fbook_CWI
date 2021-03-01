@@ -39,7 +39,7 @@ def heat_map(df):
 
 
 def chi_square(df):
-    X = df.iloc[:, 9:]
+    X = df.iloc[:, 6:]
     y = df['complex_binary']
 
     vectorizer = CountVectorizer()
