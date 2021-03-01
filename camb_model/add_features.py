@@ -112,6 +112,34 @@ def vowels(word_parse_features):
     
     print("end vowels")
 
+def consonants(word_parse_features):
+    print("get consonants")
+    word_parse_features['consonants'] = word_parse_features['word'].apply(
+        lambda x: sum([x.count(y) for y in "bcdfghjklmnpqrstvwxyz"]))
+    return word_parse_features
+
+##########################################################################################################
+def holonyms(word):
+    from nltk.corpus import wordnet
+    holonyms = 0
+    try:
+        results = wordnet.synsets(word)
+        holonyms = len(results[0].holonyms())
+        return holonyms
+    except:
+        return holonyms
+
+##########################################################################################################
+def meronyms(word):
+    from nltk.corpus import wordnet
+    meronyms = 0
+    try:
+        results = wordnet.synsets(word)
+        meronyms = len(results[0].meronyms())
+        return meronyms
+    except:
+        return meronyms
+
 ##########################################################################################################
 array = ['News_Test_allInfo', 'News_Train_allInfo', 'WikiNews_Test_allInfo', 'News_Dev_allInfo', 'WikiNews_Dev_allInfo', 'Wikipedia_Dev_allInfo',
          'WikiNews_Train_allInfo', 'Wikipedia_Test_allInfo', 'Wikipedia_Train_allInfo', '2016_train_allInfo','2016_test_allInfo']
@@ -124,6 +152,12 @@ for x in array:
     # word_parse_features = learner_corpus(word_parse_features)
     # word_parse_features = feat_bnc_corpus(word_parse_features)
     
-    word_parse_features = vowels(word_parse_features)
+    # word_parse_features = vowels(word_parse_features)
+    word_parse_features['holonyms'] = word_parse_features['lemma'].apply(
+        lambda x: holonyms(x))
+    word_parse_features['meronyms'] = word_parse_features['lemma'].apply(
+        lambda x: meronyms(x))
+    word_parse_features = consonants(word_parse_features)
+
     word_parse_features.to_pickle(
         'features/' + x)

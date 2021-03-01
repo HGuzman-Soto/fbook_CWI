@@ -117,9 +117,14 @@ def feature_extraction(indice=0):
         ('vect', CountVectorizer())
     ])
 
-    ngram = Pipeline([
+    bi_gram_char = Pipeline([
         ('selector', TextSelector(key='word')),
         ('vect', CountVectorizer(analyzer='char', ngram_range=(2, 2)))
+    ])
+
+    four_gram_char = Pipeline([
+        ('selector', TextSelector(key='word')),
+        ('vect', CountVectorizer(analyzer='char', ngram_range=(4, 4)))
     ])
 
     word_length = Pipeline([
@@ -257,7 +262,7 @@ def feature_extraction(indice=0):
     #('ngram', ngram) is omitted
     feature_list = [
     ('words', words),
-    ('ngram', ngram),
+    # ('bigram_char', bi_gram_char),
     ('Tag', tag),
     ('word_length', word_length),
     # ('vowels', vowels),
