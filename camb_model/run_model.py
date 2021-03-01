@@ -86,7 +86,10 @@ def predict(name, model, array):
         else:
             # df = df.drop(columns=['parse', 'count', 'split', 'original word', 'total_native',
             #                       'total_non_native', 'native_complex', 'non_native_complex', 'complex_probabilistic'])
-            df = df.drop(columns=['parse', 'count', 'split', 'original word'])
+            try:
+                df = df.drop(columns=['parse', 'count', 'split', 'original word'])
+            except:
+                pass
 
         df['output'] = predictions
         df['probability'] = probabilities
