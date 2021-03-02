@@ -1,7 +1,11 @@
+from pycorenlp import StanfordCoreNLP
+import pycorenlp
 import pandas as pd
 import dill
 import re
 import math
+import ast
+import string
 from collections import Counter, defaultdict
 from nltk import word_tokenize
 
@@ -252,14 +256,57 @@ def learners_bigram(word_parse_features):
     return bigram_prob
 
 
+# Now parse
+print("start core")
+nlp = StanfordCoreNLP('http://localhost:9000')
+
+remove = string.punctuation
+remove = remove.replace("-", "")
+remove = remove.replace("'", "")  # don't remove apostraphies
+
+remove = remove + '“'
+remove = remove + '”'
+
+
+def parse(string):
+    output = nlp.annotate(string, properties={
+        'annotators': 'pos,depparse,ner',
+        'outputFormat': 'json'
+    })
+    return output
+
+
+def is_entity(row):
+
+    word = row['word']
+    parse = row['parse']
+
+    # print(parse, "TEDFS")
+    # print(parse['sentences'][0]['tokens'], "DOFISPFDSIU")
+    # print(parse['sentences'][1]['tokens'], "DOFISPFDSIU")
+
+    for i in range(len(parse['sentences'][0]['tokens'])):
+        comp_word = parse['sentences'][0]['tokens'][i]['word']
+        comp_word = comp_word.lower()
+        comp_word = comp_word.translate(
+            {ord(char): None for char in remove})
+
+        if comp_word == word:
+            entity_type = parse['sentences'][0]['tokens'][i]['ner']
+            if (entity_type != "O"):
+                print(word, entity_type)
+                return 1
+            return 0
+        else:
+            return 0
+
+
 ##########################################################################################################
 array = ['News_Test_allInfo', 'News_Train_allInfo', 'WikiNews_Test_allInfo', 'News_Dev_allInfo', 'WikiNews_Dev_allInfo', 'Wikipedia_Dev_allInfo',
-         'WikiNews_Train_allInfo', 'Wikipedia_Test_allInfo', 'Wikipedia_Train_allInfo']
-
-#  '2016_train_allInfo']
-#  '2016_test_allInfo']
+         'WikiNews_Train_allInfo', 'Wikipedia_Test_allInfo', 'Wikipedia_Train_allInfo', '2016_train_allInfo', '2016_test_allInfo']
 
 for x in array:
+    print(x)
     word_parse_features = pd.read_pickle('features/' + x)
     # word_parse_features = word_complexity(word_parse_features)
     # word_parse_features = subtitle_corpus(word_parse_features)
@@ -268,15 +315,21 @@ for x in array:
     # word_parse_features = feat_bnc_corpus(word_parse_features)
 
     # word_parse_features = vowels(word_parse_features)
-    word_parse_features['holonyms'] = word_parse_features['lemma'].apply(
-        lambda x: holonyms(x))
-    word_parse_features['meronyms'] = word_parse_features['lemma'].apply(
-        lambda x: meronyms(x))
-    word_parse_features = consonants(word_parse_features)
-    word_parse_features['simple_wiki_bigrams'] = wiki_bigram(
-        word_parse_features)
-    word_parse_features['learners_bigrams'] = learners_bigram(
-        word_parse_features)
+    # word_parse_features['holonyms'] = word_parse_features['lemma'].apply(
+    #     lambda x: holonyms(x))
+    # word_parse_features['meronyms'] = word_parse_features['lemma'].apply(
+    #     lambda x: meronyms(x))
+    # word_parse_features = consonants(word_parse_features)
+    # word_parse_features['simple_wiki_bigrams'] = wiki_bigram(
+    #     word_parse_features)
+    # word_parse_features['learners_bigrams'] = learners_bigram(
+    #     word_parse_features)
+
+    # apply parsing to sentences
+    word_parse_features['parse'] = word_parse_features['clean sentence'].apply(
+        lambda x: parse(x))
+
+    word_parse_features['ner'] = word_parse_features.apply(is_entity, axis=1)
 
     word_parse_features.to_pickle(
         'features/' + x)
