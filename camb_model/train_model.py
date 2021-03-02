@@ -645,9 +645,9 @@ def OVL():
         inters_x = np.minimum(kde0_x, kde1_x)
 
         #plot kde's and intersect
-        plt.plot(x, kde0_x, color='b', label='complex')
+        plt.plot(x, kde0_x, color='b', label='non-complex')
         plt.fill_between(x, kde0_x, 0, color='b', alpha=0.2)
-        plt.plot(x, kde1_x, color='orange', label='non_complex')
+        plt.plot(x, kde1_x, color='orange', label='complex')
         plt.fill_between(x, kde1_x, 0, color='orange', alpha=0.2)
         plt.plot(x, inters_x, color='r')
         plt.fill_between(x, inters_x, 0, facecolor='none', edgecolor='r', hatch='xx', label='intersection')
