@@ -22,6 +22,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.base import BaseEstimator, TransformerMixin
 import matplotlib.pyplot as plt
 from boruta import BorutaPy
+import seaborn as sns
 
 
 import string
@@ -61,11 +62,14 @@ def main():
                         'learner_corpus_freq', 'bnc_freq']
         feature_importance(model_graph, feature_list=feature_list)
     
-    if args.recursive_feature:
+    elif args.recursive_feature:
         recursive_feat()
     
-    if args.boruta:
+    elif args.boruta:
         Boruta()
+
+    elif args.ovl:
+        OVL()
 
     else:
         feats = feature_extraction()
@@ -606,7 +610,34 @@ Implementation of OVL Feature Selection
 """
 
 def OVL():
-    k = 1+1
+
+    #new random state
+    rng = np.random.RandomState(42)
+
+    train_cleaned = training_data.drop(['sentence', 'ID', 'clean sentence', 'parse', 'start_index', 'end_index', 
+        'word', 'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic',
+        'split', 'count', 'word', 'original word', 'lemma', 'pos'], axis=1)
+
+    ## okay, for each feature, get the feature columns that correspond to a 1 - complex
+    ## and get the feature columns that correspond to a 0 - non-complex
+    ## plot both and somehow find the overlap?
+    for f in train_cleaned.columns:
+        
+        ##pick length for now
+        trueVals = [y  for x,y in enumerate(train_cleaned[f]) if train_targets[x] == 1]
+        falseVals = [y  for x,y in enumerate(train_cleaned[f]) if train_targets[x] == 0]
+
+        X_true = np.array(trueVals)
+        X_false = np.array(falseVals)
+
+        sns.kdeplot(X_true, color='b', shade=True, Label='complex')
+        sns.kdeplot(X_false, color='r', shade=True, Label='non-complex')
+        plt.legend()
+        plt.xlabel(f)
+        plt.ylabel("Probability Density")
+        plt.show()
+
+        #kde = KernelDensity(kernel='gaussian', bandwidth=0.5).fit(X)
     
 
 ##########################################################################################################
@@ -647,6 +678,7 @@ if __name__ == "__main__":
     parser.add_argument('--grid_search', '-gs', type=int, default=0)
     parser.add_argument('--recursive_feature', '-rfe', type=int, default=0)
     parser.add_argument('--boruta', '-bor', type=int, default=0)
+    parser.add_argument('--ovl', '-ovl', type=int, default=0)
     parser.add_argument('--features', '-fp', type=str, default="")
     parser.add_argument('--feature_importance',
                         '-feature', type=int, default=0)
