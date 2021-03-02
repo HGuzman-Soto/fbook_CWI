@@ -132,7 +132,8 @@ def holonyms(word):
     holonyms = 0
     try:
         results = wordnet.synsets(word)
-        holonyms = len(results[0].holonyms())
+        holonyms = len(results[0].part_holonyms())
+        print(holonyms)
         return holonyms
     except:
         return holonyms
@@ -145,15 +146,20 @@ def meronyms(word):
     meronyms = 0
     try:
         results = wordnet.synsets(word)
-        meronyms = len(results[0].meronyms())
+        meronyms = len(results[0].part_meronyms())
+        print(meronyms)
+
         return meronyms
     except:
         return meronyms
 
 
 ##########################################################################################################
-bigram_model = dill.load(
+simple_model = dill.load(
     open("lm/" + "simple_wikipedia" + ".sav", 'rb'))
+
+learners_model = dill.load(
+    open("lm/" + "learners" + ".sav", 'rb'))
 
 
 def get_bigram_wiki(sentence, word, end_index):
@@ -166,10 +172,12 @@ def get_bigram_wiki(sentence, word, end_index):
     if (len(sentence_list) == len(set(sentence_list)) and word in sentence_list):
         word_index = sentence_list.index(word)
         prev_word = sentence_list[word_index-1]
-        return bigram_model[word][prev_word]
+        if (word_index == 0):
+            prev_word = "<s>"
+        return simple_model[word][prev_word]
     else:
         try:
-            if end_index < len(sentence) // 2 and word in sentence_list:
+            if end_index < len(sentence) // 2:
                 word_index = sentence_list.index(word)
             else:
                 word_index = len(sentence_list) - 1 - \
@@ -182,12 +190,10 @@ def get_bigram_wiki(sentence, word, end_index):
 
             except:
                 print("ERROR")
-                return math.nan
-
+                return -1
         prev_word = sentence_list[word_index-1]
 
-        print(bigram_model[word][prev_word])
-        return bigram_model[word][prev_word]
+        return simple_model[word][prev_word]
 
 
 def wiki_bigram(word_parse_features):
@@ -195,7 +201,6 @@ def wiki_bigram(word_parse_features):
     bigram_prob = word_parse_features.apply(lambda x: get_bigram_wiki(
         x['clean sentence'], x.word, x['end_index']), axis=1)
 
-    print(bigram_prob)
     return bigram_prob
 
 
@@ -211,10 +216,12 @@ def get_bigrams_learners(sentence, word, end_index):
     if (len(sentence_list) == len(set(sentence_list)) and word in sentence_list):
         word_index = sentence_list.index(word)
         prev_word = sentence_list[word_index-1]
-        return bigram_model[word][prev_word]
+        if (word_index == 0):
+            prev_word = "<s>"
+        return learners_model[word][prev_word]
     else:
         try:
-            if end_index < len(sentence) // 2 and word in sentence_list:
+            if end_index < len(sentence) // 2:
                 word_index = sentence_list.index(word)
             else:
                 word_index = len(sentence_list) - 1 - \
@@ -227,12 +234,12 @@ def get_bigrams_learners(sentence, word, end_index):
 
             except:
                 print("ERROR")
-                return math.nan
+                return -1
 
         prev_word = sentence_list[word_index-1]
 
-        print(bigram_model[word][prev_word])
-        return bigram_model[word][prev_word]
+        print(learners_model[word][prev_word])
+        return learners_model[word][prev_word]
 
 
 def learners_bigram(word_parse_features):
@@ -266,8 +273,8 @@ for x in array:
     # word_parse_features['meronyms'] = word_parse_features['lemma'].apply(
     #     lambda x: meronyms(x))
     # word_parse_features = consonants(word_parse_features)
-    word_parse_features['simple_wiki_bigrams'] = wiki_bigram(
-        word_parse_features)
+    # word_parse_features['simple_wiki_bigrams'] = wiki_bigram(
+    #     word_parse_features)
     # word_parse_features['learners_bigrams'] = learners_bigram(
     #     word_parse_features)
 

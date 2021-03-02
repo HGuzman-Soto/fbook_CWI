@@ -128,12 +128,12 @@ def feature_extraction(indice=0):
     ])
 
     simple_wiki_bigrams = Pipeline([
-        ('selector', TextSelector(key='simple_wiki_bigrams')),
+        ('selector', NumberSelector(key='simple_wiki_bigrams')),
         ('standard', StandardScaler())
     ])
 
     learners_bigrams = Pipeline([
-        ('selector', TextSelector(key='learners_bigram')),
+        ('selector', NumberSelector(key='learners_bigrams')),
         ('standard', StandardScaler())
     ])
 
@@ -144,6 +144,11 @@ def feature_extraction(indice=0):
 
     vowels = Pipeline([
         ('selector', NumberSelector(key='vowels')),
+        ('standard', StandardScaler())
+    ])
+
+    consonants = Pipeline([
+        ('selector', NumberSelector(key='consonants')),
         ('standard', StandardScaler())
     ])
 
@@ -169,6 +174,16 @@ def feature_extraction(indice=0):
 
     hyponyms = Pipeline([
         ('selector', NumberSelector(key='hyponyms')),
+        ('standard', StandardScaler())
+    ])
+
+    holonyms = Pipeline([
+        ('selector', NumberSelector(key='holonyms')),
+        ('standard', StandardScaler())
+    ])
+
+    meronyms = Pipeline([
+        ('selector', NumberSelector(key='meronyms')),
         ('standard', StandardScaler())
     ])
 
@@ -272,15 +287,20 @@ def feature_extraction(indice=0):
     #('ngram', ngram) is omitted
     feature_list = [
         ('words', words),
-        # ('bigram_char', bi_gram_char),
+        ('bigram_char', bi_gram_char),
+        ('four_gram_char', four_gram_char),
         ('Tag', tag),
+        ('simple_wiki_bigrams', simple_wiki_bigrams),
+        ('learners_bigrams', learners_bigrams),
         ('word_length', word_length),
-        # ('vowels', vowels),
+        ('vowels', vowels),
         ('Syllables', syllables),
         ('dep_num', dep_num),
         ('synonyms', synonyms),
         ('hypernyms', hypernyms),
         ('hyponyms', hyponyms),
+        ('holonyms', holonyms),
+        ('meronyms', meronyms),
         ('ogden', ogden),
         ('simple_wiki', simple_wiki),
         ('cald', cald),
@@ -295,11 +315,11 @@ def feature_extraction(indice=0):
         ('KFFRQ', KFFRQ),
         ('NPHN', NPHN),
         ('TLFRQ', TLFRQ),
-        # ('complex_lexicon', lexicon),
-        # ('subtitles_freq', subtitles_corpus),
-        # ('wikipedia_freq', Wikipedia),
-        # ('learner_corpus_freq', learners),
-        # ('bnc_freq', BNC)
+        ('complex_lexicon', lexicon),
+        ('subtitles_freq', subtitles_corpus),
+        ('wikipedia_freq', Wikipedia),
+        ('learner_corpus_freq', learners),
+        ('bnc_freq', BNC)
     ]
 
     if(args.feature_importance == 1):
@@ -340,7 +360,9 @@ def feature_extraction(indice=0):
     if args.features:
         feats_in = args.features.strip("[]").split(",")
         pipe_feats = [x for x in pipe_feats if x[0] in feats_in]
-    feats = FeatureUnion(pipe_feats)
+        feats = FeatureUnion(pipe_feats)
+    else:
+        feats = FeatureUnion(feature_list)
 
     return feats
 ##########################################################################################################
@@ -445,6 +467,8 @@ One area of concern is defining feature list and how to define a susbset of feat
 list you could just do manually to be honest as you run the code (there's only a few times we will run it). But
 how to subset a features when training the model is an ongoing issue.
 
+
+TODO - Add 4-char gram length to this below
 """
 
 

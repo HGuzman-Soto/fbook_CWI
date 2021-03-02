@@ -10,12 +10,12 @@ def main(arg):
     if arg == "unigram":
         df = pd.read_csv('wp_1gram.txt', delim_whitespace=True,
                          quoting=csv.QUOTE_NONE)
-    # elif arg == "bigram":
-    #     df = pd.read_csv('wp_2gram.txt', delim_whitespace=True,
-    #                     quoting=csv.QUOTE_NONE)
-    #     dd = defaultdict(list)
-    #     df.to_dict('records', into=dd)
-    #     df.to_dict()
+    elif arg == "bigram":
+        df = pd.read_csv('wp_2gram.txt', delim_whitespace=True,
+                         quoting=csv.QUOTE_NONE)
+        dd = defaultdict(list)
+        df.to_dict('records', into=dd)
+        df.to_dict()
 
     nan_value = float("NaN")
 
