@@ -17,6 +17,9 @@ temp_data/
 json_files/
 models/
 wp_1gram.txt
+wp_2gram.txt
+entries.train
+entries.test
 
 
 # compiled output

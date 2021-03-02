@@ -1,4 +1,9 @@
 import pandas as pd
+import dill
+import re
+import math
+from collections import Counter, defaultdict
+from nltk import word_tokenize
 
 
 """
@@ -109,8 +114,9 @@ def vowels(word_parse_features):
     word_parse_features['vowels'] = word_parse_features['word'].apply(
         lambda x: sum([x.count(y) for y in "aeiou"]))
     return word_parse_features
-    
+
     print("end vowels")
+
 
 def consonants(word_parse_features):
     print("get consonants")
@@ -119,6 +125,8 @@ def consonants(word_parse_features):
     return word_parse_features
 
 ##########################################################################################################
+
+
 def holonyms(word):
     from nltk.corpus import wordnet
     holonyms = 0
@@ -130,6 +138,8 @@ def holonyms(word):
         return holonyms
 
 ##########################################################################################################
+
+
 def meronyms(word):
     from nltk.corpus import wordnet
     meronyms = 0
@@ -140,9 +150,107 @@ def meronyms(word):
     except:
         return meronyms
 
+
+##########################################################################################################
+bigram_model = dill.load(
+    open("lm/" + "simple_wikipedia" + ".sav", 'rb'))
+
+
+def get_bigram_wiki(sentence, word, end_index):
+    sentence = sentence.lower()
+    sentence = re.sub(r"[^\w\d'\s]+", '', sentence)
+
+    sentence_list = word_tokenize(sentence)
+
+    # check if duplicates
+    if (len(sentence_list) == len(set(sentence_list)) and word in sentence_list):
+        word_index = sentence_list.index(word)
+        prev_word = sentence_list[word_index-1]
+        return bigram_model[word][prev_word]
+    else:
+        try:
+            if end_index < len(sentence) // 2 and word in sentence_list:
+                word_index = sentence_list.index(word)
+            else:
+                word_index = len(sentence_list) - 1 - \
+                    sentence_list[::-1].index(word)
+        except:
+            try:
+                sentence = re.sub(r'[^\w\s]', '', sentence)
+                other_sentence_list = sentence.split()
+                word_index = other_sentence_list.index(word)
+
+            except:
+                print("ERROR")
+                return math.nan
+
+        prev_word = sentence_list[word_index-1]
+
+        print(bigram_model[word][prev_word])
+        return bigram_model[word][prev_word]
+
+
+def wiki_bigram(word_parse_features):
+
+    bigram_prob = word_parse_features.apply(lambda x: get_bigram_wiki(
+        x['clean sentence'], x.word, x['end_index']), axis=1)
+
+    print(bigram_prob)
+    return bigram_prob
+
+
+##########################################################################################################
+
+def get_bigrams_learners(sentence, word, end_index):
+    sentence = sentence.lower()
+    sentence = re.sub(r"[^\w\d'\s]+", '', sentence)
+
+    sentence_list = word_tokenize(sentence)
+
+    # check if duplicates
+    if (len(sentence_list) == len(set(sentence_list)) and word in sentence_list):
+        word_index = sentence_list.index(word)
+        prev_word = sentence_list[word_index-1]
+        return bigram_model[word][prev_word]
+    else:
+        try:
+            if end_index < len(sentence) // 2 and word in sentence_list:
+                word_index = sentence_list.index(word)
+            else:
+                word_index = len(sentence_list) - 1 - \
+                    sentence_list[::-1].index(word)
+        except:
+            try:
+                sentence = re.sub(r'[^\w\s]', '', sentence)
+                other_sentence_list = sentence.split()
+                word_index = other_sentence_list.index(word)
+
+            except:
+                print("ERROR")
+                return math.nan
+
+        prev_word = sentence_list[word_index-1]
+
+        print(bigram_model[word][prev_word])
+        return bigram_model[word][prev_word]
+
+
+def learners_bigram(word_parse_features):
+    learners_bigram = dill.load(
+        open("lm/" + "learners" + ".sav", 'rb'))
+    bigram_prob = word_parse_features.apply(lambda x: get_bigrams_learners(
+        x['clean sentence'], x.word, x['end_index']), axis=1)
+
+    print(bigram_prob)
+    return bigram_prob
+
+
 ##########################################################################################################
 array = ['News_Test_allInfo', 'News_Train_allInfo', 'WikiNews_Test_allInfo', 'News_Dev_allInfo', 'WikiNews_Dev_allInfo', 'Wikipedia_Dev_allInfo',
-         'WikiNews_Train_allInfo', 'Wikipedia_Test_allInfo', 'Wikipedia_Train_allInfo', '2016_train_allInfo','2016_test_allInfo']
+         'WikiNews_Train_allInfo', 'Wikipedia_Test_allInfo', 'Wikipedia_Train_allInfo']
+
+#  '2016_train_allInfo']
+#  '2016_test_allInfo']
 
 for x in array:
     word_parse_features = pd.read_pickle('features/' + x)
@@ -151,13 +259,16 @@ for x in array:
     # word_parse_features = feat_wikipedia_corpus(word_parse_features)
     # word_parse_features = learner_corpus(word_parse_features)
     # word_parse_features = feat_bnc_corpus(word_parse_features)
-    
+
     # word_parse_features = vowels(word_parse_features)
     word_parse_features['holonyms'] = word_parse_features['lemma'].apply(
         lambda x: holonyms(x))
     word_parse_features['meronyms'] = word_parse_features['lemma'].apply(
         lambda x: meronyms(x))
     word_parse_features = consonants(word_parse_features)
+    word_parse_features['wikipedia_bigrams'] = wiki_bigram(word_parse_features)
+    word_parse_features['learners_bigrams'] = learners_bigram(
+        word_parse_features)
 
     word_parse_features.to_pickle(
         'features/' + x)

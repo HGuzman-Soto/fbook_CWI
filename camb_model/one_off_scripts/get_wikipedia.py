@@ -1,11 +1,22 @@
 import pandas as pd
 import csv
+import dill
+from collections import OrderedDict, defaultdict
+
 # Get dataset from https://nlp.cs.nyu.edu/wikipedia-data/
 
 
-def main():
-    df = pd.read_csv('wp_1gram.txt', delim_whitespace=True,
-                     quoting=csv.QUOTE_NONE)
+def main(arg):
+    if arg == "unigram":
+        df = pd.read_csv('wp_1gram.txt', delim_whitespace=True,
+                         quoting=csv.QUOTE_NONE)
+    # elif arg == "bigram":
+    #     df = pd.read_csv('wp_2gram.txt', delim_whitespace=True,
+    #                     quoting=csv.QUOTE_NONE)
+    #     dd = defaultdict(list)
+    #     df.to_dict('records', into=dd)
+    #     df.to_dict()
+
     nan_value = float("NaN")
 
     # casing
@@ -26,10 +37,18 @@ def main():
     df['frequency'] = df.frequency.astype(int)
     df = df.dropna(subset=['word'])
 
-
     df = df[['word', 'frequency']]
     print(len(df))
-    df.to_csv('wikipedia_corpus.csv', index=False)
+
+    if(arg == 'unigram'):
+        df.to_csv('wikipedia_corpus.csv', index=False)
+    elif arg == "bigram":
+        df.to_csv('wikipedia_bigram.csv', index=False)
 
 
-main()
+df = pd.read_csv('wp_2gram.txt', delim_whitespace=True,
+                 quoting=csv.QUOTE_NONE)
+dd = defaultdict(list)
+test = df.to_dict('records', into=dd)
+dill.dump(test, open("wikipedia_bigram" + ".sav", 'rb'))
+# main("bigram")
