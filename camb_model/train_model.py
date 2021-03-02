@@ -623,22 +623,52 @@ def OVL():
     ## plot both and somehow find the overlap?
     for f in train_cleaned.columns:
         
-        ##pick length for now
-        trueVals = [y  for x,y in enumerate(train_cleaned[f]) if train_targets[x] == 1]
-        falseVals = [y  for x,y in enumerate(train_cleaned[f]) if train_targets[x] == 0]
+        #get numpy arrays for feat rows -> true, feat rows -> false
+        x0 = np.array([y  for x,y in enumerate(train_cleaned[f]) if train_targets[x] == 0])
+        x1 = np.array([y  for x,y in enumerate(train_cleaned[f]) if train_targets[x] == 1])
 
-        X_true = np.array(trueVals)
-        X_false = np.array(falseVals)
+        #make kde plots
+        kde0 = stats.gaussian_kde(x0, bw_method=0.3)
+        kde1 = stats.gaussian_kde(x1, bw_method=0.3)
 
-        sns.kdeplot(X_true, color='b', shade=True, Label='complex')
-        sns.kdeplot(X_false, color='r', shade=True, Label='non-complex')
-        plt.legend()
+        #make x boundaries
+        xmin = min(x0.min(), x1.min())
+        xmax = min(x0.max(), x1.max())
+        dx = 0.2 * (xmax - xmin) # add a 20% margin, as the kde is wider than the data
+        xmin -= dx
+        xmax += dx
+
+        #find minimum of kde intersect for 500 x-values
+        x = np.linspace(xmin, xmax, 500)
+        kde0_x = kde0(x)
+        kde1_x = kde1(x)
+        inters_x = np.minimum(kde0_x, kde1_x)
+
+        #plot kde's and intersect
+        plt.plot(x, kde0_x, color='b', label='complex')
+        plt.fill_between(x, kde0_x, 0, color='b', alpha=0.2)
+        plt.plot(x, kde1_x, color='orange', label='non_complex')
+        plt.fill_between(x, kde1_x, 0, color='orange', alpha=0.2)
+        plt.plot(x, inters_x, color='r')
+        plt.fill_between(x, inters_x, 0, facecolor='none', edgecolor='r', hatch='xx', label='intersection')
+
+        #get area of intersect, show plot
+        area_inters_x = np.trapz(inters_x, x)
+        handles, labels = plt.gca().get_legend_handles_labels()
+        labels[2] += f': {area_inters_x * 100:.1f} %'
+        plt.legend(handles, labels, title='Complex?')
         plt.xlabel(f)
         plt.ylabel("Probability Density")
         plt.show()
-
-        #kde = KernelDensity(kernel='gaussian', bandwidth=0.5).fit(X)
     
+
+##########################################################################################################
+
+def clean_data():
+    training_data = training_data.drop(['sentence', 'ID', 'clean sentence', 'parse', 'start_index', 'end_index', 
+        'word', 'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic',
+        'split', 'count', 'word', 'original word', 'lemma', 'pos'], axis=1)
+
 
 ##########################################################################################################
 
