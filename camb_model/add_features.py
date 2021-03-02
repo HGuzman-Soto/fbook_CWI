@@ -261,14 +261,15 @@ for x in array:
     # word_parse_features = feat_bnc_corpus(word_parse_features)
 
     # word_parse_features = vowels(word_parse_features)
-    word_parse_features['holonyms'] = word_parse_features['lemma'].apply(
-        lambda x: holonyms(x))
-    word_parse_features['meronyms'] = word_parse_features['lemma'].apply(
-        lambda x: meronyms(x))
-    word_parse_features = consonants(word_parse_features)
-    word_parse_features['wikipedia_bigrams'] = wiki_bigram(word_parse_features)
-    word_parse_features['learners_bigrams'] = learners_bigram(
+    # word_parse_features['holonyms'] = word_parse_features['lemma'].apply(
+    #     lambda x: holonyms(x))
+    # word_parse_features['meronyms'] = word_parse_features['lemma'].apply(
+    #     lambda x: meronyms(x))
+    # word_parse_features = consonants(word_parse_features)
+    word_parse_features['simple_wiki_bigrams'] = wiki_bigram(
         word_parse_features)
+    # word_parse_features['learners_bigrams'] = learners_bigram(
+    #     word_parse_features)
 
     word_parse_features.to_pickle(
         'features/' + x)
