@@ -50,6 +50,7 @@ if __name__ == "__main__":
 ##########################################################################################################
 
 for x in array:
+
     if (args.test):
         location = "testing_data/data_files/data/" + args.test + ".csv"
         data_frame = pd.read_csv(location, encoding='utf-8-sig')
@@ -66,7 +67,7 @@ for x in array:
         data_frame['word'] = data_frame['word'].astype(str)
         data_frame['sentence'] = data_frame['sentence'].astype(str)
 
-    else:
+    if(args.all == 1):
         location = 'training_data/'+x+'.tsv'
         data_frame = pd.read_table(location, names=('ID', 'sentence', 'start_index', 'end_index', 'word', 'total_native',
                                                     'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic'), encoding='utf-8-sig')
@@ -106,9 +107,7 @@ for x in array:
     print("finish cleaning", "\n")
 
 ##########################################################################################################
-    #Get character ngrams and probabilites
-
-     
+    # Get character ngrams and probabilites
 
 
 ##########################################################################################################
@@ -137,8 +136,7 @@ for x in array:
     # apply function to get vowel count
     word_set['vowels'] = word_set['word'].apply(
         lambda x: sum([x.count(y) for y in "aeiou"]))
-    
-   
+
     word_set['consonants'] = word_set['word'].apply(
         lambda x: sum([x.count(y) for y in "bcdfghjklmnpqrstvwxyz"]))
 
@@ -165,7 +163,6 @@ for x in array:
         sentences = data_frame[['sentence']].copy()
     else:
         sentences = data_frame[['sentence', 'ID']].copy()
-
 
     sentences = sentences.drop_duplicates()
 
@@ -194,7 +191,7 @@ for x in array:
 
     def parse(string):
         output = nlp.annotate(string, properties={
-            'annotators': 'pos,depparse',
+            'annotators': 'pos,depparse,ner',
             'outputFormat': 'json'
         })
         return output
@@ -221,6 +218,26 @@ for x in array:
                 return parse['sentences'][0]['tokens'][i]['pos']
 
 ###########################################################################################################
+    def get_ner(row):
+        word = row['word']
+        parse = row['parse']
+        # print(parse, "TEDFS")
+        # print(parse['sentences'][0]['tokens'], "DOFISPFDSIU")
+        # print(parse['sentences'][1]['tokens'], "DOFISPFDSIU")
+
+        for i in range(len(parse['sentences'][0]['tokens'])):
+            comp_word = parse['sentences'][0]['tokens'][i]['word']
+            comp_word = comp_word.lower()
+            comp_word = comp_word.translate(
+                {ord(char): None for char in remove})
+            print(parse['sentences'][0]['tokens'][i]['ner'])
+
+            if comp_word == word:
+                pass
+
+
+###########################################################################################################
+
 
     def get_dep(row):
         number = 0
@@ -347,7 +364,6 @@ for x in array:
 
 ##########################################################################################################
 
-
     def synonyms(word):
         synonyms = 0
         try:
@@ -379,6 +395,7 @@ for x in array:
 
 
 ##########################################################################################################
+
     def hypernyms(word):
         hypernyms = 0
         try:
@@ -407,6 +424,7 @@ for x in array:
 
     # CNC, KFCAT, FAM, KFSMP, KFFRQ, NPHN, T-LFRQ
 
+
     def CNC_fun(word):
 
         table = mrc_features[mrc_features['word'] == word.upper()]
@@ -423,7 +441,6 @@ for x in array:
 
 
 ##########################################################################################################
-
 
     def KFCAT_fun(word):
 
@@ -457,7 +474,6 @@ for x in array:
 
 
 ##########################################################################################################
-
 
     def KFSMP_fun(word):
 
@@ -523,6 +539,7 @@ for x in array:
 ##########################################################################################################
 
     # Convert tree bank tags to ones that are compatible w google
+
 
     def is_noun(tag):
         return tag in ['NN', 'NNS', 'NNP', 'NNPS']
@@ -610,6 +627,7 @@ for x in array:
     print("start get dep")
 
     word_parse_features['dep num'] = word_parse_features.apply(get_dep, axis=1)
+    word_parse_features['ner'] = word_parse_features.apply(get_ner, axis=1)
 
     print("end get dep")
 

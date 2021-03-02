@@ -65,6 +65,7 @@ def main():
         recursive_feat()
     
     elif args.boruta:
+
         Boruta()
 
     elif args.ovl:
@@ -200,6 +201,11 @@ def feature_extraction(indice=0):
         ('standard', StandardScaler())
     ])
 
+    is_entity = Pipeline([
+        ('selector', NumberSelector(key='ner')),
+        ('standard', StandardScaler())
+    ])
+
     simple_wiki = Pipeline([
         ('selector', NumberSelector(key='simple_wiki')),
         ('standard', StandardScaler())
@@ -310,6 +316,7 @@ def feature_extraction(indice=0):
         ('holonyms', holonyms),
         ('meronyms', meronyms),
         ('ogden', ogden),
+        ('ner', is_entity),
         ('simple_wiki', simple_wiki),
         ('cald', cald),
         ('cnc', conc),
@@ -344,6 +351,7 @@ def feature_extraction(indice=0):
         ('synonyms', synonyms),
         ('Syllables', syllables),
         ('ogden', ogden),
+        ('ner', is_entity),
         ('simple_wiki', simple_wiki),
         ('freq', frequency),
         ('subimdb', subimdb),
@@ -547,45 +555,52 @@ def recursive_feat():
 
 ##########################################################################################################
 
+
 """
 Implementation of Boruta Feature Selection
 """
 
+
 def Boruta():
 
-    #initialize model
+    # initialize model
     model = RandomForestClassifier(class_weight='balanced', n_estimators=1000)
 
-    #remove unnecesary columns
-    train_cleaned = training_data.drop(['sentence', 'ID', 'clean sentence', 'parse', 'start_index', 'end_index', 
-        'word', 'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic',
-        'split', 'count', 'word', 'original word', 'lemma', 'pos'], axis=1)
+    # remove unnecesary columns
+    train_cleaned = training_data.drop(['sentence', 'ID', 'clean sentence', 'parse', 'start_index', 'end_index',
+                                        'word', 'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic',
+                                        'split', 'count', 'word', 'original word', 'lemma', 'pos'], axis=1)
 
-    #make numpy arrays from x df
+    # make numpy arrays from x df
     x = train_cleaned.values
 
-    #do feature selection
-    feat_selector = BorutaPy(model, n_estimators='auto', verbose=2, random_state=1)
-    feat_selector.fit(x,train_targets)
+    # do feature selection
+    feat_selector = BorutaPy(model, n_estimators='auto',
+                             verbose=2, random_state=1)
+    feat_selector.fit(x, train_targets)
 
-    #get results
+    # get results
 
     # get names of best features
-    best_feats = [train_cleaned.columns[x] for x in range(len(train_cleaned.columns)) if feat_selector.support_[x]]
+    best_feats = [train_cleaned.columns[x] for x in range(
+        len(train_cleaned.columns)) if feat_selector.support_[x]]
 
     print("\nBest Features: (ranked)\n")
     for f in best_feats:
         print(f)
 
     # get names of undecided features
-    und_feats = [train_cleaned.columns[x] for x in range(len(train_cleaned.columns)) if feat_selector.support_weak_[x]]
-    
-    if len(und_feats) > 0: print("\nUndecided Features: \n")
+    und_feats = [train_cleaned.columns[x] for x in range(
+        len(train_cleaned.columns)) if feat_selector.support_weak_[x]]
+
+    if len(und_feats) > 0:
+        print("\nUndecided Features: \n")
     for f in und_feats:
         print(f)
-    
+
     # get names of non-selected features
-    bad_feats = [x for x in train_cleaned.columns if x not in (best_feats + und_feats)]
+    bad_feats = [x for x in train_cleaned.columns if x not in (
+        best_feats + und_feats)]
 
     print("\nUnselected Features: \n")
     for f in bad_feats:
