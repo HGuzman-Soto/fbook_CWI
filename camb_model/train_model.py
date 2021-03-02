@@ -59,7 +59,7 @@ def main():
                         'TLFRQ', 'complex_lexicon', 'subtitles_freq', 'wikipedia_freq',
                         'learner_corpus_freq', 'bnc_freq']
         feature_importance(model_graph, feature_list=feature_list)
-    
+
     if args.recursive_feature:
         recursive_feat()
     
@@ -121,9 +121,24 @@ def feature_extraction(indice=0):
         ('vect', CountVectorizer())
     ])
 
-    ngram = Pipeline([
+    bi_gram_char = Pipeline([
         ('selector', TextSelector(key='word')),
         ('vect', CountVectorizer(analyzer='char', ngram_range=(2, 2)))
+    ])
+
+    four_gram_char = Pipeline([
+        ('selector', TextSelector(key='word')),
+        ('vect', CountVectorizer(analyzer='char', ngram_range=(4, 4)))
+    ])
+
+    simple_wiki_bigrams = Pipeline([
+        ('selector', NumberSelector(key='simple_wiki_bigrams')),
+        ('standard', StandardScaler())
+    ])
+
+    learners_bigrams = Pipeline([
+        ('selector', NumberSelector(key='learners_bigrams')),
+        ('standard', StandardScaler())
     ])
 
     word_length = Pipeline([
@@ -133,6 +148,11 @@ def feature_extraction(indice=0):
 
     vowels = Pipeline([
         ('selector', NumberSelector(key='vowels')),
+        ('standard', StandardScaler())
+    ])
+
+    consonants = Pipeline([
+        ('selector', NumberSelector(key='consonants')),
         ('standard', StandardScaler())
     ])
 
@@ -158,6 +178,16 @@ def feature_extraction(indice=0):
 
     hyponyms = Pipeline([
         ('selector', NumberSelector(key='hyponyms')),
+        ('standard', StandardScaler())
+    ])
+
+    holonyms = Pipeline([
+        ('selector', NumberSelector(key='holonyms')),
+        ('standard', StandardScaler())
+    ])
+
+    meronyms = Pipeline([
+        ('selector', NumberSelector(key='meronyms')),
         ('standard', StandardScaler())
     ])
 
@@ -260,41 +290,44 @@ def feature_extraction(indice=0):
 
     #('ngram', ngram) is omitted
     feature_list = [
-    ('words', words),
-    ('ngram', ngram),
-    ('Tag', tag),
-    ('word_length', word_length),
-    # ('vowels', vowels),
-    ('Syllables', syllables),
-    ('dep_num', dep_num),
-    ('synonyms', synonyms),
-    ('hypernyms', hypernyms),
-    ('hyponyms', hyponyms),
-    ('ogden', ogden),
-    ('simple_wiki', simple_wiki),
-    ('cald', cald),
-    ('cnc', conc),
-    ('img', img),
-    ('aoa', aoa),
-    ('fam', fam),
-    ('subimdb', subimdb),
-    ('freq', frequency),
-    ('KFCAT', KFCAT),
-    ('KFSMP', KFSMP),
-    ('KFFRQ', KFFRQ),
-    ('NPHN', NPHN),
-    ('TLFRQ', TLFRQ),
-    # ('complex_lexicon', lexicon),
-    # ('subtitles_freq', subtitles_corpus),
-    # ('wikipedia_freq', Wikipedia),
-    # ('learner_corpus_freq', learners),
-    # ('bnc_freq', BNC)
+        ('words', words),
+        ('bigram_char', bi_gram_char),
+        ('four_gram_char', four_gram_char),
+        ('Tag', tag),
+        ('simple_wiki_bigrams', simple_wiki_bigrams),
+        ('learners_bigrams', learners_bigrams),
+        ('word_length', word_length),
+        ('vowels', vowels),
+        ('Syllables', syllables),
+        ('dep_num', dep_num),
+        ('synonyms', synonyms),
+        ('hypernyms', hypernyms),
+        ('hyponyms', hyponyms),
+        ('holonyms', holonyms),
+        ('meronyms', meronyms),
+        ('ogden', ogden),
+        ('simple_wiki', simple_wiki),
+        ('cald', cald),
+        ('cnc', conc),
+        ('img', img),
+        ('aoa', aoa),
+        ('fam', fam),
+        ('subimdb', subimdb),
+        ('freq', frequency),
+        ('KFCAT', KFCAT),
+        ('KFSMP', KFSMP),
+        ('KFFRQ', KFFRQ),
+        ('NPHN', NPHN),
+        ('TLFRQ', TLFRQ),
+        ('complex_lexicon', lexicon),
+        ('subtitles_freq', subtitles_corpus),
+        ('wikipedia_freq', Wikipedia),
+        ('learner_corpus_freq', learners),
+        ('bnc_freq', BNC)
     ]
 
-    if(args.feature_importance == 1):    
+    if(args.feature_importance == 1):
         feats = FeatureUnion(feature_list[indice:])
-
-
 
     pipe_feats = [
         ('words', words),
@@ -331,8 +364,9 @@ def feature_extraction(indice=0):
     if args.features:
         feats_in = args.features.strip("[]").split(",")
         pipe_feats = [x for x in pipe_feats if x[0] in feats_in]
-    feats = FeatureUnion(pipe_feats)
-
+        feats = FeatureUnion(pipe_feats)
+    else:
+        feats = FeatureUnion(feature_list)
 
     return feats
 ##########################################################################################################
@@ -340,9 +374,9 @@ def feature_extraction(indice=0):
 
 def grid_search(training_data, feats, model_type):
     if(model_type == "rf"):
-        grid = {'classifier__n_estimators': [2000,5000,10000],
+        grid = {'classifier__n_estimators': [2000, 5000, 10000],
                 'classifier__max_features': ['auto', 'sqrt'],
-                'classifier__max_depth': (10,25,50,75,100),
+                'classifier__max_depth': (10, 25, 50, 75, 100),
                 'classifier__min_samples_split': [2, 5, 10],
                 'classifier__min_samples_leaf': [1, 2, 4],
                 'classifier__bootstrap': [True, False]
@@ -437,6 +471,8 @@ One area of concern is defining feature list and how to define a susbset of feat
 list you could just do manually to be honest as you run the code (there's only a few times we will run it). But
 how to subset a features when training the model is an ongoing issue.
 
+
+TODO - Add 4-char gram length to this below
 """
 
 
@@ -471,27 +507,29 @@ def feature_importance(pipeline, feature_list):
 Implementation of Recursive Feature Elimination
 """
 
+
 def recursive_feat():
     if args.ada_boost == 1:
         model = AdaBoostClassifier(n_estimators=5000)
     else:
         model = RandomForestClassifier(n_estimators=5000)
-    
+
     rfecv = RFECV(model, n_jobs=7)
     pipeline = Pipeline([
-                ('rfecv', rfecv),
-                ('classifier', model),
-            ])
+        ('rfecv', rfecv),
+        ('classifier', model),
+    ])
 
-    useful_data = training_data.drop(['sentence', 'ID', 'clean sentence', 'parse', 'start_index', 'end_index', 
-    'word', 'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic',
-    'split', 'count', 'word', 'original word', 'lemma', 'pos'], axis=1)
+    useful_data = training_data.drop(['sentence', 'ID', 'clean sentence', 'parse', 'start_index', 'end_index',
+                                      'word', 'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic',
+                                      'split', 'count', 'word', 'original word', 'lemma', 'pos'], axis=1)
 
     pipeline.fit(useful_data, train_targets)
 
     print("optimal # of features: %d" % rfecv.n_features_)
     print("used features:")
-    best_feats = [useful_data.columns[x] for x in range(len(useful_data.columns)) if rfecv.support_[x]]
+    best_feats = [useful_data.columns[x]
+                  for x in range(len(useful_data.columns)) if rfecv.support_[x]]
     for f in best_feats:
         print(f)
 
@@ -501,7 +539,7 @@ def recursive_feat():
     plt.plot(rfecv.grid_scores_)
     plt.show()
 
-    print("\n",rfecv.grid_scores_)
+    print("\n", rfecv.grid_scores_)
 
 ##########################################################################################################
 
@@ -632,13 +670,12 @@ if __name__ == "__main__":
         wiki_training_data = pd.read_pickle('features/WikiNews_Train_allInfo')
         wiki_training_data.name = 'WikiNews'
         train_frames.append(wiki_training_data)
-    
+
     if (args.train_old == 1):
         train_names.append('2016_train')
         old_train_dataset = pd.read_pickle('features/2016_Train_allInfo')
         old_train_dataset.name = '2016_train'
         train_frames.append(old_train_dataset)
-    
 
     total_training = pd.concat(train_frames)
 
@@ -646,6 +683,5 @@ if __name__ == "__main__":
 
     training_data = total_training
     train_targets = training_data['complex_binary'].values
-
 
     main()
