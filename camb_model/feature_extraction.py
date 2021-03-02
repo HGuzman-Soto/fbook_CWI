@@ -106,6 +106,12 @@ for x in array:
     print("finish cleaning", "\n")
 
 ##########################################################################################################
+    #Get character ngrams and probabilites
+
+     
+
+
+##########################################################################################################
     # function to obtain syablles for words
     from datamuse import datamuse
     api = datamuse.Datamuse()
@@ -131,6 +137,10 @@ for x in array:
     # apply function to get vowel count
     word_set['vowels'] = word_set['word'].apply(
         lambda x: sum([x.count(y) for y in "aeiou"]))
+    
+   
+    word_set['consonants'] = word_set['word'].apply(
+        lambda x: sum([x.count(y) for y in "bcdfghjklmnpqrstvwxyz"]))
 
     # take words and merge with values first you will need to clean the phrase column
     words['original word'] = words['word']
@@ -335,6 +345,9 @@ for x in array:
     # functions using wordnet
     from nltk.corpus import wordnet
 
+##########################################################################################################
+
+
     def synonyms(word):
         synonyms = 0
         try:
@@ -345,7 +358,27 @@ for x in array:
             return synonyms
 
 ##########################################################################################################
+    def holonyms(word):
+        holonyms = 0
+        try:
+            results = wordnet.synsets(word)
+            holonyms = len(results[0].holonyms())
+            return holonyms
+        except:
+            return holonyms
 
+##########################################################################################################
+    def meronyms(word):
+        meronyms = 0
+        try:
+            results = wordnet.synsets(word)
+            meronyms = len(results[0].meronyms())
+            return meronyms
+        except:
+            return meronyms
+
+
+##########################################################################################################
     def hypernyms(word):
         hypernyms = 0
         try:
@@ -598,6 +631,10 @@ for x in array:
         lambda x: hypernyms(x))
     word_parse_features['hyponyms'] = word_parse_features['lemma'].apply(
         lambda x: hyponyms(x))
+    word_parse_features['holonyms'] = word_parse_features['lemma'].apply(
+        lambda x: holonyms(x))
+    word_parse_features['meronyms'] = word_parse_features['lemma'].apply(
+        lambda x: meronyms(x))
     print("end syn, hyper, hypo")
 
 ##########################################################################################################
