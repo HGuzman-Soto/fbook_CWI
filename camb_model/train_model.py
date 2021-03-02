@@ -23,6 +23,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 import matplotlib.pyplot as plt
 from boruta import BorutaPy
 
+
 import string
 import numpy as np
 import argparse
@@ -511,8 +512,57 @@ Implementation of Boruta Feature Selection
 
 def Boruta():
 
+    # #remove unnecesary columns
+    # train_cleaned = training_data.drop(['sentence', 'ID', 'clean sentence', 'parse', 'start_index', 'end_index', 
+    #     'word', 'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic',
+    #     'split', 'count', 'word', 'original word', 'lemma', 'pos'], axis=1)
+
+
+    # # initialize hits counter
+    # hits = np.zeros(len(train_cleaned.columns))
+    # for iter_ in range(100):
+    #     print("iter ", str(iter_+1))
+
+    #     #make numpy arrays from x df
+    #     np.random.seed(iter_)
+    #     x_shadow = train_cleaned.apply(np.random.permutation)
+    #     x_shadow.columns = ['shadow_' + feat for feat in train_cleaned.columns]
+    #     x_boruta = pd.concat([train_cleaned, x_shadow], axis = 1)
+
+    #     # fit a random forest (suggested max_depth between 3 and 7)
+    #     # fit on x_boruta, trained_targets
+    #     model = RandomForestClassifier(max_depth = 7, random_state = 42)
+    #     model.fit(x_boruta, train_targets)
+
+    #     # get feature importances
+    #     feat_imp_X = model.feature_importances_[:len(train_cleaned.columns)]
+    #     feat_imp_shadow = model.feature_importances_[len(train_cleaned.columns):]### compute hits
+        
+    #     # computer hits and add to counter
+    #     hits += (feat_imp_X > feat_imp_shadow.max())
+
+    # print(hits)
+
+    # #make binomial pmf
+    # trials = 20
+    # pmf = [sp.stats.binom.pmf(x, trials, .5) for x in range(trials + 1)]
+
+    # print(len(hits))
+    # print(len(pmf))
+
+    # hitsDist = [ (hits[i], pmf[int(hits[i])]) for i in range(len(hits))]
+
+    # plt.plot(pmf)
+    # plt.plot(hitsDist)
+    # plt.xlabel = "pmf binomial distribution"
+    # plt.ylabel = "number of hits in 100 trials"
+
+
+
+    # plt.show()
+
     #initialize model
-    model = RandomForestClassifier(class_weight='balanced', n_estimators=1000)
+    model = RandomForestClassifier(class_weight='balanced', n_estimators=1000, max_depth=7)
 
     #remove unnecesary columns
     train_cleaned = training_data.drop(['sentence', 'ID', 'clean sentence', 'parse', 'start_index', 'end_index', 
@@ -548,6 +598,16 @@ def Boruta():
     print("\nUnselected Features: \n")
     for f in bad_feats:
         print(f)
+
+##########################################################################################################
+
+"""
+Implementation of OVL Feature Selection
+"""
+
+def OVL():
+    k = 1+1
+    
 
 ##########################################################################################################
 
