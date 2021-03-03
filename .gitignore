@@ -20,7 +20,6 @@ wp_1gram.txt
 wp_2gram.txt
 entries.train
 entries.test
-features.zip
 
 
 # compiled output
