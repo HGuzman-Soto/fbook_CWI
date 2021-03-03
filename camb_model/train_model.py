@@ -384,7 +384,10 @@ def feature_extraction(indice=0):
     if args.features:
         feats_in = args.features.strip("[]").split(",")
         pipe_feats = [x for x in pipe_feats if x[0] in feats_in]
-    feats = FeatureUnion(feature_list)
+        print("Selected # of features: " + str(len(pipe_feats)))
+        print("Features: ")
+        print(pipe_feats)
+    feats = FeatureUnion(pipe_feats)
 
     return feats
 ##########################################################################################################
@@ -579,7 +582,9 @@ def recursive_feat(argVal):
             print(rfe.support_)
 
             print("Best Combination of " + str(argVal) + " features: ")
-            print(rfe.support_)
+            best_feats = [useful_data.columns[x]
+                    for x in range(len(useful_data.columns)) if rfe.support_[x]]
+            print(best_feats)
 
 
 ##########################################################################################################
@@ -650,7 +655,7 @@ def Boruta():
 
     # do feature selection
     feat_selector = BorutaPy(model, n_estimators='auto',
-                             verbose=2, random_state=42)
+                             verbose=2)
     feat_selector.fit(x, train_targets)
 
     # get results
