@@ -13,6 +13,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import VotingClassifier
 from sklearn.pipeline import FeatureUnion
 from sklearn.pipeline import Pipeline
+from sklearn.feature_selection import RFE
 from sklearn.feature_selection import RFECV
 
 from sklearn.model_selection import GridSearchCV
@@ -22,7 +23,8 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.base import BaseEstimator, TransformerMixin
 import matplotlib.pyplot as plt
 from boruta import BorutaPy
-import seaborn as sns
+import itertools
+import csv
 
 
 import string
@@ -63,7 +65,7 @@ def main():
         feature_importance(model_graph, feature_list=feature_list)
 
     elif args.recursive_feature:
-        recursive_feat()
+        recursive_feat(args.recursive_feature)
 
     elif args.boruta:
         Boruta()
@@ -522,38 +524,63 @@ Implementation of Recursive Feature Elimination
 """
 
 
-def recursive_feat():
+def recursive_feat(argVal):
+
     if args.ada_boost == 1:
         model = AdaBoostClassifier(n_estimators=5000)
     else:
         model = RandomForestClassifier(n_estimators=5000)
 
-    rfecv = RFECV(model, n_jobs=7)
-    pipeline = Pipeline([
-        ('rfecv', rfecv),
-        ('classifier', model),
-    ])
-
     useful_data = training_data.drop(['sentence', 'ID', 'clean sentence', 'parse', 'start_index', 'end_index',
-                                      'word', 'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic',
-                                      'split', 'count', 'word', 'original word', 'lemma', 'pos'], axis=1)
+                                        'word', 'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic',
+                                        'split', 'count', 'word', 'original word', 'lemma', 'pos'], axis=1)
 
-    pipeline.fit(useful_data, train_targets)
+    if(argVal == 1):
+        rfecv = RFECV(model, n_jobs=6, verbose=1)
+        pipeline = Pipeline([
+            ('rfecv', rfecv),
+            ('classifier', model),
+        ])
 
-    print("optimal # of features: %d" % rfecv.n_features_)
-    print("used features:")
-    best_feats = [useful_data.columns[x]
-                  for x in range(len(useful_data.columns)) if rfecv.support_[x]]
-    for f in best_feats:
-        print(f)
+        pipeline.fit(useful_data, train_targets)
 
-    plt.figure()
-    plt.xlabel("Number of features selected")
-    plt.ylabel("Cross validation score (fraction of correct classifications)")
-    plt.plot(rfecv.grid_scores_)
-    plt.show()
+        print("optimal # of features: %d" % rfecv.n_features_)
+        print("used features:")
+        best_feats = [useful_data.columns[x]
+                    for x in range(len(useful_data.columns)) if rfecv.support_[x]]
+        for f in best_feats:
+            print(f)
 
-    print("\n", rfecv.grid_scores_)
+        plt.figure()
+        plt.xlabel("Number of features selected")
+        plt.ylabel("Cross validation score (fraction of correct classifications)")
+        plt.plot(rfecv.grid_scores_)
+        plt.show()
+
+        print("\n", rfecv.grid_scores_)
+
+    #else, find best n-features combination
+    else:
+        #this is where the magic happens
+        if(argVal > 1):
+            print("Looking for best combination with " + str(argVal) + " features")        
+
+            rfe = RFE(model, n_features_to_select=argVal, verbose=1)
+            pipeline = Pipeline([
+                ('rfe', rfe),
+                ('classifier', model),
+            ])
+            
+            pipeline.fit(useful_data, train_targets)
+
+            print("ranking")
+            print(rfe.ranking_)
+            print("support: ")
+            print(rfe.support_)
+
+            print("Best Combination of " + str(argVal) + " features: ")
+            print(rfe.support_)
+
 
 ##########################################################################################################
 
@@ -565,95 +592,119 @@ Implementation of Boruta Feature Selection
 
 def Boruta():
 
-    # #remove unnecesary columns
-    # train_cleaned = training_data.drop(['sentence', 'ID', 'clean sentence', 'parse', 'start_index', 'end_index',
-    #     'word', 'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic',
-    #     'split', 'count', 'word', 'original word', 'lemma', 'pos'], axis=1)
+    #remove unnecesary columns
+    train_cleaned = training_data.drop(['sentence', 'ID', 'clean sentence', 'parse', 'start_index', 'end_index',
+        'word', 'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic',
+        'split', 'count', 'word', 'original word', 'lemma', 'pos'], axis=1)
 
-    # # initialize hits counter
-    # hits = np.zeros(len(train_cleaned.columns))
-    # for iter_ in range(100):
-    #     print("iter ", str(iter_+1))
+    ##
+    #   Manually rank best features based on hit counts
+    ##
 
-    #     #make numpy arrays from x df
-    #     np.random.seed(iter_)
-    #     x_shadow = train_cleaned.apply(np.random.permutation)
-    #     x_shadow.columns = ['shadow_' + feat for feat in train_cleaned.columns]
-    #     x_boruta = pd.concat([train_cleaned, x_shadow], axis = 1)
+    # initialize hits counter
+    hits = np.zeros(len(train_cleaned.columns))
+    for iter_ in range(100):
+        print("iter ", str(iter_+1))
 
-    #     # fit a random forest (suggested max_depth between 3 and 7)
-    #     # fit on x_boruta, trained_targets
-    #     model = RandomForestClassifier(max_depth = 7, random_state = 42)
-    #     model.fit(x_boruta, train_targets)
+        #make numpy arrays from x df
+        np.random.seed(iter_)
+        x_shadow = train_cleaned.apply(np.random.permutation)
+        x_shadow.columns = ['shadow_' + feat for feat in train_cleaned.columns]
+        x_boruta = pd.concat([train_cleaned, x_shadow], axis = 1)
 
-    #     # get feature importances
-    #     feat_imp_X = model.feature_importances_[:len(train_cleaned.columns)]
-    #     feat_imp_shadow = model.feature_importances_[len(train_cleaned.columns):]### compute hits
+        # fit a random forest (suggested max_depth between 3 and 7)
+        # fit on x_boruta, trained_targets
+        model = RandomForestClassifier(max_depth = 7)
+        model.fit(x_boruta, train_targets)
 
-    #     # computer hits and add to counter
-    #     hits += (feat_imp_X > feat_imp_shadow.max())
+        # get feature importances
+        feat_imp_X = model.feature_importances_[:len(train_cleaned.columns)]
+        feat_imp_shadow = model.feature_importances_[len(train_cleaned.columns):]### compute hits
 
-    # print(hits)
+        # computer hits and add to counter
+        hits += (feat_imp_X > feat_imp_shadow.max())
 
     # #make binomial pmf
-    # trials = 20
-    # pmf = [sp.stats.binom.pmf(x, trials, .5) for x in range(trials + 1)]
-
-    # print(len(hits))
-    # print(len(pmf))
-
-    # hitsDist = [ (hits[i], pmf[int(hits[i])]) for i in range(len(hits))]
+    # trials = 100
+    # pmf = [stats.binom.pmf(x, trials, .5) for x in range(trials + 1)]
+    # max_pds = [  pmf[int(hits[i])] for i in range(len(hits))]
 
     # plt.plot(pmf)
-    # plt.plot(hitsDist)
+    # plt.scatter(hits, max_pds)
     # plt.xlabel = "pmf binomial distribution"
     # plt.ylabel = "number of hits in 100 trials"
 
     # plt.show()
 
-    # initialize model
-    model = RandomForestClassifier(
-        class_weight='balanced', n_estimators=1000, max_depth=7)
+    ##
+    #  Use Butora Py to determine useful/inconclusive/bad features
+    ##
 
-    # remove unnecesary columns
-    train_cleaned = training_data.drop(['sentence', 'ID', 'clean sentence', 'parse', 'start_index', 'end_index',
-                                        'word', 'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic',
-                                        'split', 'count', 'word', 'original word', 'lemma', 'pos'], axis=1)
+    #initialize model
+    #(for random forest suggested max_depth between 3 and 7)
+    model = RandomForestClassifier(
+        class_weight='balanced', max_depth=7)
 
     # make numpy arrays from x df
     x = train_cleaned.values
 
     # do feature selection
     feat_selector = BorutaPy(model, n_estimators='auto',
-                             verbose=2, random_state=1)
+                             verbose=2, random_state=42)
     feat_selector.fit(x, train_targets)
 
     # get results
 
-    # get names of best features
-    best_feats = [train_cleaned.columns[x] for x in range(
+    #match all columns w/ hits
+    feats = train_cleaned.columns
+    feat_hits = [(feats[i], int(hits[i])) for i in range(len(feats))]
+    final_feat_data = []
+
+    # get names and hits of best features, sort
+    best_feats = [str(train_cleaned.columns[x]) for x in range(
         len(train_cleaned.columns)) if feat_selector.support_[x]]
 
-    print("\nBest Features: (ranked)\n")
-    for f in best_feats:
-        print(f)
+    #connect best_feats and hits
+    for f in feat_hits:
+        for k in best_feats:
+            if f[0] == k:
+                new = (f[0],f[1],'High')
+                final_feat_data.append(new)
 
-    # get names of undecided features
+    print(final_feat_data)
+
+    # get names and hits of undecided features, sort
     und_feats = [train_cleaned.columns[x] for x in range(
         len(train_cleaned.columns)) if feat_selector.support_weak_[x]]
-
-    if len(und_feats) > 0:
-        print("\nUndecided Features: \n")
-    for f in und_feats:
-        print(f)
+    
+    #connect und_feats and hits
+    for f in feat_hits:
+        for k in und_feats:
+            if f[0] == k:
+                new = (f[0],f[1],'Med')
+                final_feat_data.append(new)
 
     # get names of non-selected features
     bad_feats = [x for x in train_cleaned.columns if x not in (
         best_feats + und_feats)]
 
-    print("\nUnselected Features: \n")
-    for f in bad_feats:
-        print(f)
+    #connect bad_feats and hits
+    for f in feat_hits:
+        for k in bad_feats:
+            if f[0] == k:
+                new = (f[0],f[1],'Low')
+                final_feat_data.append(new)
+    
+    final_feat_data = sorted(final_feat_data, reverse=True, key= lambda x: x[1])
+
+    print("Results: ")
+    print(final_feat_data)
+
+    #results to csv
+    with open('boruta_results.csv','w') as out:
+        csv_out=csv.writer(out)
+        csv_out.writerow(['feature','hits', 'scale'])
+        csv_out.writerows(final_feat_data)
 
 ##########################################################################################################
 
@@ -672,9 +723,8 @@ def OVL():
                                         'word', 'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic',
                                         'split', 'count', 'word', 'original word', 'lemma', 'pos'], axis=1)
 
-    # okay, for each feature, get the feature columns that correspond to a 1 - complex
-    # and get the feature columns that correspond to a 0 - non-complex
-    # plot both and somehow find the overlap?
+    #for each feature
+    feature_set = []
     for f in train_cleaned.columns:
 
         # get numpy arrays for feat rows -> true, feat rows -> false
@@ -710,14 +760,41 @@ def OVL():
         plt.fill_between(x, inters_x, 0, facecolor='none',
                          edgecolor='r', hatch='xx', label='intersection')
 
-        # get area of intersect, show plot
+        # get area of intersect
         area_inters_x = np.trapz(inters_x, x)
         handles, labels = plt.gca().get_legend_handles_labels()
         labels[2] += f': {area_inters_x * 100:.1f} %'
-        plt.legend(handles, labels, title='Complex?')
-        plt.xlabel(f)
-        plt.ylabel("Probability Density")
-        plt.show()
+
+        ##show plot
+        # plt.legend(handles, labels, title='Complex?')
+        # plt.xlabel(f)
+        # plt.ylabel("Probability Density")
+        #plt.show()
+        # save_path = 'OVLResults/all/all_' + f + '.png'
+        # plt.savefig(save_path)
+        # plt.cla()
+        tup = (f, area_inters_x)
+        feature_set.append(tup)
+        
+    feature_set = sorted(feature_set, key = lambda x: x[1])
+
+    ##
+    #show bar plot of feature names and performance
+    ##
+
+    names = list(zip(*feature_set))[0]
+    performance = list(zip(*feature_set))[1]
+    x_pos = np.arange(len(names))
+
+    plt.cla()
+    plt.bar(x_pos, performance, align='center')
+    plt.title('Complex/Non-complex Feature Value KDE Plot Overlap')
+    plt.xlabel('Feature name')
+    plt.ylabel('Percentage of Overlap')
+    plt.xticks(x_pos,names,rotation='vertical')
+    plt.subplots_adjust(bottom=0.25)
+    plt.show()
+
 
 
 ##########################################################################################################
