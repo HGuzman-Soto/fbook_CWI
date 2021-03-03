@@ -296,14 +296,16 @@ def is_entity(row):
             if (entity_type != "O"):
                 print(word, entity_type)
                 return 1
-            return 0
-        else:
-            return 0
+            else:
+                return 0
+
+    return 0
 
 
 ##########################################################################################################
 array = ['News_Test_allInfo', 'News_Train_allInfo', 'WikiNews_Test_allInfo', 'News_Dev_allInfo', 'WikiNews_Dev_allInfo', 'Wikipedia_Dev_allInfo',
-         'WikiNews_Train_allInfo', 'Wikipedia_Test_allInfo', 'Wikipedia_Train_allInfo', '2016_train_allInfo', '2016_test_allInfo']
+         'WikiNews_Train_allInfo', 'Wikipedia_Test_allInfo', 'Wikipedia_Train_allInfo']
+#array = ['2016_train_allInfo', '2016_test_allInfo']
 
 for x in array:
     print(x)
@@ -330,6 +332,8 @@ for x in array:
         lambda x: parse(x))
 
     word_parse_features['ner'] = word_parse_features.apply(is_entity, axis=1)
+
+    word_parse_features['parse'] = word_parse_features.parse.astype(str)
 
     word_parse_features.to_pickle(
         'features/' + x)
