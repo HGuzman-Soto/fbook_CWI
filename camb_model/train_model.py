@@ -842,6 +842,9 @@ if __name__ == "__main__":
     parser.add_argument('--train_wikinews', '-ti', type=int, default=0)
     parser.add_argument('--train_news', '-tn', type=int, default=0)
     parser.add_argument('--train_old', '-to', type=int, default=0)
+    parser.add_argument('--dev_wikipedia', '-dw', type=int, default=0)
+    parser.add_argument('--dev_wikinews', '-di', type=int, default=0)
+    parser.add_argument('--news', '-dn', type=int, default=0)
     parser.add_argument('--random_forest', '-rf', type=int, default=0)
     parser.add_argument('--ada_boost', '-ab', type=int, default=0)
     parser.add_argument('--combine_models', '-cm', type=int, default=0)
@@ -900,6 +903,27 @@ if __name__ == "__main__":
         old_train_dataset = pd.read_pickle('features/2016_Train_allInfo')
         old_train_dataset.name = '2016_train'
         train_frames.append(old_train_dataset)
+
+    elif (args.dev_wikipedia == 1):
+        train_names.append('wikipedia_dev')
+        wikipedia_dev_data = pd.read_pickle(
+            'features/Wikipedia_Dev_allInfo')
+        wikipedia_dev_data.name = 'Wikipedia'
+        train_frames.append(wikipedia_dev_data)
+    
+    elif (args.dev_wikinews == 1):
+        train_names.append('WikiNews_dev')
+        wikinews_dev_data = pd.read_pickle(
+            'features/WikiNews_Dev_allInfo')
+        wikinews_dev_data.name = 'WikiNews'
+        train_frames.append(wikinews_dev_data)
+    
+    elif (args.news == 1):
+        train_names.append('news_dev')
+        news_dev_data = pd.read_pickle(
+            'features/News_Dev_allInfo')
+        news_dev_data.name = 'News'
+        train_frames.append(news_dev_data)
 
     total_training = pd.concat(train_frames)
 
