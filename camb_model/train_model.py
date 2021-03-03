@@ -61,10 +61,10 @@ def main():
                         'TLFRQ', 'complex_lexicon', 'subtitles_freq', 'wikipedia_freq',
                         'learner_corpus_freq', 'bnc_freq']
         feature_importance(model_graph, feature_list=feature_list)
-    
+
     elif args.recursive_feature:
         recursive_feat()
-    
+
     elif args.boruta:
         Boruta()
 
@@ -126,9 +126,24 @@ def feature_extraction(indice=0):
         ('vect', CountVectorizer())
     ])
 
-    ngram = Pipeline([
+    bi_gram_char = Pipeline([
         ('selector', TextSelector(key='word')),
         ('vect', CountVectorizer(analyzer='char', ngram_range=(2, 2)))
+    ])
+
+    four_gram_char = Pipeline([
+        ('selector', TextSelector(key='word')),
+        ('vect', CountVectorizer(analyzer='char', ngram_range=(4, 4)))
+    ])
+
+    simple_wiki_bigrams = Pipeline([
+        ('selector', NumberSelector(key='simple_wiki_bigrams')),
+        ('standard', StandardScaler())
+    ])
+
+    learners_bigrams = Pipeline([
+        ('selector', NumberSelector(key='learners_bigrams')),
+        ('standard', StandardScaler())
     ])
 
     word_length = Pipeline([
@@ -138,6 +153,11 @@ def feature_extraction(indice=0):
 
     vowels = Pipeline([
         ('selector', NumberSelector(key='vowels')),
+        ('standard', StandardScaler())
+    ])
+
+    consonants = Pipeline([
+        ('selector', NumberSelector(key='consonants')),
         ('standard', StandardScaler())
     ])
 
@@ -166,8 +186,23 @@ def feature_extraction(indice=0):
         ('standard', StandardScaler())
     ])
 
+    holonyms = Pipeline([
+        ('selector', NumberSelector(key='holonyms')),
+        ('standard', StandardScaler())
+    ])
+
+    meronyms = Pipeline([
+        ('selector', NumberSelector(key='meronyms')),
+        ('standard', StandardScaler())
+    ])
+
     syllables = Pipeline([
         ('selector', NumberSelector(key='syllables')),
+        ('standard', StandardScaler())
+    ])
+
+    is_entity = Pipeline([
+        ('selector', NumberSelector(key='ner')),
         ('standard', StandardScaler())
     ])
 
@@ -265,79 +300,89 @@ def feature_extraction(indice=0):
 
     #('ngram', ngram) is omitted
     feature_list = [
-    ('words', words),
-    ('ngram', ngram),
-    ('Tag', tag),
-    ('word_length', word_length),
-    # ('vowels', vowels),
-    ('Syllables', syllables),
-    ('dep_num', dep_num),
-    ('synonyms', synonyms),
-    ('hypernyms', hypernyms),
-    ('hyponyms', hyponyms),
-    ('ogden', ogden),
-    ('simple_wiki', simple_wiki),
-    ('cald', cald),
-    ('cnc', conc),
-    ('img', img),
-    ('aoa', aoa),
-    ('fam', fam),
-    ('subimdb', subimdb),
-    ('freq', frequency),
-    ('KFCAT', KFCAT),
-    ('KFSMP', KFSMP),
-    ('KFFRQ', KFFRQ),
-    ('NPHN', NPHN),
-    ('TLFRQ', TLFRQ),
-    # ('complex_lexicon', lexicon),
-    # ('subtitles_freq', subtitles_corpus),
-    # ('wikipedia_freq', Wikipedia),
-    # ('learner_corpus_freq', learners),
-    # ('bnc_freq', BNC)
-    ]
-
-    if(args.feature_importance == 1):    
-        feats = FeatureUnion(feature_list[indice:])
-
-
-
-    pipe_feats = [
         ('words', words),
-        ('word_length', word_length),
-        # ('vowels', vowels),
+        ('bigram_char', bi_gram_char),
+        ('four_gram_char', four_gram_char),
         ('Tag', tag),
+        ('simple_wiki_bigrams', simple_wiki_bigrams),
+        ('learners_bigrams', learners_bigrams),
+        ('word_length', word_length),
+        ('vowels', vowels),
+        ('Syllables', syllables),
         ('dep_num', dep_num),
+        ('synonyms', synonyms),
         ('hypernyms', hypernyms),
         ('hyponyms', hyponyms),
-        ('synonyms', synonyms),
-        ('Syllables', syllables),
+        ('holonyms', holonyms),
+        ('meronyms', meronyms),
         ('ogden', ogden),
+        ('ner', is_entity),
         ('simple_wiki', simple_wiki),
-        ('freq', frequency),
-        ('subimdb', subimdb),
         ('cald', cald),
-        ('aoa', aoa),
         ('cnc', conc),
-        ('fam', fam),
         ('img', img),
+        ('aoa', aoa),
+        ('fam', fam),
+        ('subimdb', subimdb),
+        ('freq', frequency),
         ('KFCAT', KFCAT),
         ('KFSMP', KFSMP),
         ('KFFRQ', KFFRQ),
         ('NPHN', NPHN),
         ('TLFRQ', TLFRQ),
-        # ('wikipedia_freq', Wikipedia),
-        # ('bnc_freq', BNC),
-        # ('complex_lexicon', lexicon),
-        # ('learner_corpus_freq', learners),
-        # ('subtitles_freq', subtitles_corpus)
+        ('complex_lexicon', lexicon),
+        ('subtitles_freq', subtitles_corpus),
+        ('wikipedia_freq', Wikipedia),
+        ('learner_corpus_freq', learners),
+        ('bnc_freq', BNC)
+    ]
+
+    if(args.feature_importance == 1):
+        feats = FeatureUnion(feature_list[indice:])
+
+    pipe_feats = [
+        ('words', words),
+        ('bigram_char', bi_gram_char),
+        ('four_gram_char', four_gram_char),
+        ('Tag', tag),
+        ('simple_wiki_bigrams', simple_wiki_bigrams),
+        ('learners_bigrams', learners_bigrams),
+        ('word_length', word_length),
+        ('vowels', vowels),
+        ('Syllables', syllables),
+        ('dep_num', dep_num),
+        ('synonyms', synonyms),
+        ('hypernyms', hypernyms),
+        ('hyponyms', hyponyms),
+        ('holonyms', holonyms),
+        ('meronyms', meronyms),
+        ('ogden', ogden),
+        ('ner', is_entity),
+        ('simple_wiki', simple_wiki),
+        ('cald', cald),
+        ('cnc', conc),
+        ('img', img),
+        ('aoa', aoa),
+        ('fam', fam),
+        ('subimdb', subimdb),
+        ('freq', frequency),
+        ('KFCAT', KFCAT),
+        ('KFSMP', KFSMP),
+        ('KFFRQ', KFFRQ),
+        ('NPHN', NPHN),
+        ('TLFRQ', TLFRQ),
+        ('complex_lexicon', lexicon),
+        ('subtitles_freq', subtitles_corpus),
+        ('wikipedia_freq', Wikipedia),
+        ('learner_corpus_freq', learners),
+        ('bnc_freq', BNC)
 
     ]
 
     if args.features:
         feats_in = args.features.strip("[]").split(",")
         pipe_feats = [x for x in pipe_feats if x[0] in feats_in]
-    feats = FeatureUnion(pipe_feats)
-
+    feats = FeatureUnion(feature_list)
 
     return feats
 ##########################################################################################################
@@ -345,9 +390,9 @@ def feature_extraction(indice=0):
 
 def grid_search(training_data, feats, model_type):
     if(model_type == "rf"):
-        grid = {'classifier__n_estimators': [2000,5000,10000],
+        grid = {'classifier__n_estimators': [2000, 5000, 10000],
                 'classifier__max_features': ['auto', 'sqrt'],
-                'classifier__max_depth': (10,25,50,75,100),
+                'classifier__max_depth': (10, 25, 50, 75, 100),
                 'classifier__min_samples_split': [2, 5, 10],
                 'classifier__min_samples_leaf': [1, 2, 4],
                 'classifier__bootstrap': [True, False]
@@ -476,27 +521,29 @@ def feature_importance(pipeline, feature_list):
 Implementation of Recursive Feature Elimination
 """
 
+
 def recursive_feat():
     if args.ada_boost == 1:
         model = AdaBoostClassifier(n_estimators=5000)
     else:
         model = RandomForestClassifier(n_estimators=5000)
-    
+
     rfecv = RFECV(model, n_jobs=7)
     pipeline = Pipeline([
-                ('rfecv', rfecv),
-                ('classifier', model),
-            ])
+        ('rfecv', rfecv),
+        ('classifier', model),
+    ])
 
-    useful_data = training_data.drop(['sentence', 'ID', 'clean sentence', 'parse', 'start_index', 'end_index', 
-    'word', 'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic',
-    'split', 'count', 'word', 'original word', 'lemma', 'pos'], axis=1)
+    useful_data = training_data.drop(['sentence', 'ID', 'clean sentence', 'parse', 'start_index', 'end_index',
+                                      'word', 'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic',
+                                      'split', 'count', 'word', 'original word', 'lemma', 'pos'], axis=1)
 
     pipeline.fit(useful_data, train_targets)
 
     print("optimal # of features: %d" % rfecv.n_features_)
     print("used features:")
-    best_feats = [useful_data.columns[x] for x in range(len(useful_data.columns)) if rfecv.support_[x]]
+    best_feats = [useful_data.columns[x]
+                  for x in range(len(useful_data.columns)) if rfecv.support_[x]]
     for f in best_feats:
         print(f)
 
@@ -506,21 +553,22 @@ def recursive_feat():
     plt.plot(rfecv.grid_scores_)
     plt.show()
 
-    print("\n",rfecv.grid_scores_)
+    print("\n", rfecv.grid_scores_)
 
 ##########################################################################################################
+
 
 """
 Implementation of Boruta Feature Selection
 """
 
+
 def Boruta():
 
     # #remove unnecesary columns
-    # train_cleaned = training_data.drop(['sentence', 'ID', 'clean sentence', 'parse', 'start_index', 'end_index', 
+    # train_cleaned = training_data.drop(['sentence', 'ID', 'clean sentence', 'parse', 'start_index', 'end_index',
     #     'word', 'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic',
     #     'split', 'count', 'word', 'original word', 'lemma', 'pos'], axis=1)
-
 
     # # initialize hits counter
     # hits = np.zeros(len(train_cleaned.columns))
@@ -541,7 +589,7 @@ def Boruta():
     #     # get feature importances
     #     feat_imp_X = model.feature_importances_[:len(train_cleaned.columns)]
     #     feat_imp_shadow = model.feature_importances_[len(train_cleaned.columns):]### compute hits
-        
+
     #     # computer hits and add to counter
     #     hits += (feat_imp_X > feat_imp_shadow.max())
 
@@ -561,43 +609,47 @@ def Boruta():
     # plt.xlabel = "pmf binomial distribution"
     # plt.ylabel = "number of hits in 100 trials"
 
-
-
     # plt.show()
 
-    #initialize model
-    model = RandomForestClassifier(class_weight='balanced', n_estimators=1000, max_depth=7)
+    # initialize model
+    model = RandomForestClassifier(
+        class_weight='balanced', n_estimators=1000, max_depth=7)
 
-    #remove unnecesary columns
-    train_cleaned = training_data.drop(['sentence', 'ID', 'clean sentence', 'parse', 'start_index', 'end_index', 
-        'word', 'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic',
-        'split', 'count', 'word', 'original word', 'lemma', 'pos'], axis=1)
+    # remove unnecesary columns
+    train_cleaned = training_data.drop(['sentence', 'ID', 'clean sentence', 'parse', 'start_index', 'end_index',
+                                        'word', 'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic',
+                                        'split', 'count', 'word', 'original word', 'lemma', 'pos'], axis=1)
 
-    #make numpy arrays from x df
+    # make numpy arrays from x df
     x = train_cleaned.values
 
-    #do feature selection
-    feat_selector = BorutaPy(model, n_estimators='auto', verbose=2, random_state=1)
-    feat_selector.fit(x,train_targets)
+    # do feature selection
+    feat_selector = BorutaPy(model, n_estimators='auto',
+                             verbose=2, random_state=1)
+    feat_selector.fit(x, train_targets)
 
-    #get results
+    # get results
 
     # get names of best features
-    best_feats = [train_cleaned.columns[x] for x in range(len(train_cleaned.columns)) if feat_selector.support_[x]]
+    best_feats = [train_cleaned.columns[x] for x in range(
+        len(train_cleaned.columns)) if feat_selector.support_[x]]
 
     print("\nBest Features: (ranked)\n")
     for f in best_feats:
         print(f)
 
     # get names of undecided features
-    und_feats = [train_cleaned.columns[x] for x in range(len(train_cleaned.columns)) if feat_selector.support_weak_[x]]
-    
-    if len(und_feats) > 0: print("\nUndecided Features: \n")
+    und_feats = [train_cleaned.columns[x] for x in range(
+        len(train_cleaned.columns)) if feat_selector.support_weak_[x]]
+
+    if len(und_feats) > 0:
+        print("\nUndecided Features: \n")
     for f in und_feats:
         print(f)
-    
+
     # get names of non-selected features
-    bad_feats = [x for x in train_cleaned.columns if x not in (best_feats + und_feats)]
+    bad_feats = [x for x in train_cleaned.columns if x not in (
+        best_feats + und_feats)]
 
     print("\nUnselected Features: \n")
     for f in bad_feats:
@@ -605,54 +657,60 @@ def Boruta():
 
 ##########################################################################################################
 
+
 """
 Implementation of OVL Feature Selection
 """
 
+
 def OVL():
 
-    #new random state
+    # new random state
     rng = np.random.RandomState(42)
 
-    train_cleaned = training_data.drop(['sentence', 'ID', 'clean sentence', 'parse', 'start_index', 'end_index', 
-        'word', 'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic',
-        'split', 'count', 'word', 'original word', 'lemma', 'pos'], axis=1)
+    train_cleaned = training_data.drop(['sentence', 'ID', 'clean sentence', 'parse', 'start_index', 'end_index',
+                                        'word', 'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic',
+                                        'split', 'count', 'word', 'original word', 'lemma', 'pos'], axis=1)
 
-    ## okay, for each feature, get the feature columns that correspond to a 1 - complex
-    ## and get the feature columns that correspond to a 0 - non-complex
-    ## plot both and somehow find the overlap?
+    # okay, for each feature, get the feature columns that correspond to a 1 - complex
+    # and get the feature columns that correspond to a 0 - non-complex
+    # plot both and somehow find the overlap?
     for f in train_cleaned.columns:
-        
-        #get numpy arrays for feat rows -> true, feat rows -> false
-        x0 = np.array([y  for x,y in enumerate(train_cleaned[f]) if train_targets[x] == 0])
-        x1 = np.array([y  for x,y in enumerate(train_cleaned[f]) if train_targets[x] == 1])
 
-        #make kde plots
+        # get numpy arrays for feat rows -> true, feat rows -> false
+        x0 = np.array([y for x, y in enumerate(
+            train_cleaned[f]) if train_targets[x] == 0])
+        x1 = np.array([y for x, y in enumerate(
+            train_cleaned[f]) if train_targets[x] == 1])
+
+        # make kde plots
         kde0 = stats.gaussian_kde(x0, bw_method=0.3)
         kde1 = stats.gaussian_kde(x1, bw_method=0.3)
 
-        #make x boundaries
+        # make x boundaries
         xmin = min(x0.min(), x1.min())
         xmax = min(x0.max(), x1.max())
-        dx = 0.2 * (xmax - xmin) # add a 20% margin, as the kde is wider than the data
+        # add a 20% margin, as the kde is wider than the data
+        dx = 0.2 * (xmax - xmin)
         xmin -= dx
         xmax += dx
 
-        #find minimum of kde intersect for 500 x-values
+        # find minimum of kde intersect for 500 x-values
         x = np.linspace(xmin, xmax, 500)
         kde0_x = kde0(x)
         kde1_x = kde1(x)
         inters_x = np.minimum(kde0_x, kde1_x)
 
-        #plot kde's and intersect
+        # plot kde's and intersect
         plt.plot(x, kde0_x, color='b', label='non-complex')
         plt.fill_between(x, kde0_x, 0, color='b', alpha=0.2)
         plt.plot(x, kde1_x, color='orange', label='complex')
         plt.fill_between(x, kde1_x, 0, color='orange', alpha=0.2)
         plt.plot(x, inters_x, color='r')
-        plt.fill_between(x, inters_x, 0, facecolor='none', edgecolor='r', hatch='xx', label='intersection')
+        plt.fill_between(x, inters_x, 0, facecolor='none',
+                         edgecolor='r', hatch='xx', label='intersection')
 
-        #get area of intersect, show plot
+        # get area of intersect, show plot
         area_inters_x = np.trapz(inters_x, x)
         handles, labels = plt.gca().get_legend_handles_labels()
         labels[2] += f': {area_inters_x * 100:.1f} %'
@@ -660,14 +718,14 @@ def OVL():
         plt.xlabel(f)
         plt.ylabel("Probability Density")
         plt.show()
-    
+
 
 ##########################################################################################################
 
 def clean_data():
-    training_data = training_data.drop(['sentence', 'ID', 'clean sentence', 'parse', 'start_index', 'end_index', 
-        'word', 'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic',
-        'split', 'count', 'word', 'original word', 'lemma', 'pos'], axis=1)
+    training_data = training_data.drop(['sentence', 'ID', 'clean sentence', 'parse', 'start_index', 'end_index',
+                                        'word', 'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic',
+                                        'split', 'count', 'word', 'original word', 'lemma', 'pos'], axis=1)
 
 
 ##########################################################################################################
@@ -754,13 +812,12 @@ if __name__ == "__main__":
         wiki_training_data = pd.read_pickle('features/WikiNews_Train_allInfo')
         wiki_training_data.name = 'WikiNews'
         train_frames.append(wiki_training_data)
-    
+
     if (args.train_old == 1):
         train_names.append('2016_train')
         old_train_dataset = pd.read_pickle('features/2016_Train_allInfo')
         old_train_dataset.name = '2016_train'
         train_frames.append(old_train_dataset)
-    
 
     total_training = pd.concat(train_frames)
 
@@ -768,6 +825,5 @@ if __name__ == "__main__":
 
     training_data = total_training
     train_targets = training_data['complex_binary'].values
-
 
     main()
