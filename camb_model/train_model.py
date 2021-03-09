@@ -147,6 +147,26 @@ def feature_extraction(indice=0):
         ('standard', StandardScaler())
     ])
 
+    google_char_bigram = Pipeline([
+        ('selector', NumberSelector(key='google_char_bigram')),
+        ('standard', StandardScaler())
+    ])
+
+    google_char_trigram = Pipeline([
+        ('selector', NumberSelector(key='google_char_trigram')),
+        ('standard', StandardScaler())
+    ])
+
+    simple_wiki_fourgram = Pipeline([
+        ('selector', NumberSelector(key='simple_wiki_fourgram')),
+        ('standard', StandardScaler())
+    ])
+
+    learner_fourgram = Pipeline([
+        ('selector', NumberSelector(key='learner_fourgram')),
+        ('standard', StandardScaler())
+    ])
+
     word_length = Pipeline([
         ('selector', NumberSelector(key='length')),
         ('standard', StandardScaler())
@@ -307,6 +327,10 @@ def feature_extraction(indice=0):
         ('Tag', tag),
         ('simple_wiki_bigrams', simple_wiki_bigrams),
         ('learners_bigrams', learners_bigrams),
+        ('google_char_bigram', google_char_bigram),
+        ('google_char_trigram', google_char_trigram),
+        ('simple_wiki_fourgram', simple_wiki_fourgram)
+        ('learner_fourgram', learner_fourgram),
         ('word_length', word_length),
         ('vowels', vowels),
         ('consonants', consonants),
@@ -349,6 +373,10 @@ def feature_extraction(indice=0):
         ('Tag', tag),
         ('simple_wiki_bigrams', simple_wiki_bigrams),
         ('learners_bigrams', learners_bigrams),
+        ('google_char_bigram', google_char_bigram),
+        ('google_char_trigram', google_char_trigram),
+        ('simple_wiki_fourgram', simple_wiki_fourgram)
+        ('learner_fourgram', learner_fourgram),
         ('word_length', word_length),
         ('vowels', vowels),
         ('Syllables', syllables),

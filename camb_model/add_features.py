@@ -427,8 +427,8 @@ for x in array:
     # word_parse_features['simple_wiki_fourgram'] = word_parse_features['word'].apply(
     #     lambda x: char_fourgram(x))
 
-    word_parse_features['learner_fourgram'] = word_parse_features['word'].apply(
-        lambda x: char_fourgram(x))
+    # word_parse_features['learner_fourgram'] = word_parse_features['word'].apply(
+    #     lambda x: char_fourgram(x))
 
     word_parse_features.to_pickle(
         'features/' + x)
