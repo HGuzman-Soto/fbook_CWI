@@ -38,7 +38,7 @@ Evaluation script gives train, test, and later dev results
 
 def evaluation(name, model, array):
     model_stats = pd.DataFrame(
-        columns=['Data', 'Classifier', 'Precision', 'Recall', 'F-Score'])
+        columns=['Data', 'Classifier', 'Accuracy', 'Precision', 'Recall', 'F-Score'])
     i = 0
     for x in array:
         print("results for", name, ":\n")
@@ -52,7 +52,7 @@ def evaluation(name, model, array):
         F_Score = f1_score(targets, predictions, average='macro')
 
         model_stats.loc[len(model_stats)] = [
-            i, (str(model)), precision, recall, F_Score]
+            i, (str(model)), accuracy, precision, recall, F_Score]
         print("Accuracy", accuracy)
         print("Precision:", model_stats.Precision)
         print("Recall:", model_stats.Recall)
@@ -87,7 +87,8 @@ def predict(name, model, array):
             # df = df.drop(columns=['parse', 'count', 'split', 'original word', 'total_native',
             #                       'total_non_native', 'native_complex', 'non_native_complex', 'complex_probabilistic'])
             try:
-                df = df.drop(columns=['parse', 'count', 'split', 'original word'])
+                df = df.drop(columns=['parse', 'count',
+                                      'split', 'original word'])
             except:
                 pass
 
@@ -187,7 +188,7 @@ if __name__ == "__main__":
         news_dev_data.name = 'News_Dev'
         news_training_data.name = 'News_Dev'
         test_frames = [news_dev_data, news_training_data]
-    
+
     if (args.old_data == 1):
         test_name = 'old_data'
         old_test_data = pd.read_pickle('features/2016_Test_allInfo')
@@ -196,25 +197,25 @@ if __name__ == "__main__":
         old_data_train.name = 'old_data_Train'
         test_frames = [old_test_data, old_data_train]
 
-
     elif(args.test):
         test_name = args.test
         testing_data = pd.read_pickle('features/' + args.test + '_allInfo')
         testing_data.name = 'testing'
         test_frames = [testing_data]
-    
+
     if (args.features):
         used_feats = args.features.strip("[]").split(",")
-        used_feats = ["sentence", "ID", "clean sentence", "word", "complex_binary"] + used_feats
+        used_feats = ["sentence", "ID", "clean sentence",
+                      "word", "complex_binary"] + used_feats
 
         for i in range(len(test_frames)):
-            test_frames[i]= test_frames[i][used_feats]
+            test_frames[i] = test_frames[i][used_feats]
 
-
-    #if features are not specified, remove unnecessary features
+    # if features are not specified, remove unnecessary features
     else:
         for i in range(len(test_frames)):
-            test_frames[i] = test_frames[i].drop(columns=['parse', 'count', 'split', 'original word'])
+            test_frames[i] = test_frames[i].drop(
+                columns=['parse', 'count', 'split', 'original word'])
     # total_test = pd.concat(test_frames)
     # total_test.fillna(0.0, inplace=True)
     main()

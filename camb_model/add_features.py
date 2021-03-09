@@ -4,6 +4,7 @@ import pandas as pd
 import dill
 import re
 import math
+import numpy as np
 import ast
 import string
 from collections import Counter, defaultdict
@@ -303,6 +304,91 @@ def is_entity(row):
 
 
 ##########################################################################################################
+bi_language_model = pd.read_csv(
+    'corpus/google_char_bigrams.csv', sep=',')
+tri_language_model = pd.read_csv('corpus/google_char_trigrams.csv', sep=",")
+
+
+simple_lm = dill.load(
+    open("lm/" + "simple_wikipedia_four_char" + ".sav", 'rb'))
+
+learner_lm = dill.load(
+    open("lm/" + "learners_four_char" + ".sav", 'rb'))
+
+
+def char_bigram(word, ngram=2, language_model=bi_language_model):
+    prev = 0
+    curr = ngram
+    score = 0
+    normalized = len(word) - 3
+    if normalized < 1:
+        normalized = 1
+
+    for i in range(0, len(word)):
+        target_char = word[prev:curr]
+        try:
+            if(target_char in language_model['bigram'].values):
+                score += math.log(language_model.loc[language_model.bigram ==
+                                                     target_char, 'probability'])
+                # print(score)
+        except:
+            score += math.log(4.2857560833409393e-07)  # char bigram model
+        prev += 1
+        curr += 1
+        # print(word, target_char, score)
+
+    return (math.exp(score) / normalized)
+
+
+def char_trigram(word, ngram=3, language_model=tri_language_model):
+    prev = 0
+    curr = ngram
+    score = 0
+    normalized = len(word) - 3
+    if normalized < 1:
+        normalized = 1
+
+    for i in range(0, len(word)):
+        target_char = word[prev:curr]
+        try:
+            if(target_char in language_model['trigram'].values):
+                score += math.log(language_model.loc[language_model.trigram ==
+                                                     target_char, 'probability'])
+
+                # print(score)
+        except:
+            score += math.log(1.0387200772850076e-09)
+        prev += 1
+        curr += 1
+        # print(word, target_char, score)
+
+    return (math.exp(score) / normalized)
+
+
+def char_fourgram(word, ngram=3, language_model=learner_lm):
+    prev = 0
+    curr = ngram
+    score = 0
+
+    for i in range(0, len(word)):
+        if (curr >= len(word)):
+            pass
+        else:
+            target_char = word[prev:curr]
+            # print(word, target_char, word[prev], word[curr])
+            try:
+                if(target_char in language_model):
+                    score += language_model[target_char][word[curr]]
+                    # print(score)
+            except:
+                pass
+        prev += 1
+        curr += 1
+        # print(word, target_char, score)
+    return score
+
+
+##########################################################################################################
 array = ['News_Test_allInfo', 'News_Train_allInfo', 'WikiNews_Test_allInfo', 'News_Dev_allInfo', 'WikiNews_Dev_allInfo', 'Wikipedia_Dev_allInfo',
          'WikiNews_Train_allInfo', 'Wikipedia_Test_allInfo', 'Wikipedia_Train_allInfo']
 #array = ['2016_train_allInfo', '2016_test_allInfo']
@@ -328,12 +414,21 @@ for x in array:
     #     word_parse_features)
 
     # apply parsing to sentences
-    word_parse_features['parse'] = word_parse_features['clean sentence'].apply(
-        lambda x: parse(x))
+    # word_parse_features['parse'] = word_parse_features['clean sentence'].apply(
+    #     lambda x: parse(x))
 
-    word_parse_features['ner'] = word_parse_features.apply(is_entity, axis=1)
+    # word_parse_features['ner'] = word_parse_features.apply(is_entity, axis=1)
 
-    word_parse_features['parse'] = word_parse_features.parse.astype(str)
+    # word_parse_features['parse'] = word_parse_features.parse.astype(str)
+    # word_parse_features['google_char_bigram'] = word_parse_features['word'].apply(
+    #     lambda x: char_bigram(x))
+    # word_parse_features['google_char_trigram'] = word_parse_features['word'].apply(
+    #     lambda x: char_trigram(x))
+    # word_parse_features['simple_wiki_fourgram'] = word_parse_features['word'].apply(
+    #     lambda x: char_fourgram(x))
+
+    # word_parse_features['learner_fourgram'] = word_parse_features['word'].apply(
+    #     lambda x: char_fourgram(x))
 
     word_parse_features.to_pickle(
         'features/' + x)

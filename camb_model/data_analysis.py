@@ -62,16 +62,19 @@ def kde_plot(df, name, x_var):
     scale = StandardScaler().fit(df[[x_var]])
     df[x_var] = scale.transform(df[[x_var]])
     sns.histplot(df, x=x_var, hue="complex_binary", kde=True, element="step")
+    # plt.xlim(xmin=0, xmax=1)
+
     plt.title(name)
     plt.show()
 
 
 def hist_plot(df, name, x_var, y_var):
-    scale = StandardScaler().fit(df[[x_var]])
-    df[x_var] = scale.transform(df[[x_var]])
+    # scale = StandardScaler().fit(df[[x_var]])
+    # df[x_var] = scale.transform(df[[x_var]])
 
     sns.histplot(df, x=x_var, hue="complex_binary", element="step")
     # plt.ylabel('normalized count')
+
     plt.title(name)
     plt.show()
 
@@ -145,7 +148,7 @@ if __name__ == "__main__":
         df_list = [df, correct_df, wrong_df]
     except:
         df_list = [df]
-    
+
     df_list = [df]
 
     main(df_list)

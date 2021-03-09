@@ -55,13 +55,14 @@ and what features you used to train it.
 def main():
 
     if args.feature_importance == 1:
-        feats_for_graph = feature_extraction(indice=1)
+        feats_for_graph = feature_extraction(indice=3)
         model_graph = train_model(training_data, feats_for_graph)
-        feature_list = ['pos', 'length', 'vowels', 'syllables', 'dep num', 'synonyms', 'hypernyms',
-                        'hyponyms', 'ogden', 'simple_wiki', 'cald', 'cnc', 'img', 'aoa', 'fam',
+        feature_list = ['pos', 'simple_wiki_bigrams', 'learners_bigrams', 'length', 'vowels', 'syllables', 'consonants', 'dep num', 'synonyms', 'hypernyms',
+                        'hyponyms', 'holonyms', 'meronyms', 'ogden', 'ner', 'simple_wiki', 'cald', 'cnc', 'img', 'aoa', 'fam',
                         'sub_imdb', 'google frequency', 'KFCAT', 'KFSMP', 'KFFRQ', 'NPHN',
                         'TLFRQ', 'complex_lexicon', 'subtitles_freq', 'wikipedia_freq',
                         'learner_corpus_freq', 'bnc_freq']
+
         feature_importance(model_graph, feature_list=feature_list)
 
     elif args.recursive_feature:
@@ -145,6 +146,26 @@ def feature_extraction(indice=0):
 
     learners_bigrams = Pipeline([
         ('selector', NumberSelector(key='learners_bigrams')),
+        ('standard', StandardScaler())
+    ])
+
+    google_char_bigram = Pipeline([
+        ('selector', NumberSelector(key='google_char_bigram')),
+        ('standard', StandardScaler())
+    ])
+
+    google_char_trigram = Pipeline([
+        ('selector', NumberSelector(key='google_char_trigram')),
+        ('standard', StandardScaler())
+    ])
+
+    simple_wiki_fourgram = Pipeline([
+        ('selector', NumberSelector(key='simple_wiki_fourgram')),
+        ('standard', StandardScaler())
+    ])
+
+    learner_fourgram = Pipeline([
+        ('selector', NumberSelector(key='learner_fourgram')),
         ('standard', StandardScaler())
     ])
 
@@ -302,14 +323,19 @@ def feature_extraction(indice=0):
 
     #('ngram', ngram) is omitted
     feature_list = [
-        ('words', words),
-        ('bigram_char', bi_gram_char),
-        ('four_gram_char', four_gram_char),
+        # ('words', words),
+        # ('bigram_char', bi_gram_char),
+        # ('four_gram_char', four_gram_char),
         ('Tag', tag),
         ('simple_wiki_bigrams', simple_wiki_bigrams),
         ('learners_bigrams', learners_bigrams),
+        ('google_char_bigram', google_char_bigram),
+        ('google_char_trigram', google_char_trigram),
+        ('simple_wiki_fourgram', simple_wiki_fourgram)
+        ('learner_fourgram', learner_fourgram),
         ('word_length', word_length),
         ('vowels', vowels),
+        ('consonants', consonants),
         ('Syllables', syllables),
         ('dep_num', dep_num),
         ('synonyms', synonyms),
@@ -339,7 +365,7 @@ def feature_extraction(indice=0):
         ('bnc_freq', BNC)
     ]
 
-    if(args.feature_importance == 1):
+    if (args.feature_importance == 1):
         feats = FeatureUnion(feature_list[indice:])
 
     pipe_feats = [
@@ -349,24 +375,28 @@ def feature_extraction(indice=0):
         ('Tag', tag),
         ('simple_wiki_bigrams', simple_wiki_bigrams),
         ('learners_bigrams', learners_bigrams),
+        ('google_char_bigram', google_char_bigram),
+        ('google_char_trigram', google_char_trigram),
+        ('simple_wiki_fourgram', simple_wiki_fourgram)
+        ('learner_fourgram', learner_fourgram),
         ('word_length', word_length),
         ('vowels', vowels),
         ('Syllables', syllables),
         ('dep_num', dep_num),
         ('synonyms', synonyms),
-        ('hypernyms', hypernyms),
+        # ('hypernyms', hypernyms),
         ('hyponyms', hyponyms),
         ('holonyms', holonyms),
         ('meronyms', meronyms),
-        ('ogden', ogden),
-        ('ner', is_entity),
-        ('simple_wiki', simple_wiki),
+        # ('ogden', ogden),
+        # ('ner', is_entity),
+        # ('simple_wiki', simple_wiki),
         ('cald', cald),
         ('cnc', conc),
         ('img', img),
         ('aoa', aoa),
         ('fam', fam),
-        ('subimdb', subimdb),
+        # ('subimdb', subimdb),
         ('freq', frequency),
         ('KFCAT', KFCAT),
         ('KFSMP', KFSMP),
@@ -387,8 +417,9 @@ def feature_extraction(indice=0):
         print("Selected # of features: " + str(len(pipe_feats)))
         print("Features: ")
         print(pipe_feats)
-    feats = FeatureUnion(pipe_feats)
-
+        feats = FeatureUnion(pipe_feats)
+    else:
+        feats = FeatureUnion(feature_list)
     return feats
 ##########################################################################################################
 
