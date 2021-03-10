@@ -368,17 +368,20 @@ def char_trigram(word, ngram=3, language_model=tri_language_model):
 def char_fourgram(word, ngram=3, language_model=learner_lm):
     prev = 0
     curr = ngram
-    score = 0
+    score = 1
 
     for i in range(0, len(word)):
         if (curr >= len(word)):
             pass
         else:
             target_char = word[prev:curr]
+            print(language_model[target_char])
             # print(word, target_char, word[prev], word[curr])
             try:
                 if(target_char in language_model):
-                    score += language_model[target_char][word[curr]]
+                    score *= language_model[(word[curr-3],
+                                             word[curr-2], word[curr-1])][word[curr]]
+                    print(score)
                     # print(score)
             except:
                 pass

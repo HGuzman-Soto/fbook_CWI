@@ -6,6 +6,7 @@ import dill
 from nltk import bigrams, trigrams
 from nltk.tokenize import sent_tokenize
 from nltk import ngrams
+import math
 
 sentence = 'this is a foo bar sentences and i want to ngramize it'
 
@@ -26,8 +27,8 @@ def create_model(corpus_df, corpus_name):
         # for w1, w2 in bigrams(sentence, pad_right=False, pad_left=False):
         for w1, w2, w3, w4 in ngrams(sentence, 4):
             model[(w1, w2, w3)][w4] += 1
-            if i % 1000 == 1:
-                print(w1, w2, w3, w4)
+            # print(w1, w2, w3, w4)
+            # print(model[(w1, w2, w3)][w4])
             i += 1
 
     # Let's transform the counts to probabilities
@@ -35,7 +36,9 @@ def create_model(corpus_df, corpus_name):
         total_count = float(sum(model[w1_w2].values()))
         for w3 in model[w1_w2]:
             model[w1_w2][w3] /= total_count
+            # print(model[w1_w2][w3] / total_count)
 
+    print(model[('l', 'a', 'w')])
     dill.dump(model, open("lm/" + corpus_name + ".sav", 'wb'))
 
 
