@@ -28,6 +28,7 @@ if __name__ == "__main__":
     parser.add_argument('--dev', '-d', type=str, default=None)
     parser.add_argument('--old_dataset', '-old', type=str, default=None)
     parser.add_argument('--test', '-t', type=str, default=None)
+    parser.add_argument('--german', '-ge', type=str, default=None)
 
     array = []
     args = parser.parse_args()
@@ -109,6 +110,40 @@ for x in array:
 ##########################################################################################################
     # Get character ngrams and probabilites
 
+##########################################################################################################
+    # if German
+
+    if(args.german):
+
+        # get wikipedia corpus frequency
+
+        wiki_corpus = pd.read_csv("corpus/german/wikipedia_corpus.txt", delim_whitespace=True)
+        word_parse_features['wikipedia_freq'] = word_parse_features['word'].apply(lambda x: int(
+        wiki_corpus.loc[wiki_corpus.word == x, 'frequency']) if any(wiki_corpus.word == x) else 0)
+        
+        # get Lang8 learners corpus frequency *NEEDS FINISHED
+
+        learner_corpus = pd.read_csv("corpus/learner_corpus.csv")
+        word_parse_features['learner_corpus_freq'] = word_parse_features['word'].apply(lambda x: int(
+        learner_corpus.loc[learner_corpus.word == x, 'frequency']) if any(learner_corpus.word == x) else 0)
+
+        # get subtitles frequency
+
+        subtitles_corpus = pd.read_csv("corpus/german/subtitles_corpus.csv")
+        word_parse_features['subtitles_freq'] = word_parse_features['word'].apply(lambda x: int(
+            subtitles_corpus.loc[subtitles_corpus.word == x, 'frequency']) if any(subtitles_corpus.word == x) else 0)
+
+        # get Google Books unigram frequency **needs finished
+
+        word_parse_features['google frequency'] = word_parse_features.apply(
+            get_frequency, axis=1)
+
+        # Apply function to get word length
+        word_set['length'] = word_set['word'].apply(lambda x: len(x))
+
+        # apply function to get vowel count
+        word_set['vowels'] = word_set['word'].apply(
+            lambda x: sum([x.count(y) for y in "aeiouäöü"]))
 
 ##########################################################################################################
     # function to obtain syablles for words

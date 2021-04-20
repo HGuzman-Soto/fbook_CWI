@@ -891,6 +891,10 @@ if __name__ == "__main__":
                         '-feature', type=int, default=0)
     parser.add_argument(
         '--model_name', '-mn', type=str, default=None)
+    
+    ## language args
+    parser.add_argument('--german', '-ge', type=int, default=0)
+
 
     train_frames = []
     test_frames = []
@@ -958,6 +962,10 @@ if __name__ == "__main__":
             'features/News_Dev_allInfo')
         news_dev_data.name = 'News'
         train_frames.append(news_dev_data)
+    
+    ##work on pickling the data
+    elif (args.german == 1):
+        train_names.append('German_train')
 
     total_training = pd.concat(train_frames)
 
