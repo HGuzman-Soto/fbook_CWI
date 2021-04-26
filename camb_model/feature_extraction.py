@@ -3,6 +3,7 @@
 import pandas as pd
 import numpy
 import string
+from pandas.core.frame import DataFrame
 import regex as re
 import argparse
 import json
@@ -28,7 +29,7 @@ if __name__ == "__main__":
     parser.add_argument('--dev', '-d', type=str, default=None)
     parser.add_argument('--old_dataset', '-old', type=str, default=None)
     parser.add_argument('--test', '-t', type=str, default=None)
-    parser.add_argument('--german', '-ge', type=str, default=None)
+    parser.add_argument('--german', '-ge', type=int, default=None)
 
     array = []
     args = parser.parse_args()
@@ -45,6 +46,8 @@ if __name__ == "__main__":
         array += ['WikiNews_Dev', 'Wikipedia_Dev', 'News_Dev']
     if (args.old_dataset):
         array += ['2016_test', '2016_train']
+    if (args.german):
+        array += ['German_Test', 'German_Train']
     elif (args.test):
         array = [args.test]
 
@@ -70,6 +73,11 @@ for x in array:
 
     if(args.all == 1):
         location = 'training_data/'+x+'.tsv'
+        data_frame = pd.read_table(location, names=('ID', 'sentence', 'start_index', 'end_index', 'word', 'total_native',
+                                                    'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic'), encoding='utf-8-sig')
+
+    if(args.german):
+        location = "training_data/german/" + x + ".tsv"
         data_frame = pd.read_table(location, names=('ID', 'sentence', 'start_index', 'end_index', 'word', 'total_native',
                                                     'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic'), encoding='utf-8-sig')
 
@@ -115,28 +123,30 @@ for x in array:
 
     if(args.german):
 
-        # get wikipedia corpus frequency
+        # use wordset as word columns
 
-        wiki_corpus = pd.read_csv("corpus/german/wikipedia_corpus.txt", delim_whitespace=True)
+        data_frame['word'] = word_set['word']
+        print(data_frame['word'].head(50))
+        
+
+        # get wikipedia corpus frequency
+        wiki_corpus = pd.read_csv("corpus/german/wikipedia_corpus.csv", delim_whitespace=True)
         word_parse_features['wikipedia_freq'] = word_parse_features['word'].apply(lambda x: int(
         wiki_corpus.loc[wiki_corpus.word == x, 'frequency']) if any(wiki_corpus.word == x) else 0)
         
-        # get Lang8 learners corpus frequency *NEEDS FINISHED
-
-        learner_corpus = pd.read_csv("corpus/learner_corpus.csv")
-        word_parse_features['learner_corpus_freq'] = word_parse_features['word'].apply(lambda x: int(
-        learner_corpus.loc[learner_corpus.word == x, 'frequency']) if any(learner_corpus.word == x) else 0)
+        # # get Lang8 learners corpus frequency *NEEDS FINISHED
+        # learner_corpus = pd.read_csv("corpus/learner_corpus.csv")
+        # word_parse_features['learner_corpus_freq'] = word_parse_features['word'].apply(lambda x: int(
+        # learner_corpus.loc[learner_corpus.word == x, 'frequency']) if any(learner_corpus.word == x) else 0)
 
         # get subtitles frequency
-
         subtitles_corpus = pd.read_csv("corpus/german/subtitles_corpus.csv")
         word_parse_features['subtitles_freq'] = word_parse_features['word'].apply(lambda x: int(
             subtitles_corpus.loc[subtitles_corpus.word == x, 'frequency']) if any(subtitles_corpus.word == x) else 0)
 
-        # get Google Books unigram frequency **needs finished
-
-        word_parse_features['google frequency'] = word_parse_features.apply(
-            get_frequency, axis=1)
+        # # get Google Books unigram frequency **needs finished
+        # word_parse_features['google frequency'] = word_parse_features.apply(
+        #     get_frequency, axis=1)
 
         # Apply function to get word length
         word_set['length'] = word_set['word'].apply(lambda x: len(x))
@@ -144,6 +154,18 @@ for x in array:
         # apply function to get vowel count
         word_set['vowels'] = word_set['word'].apply(
             lambda x: sum([x.count(y) for y in "aeiouäöü"]))
+
+        # pickle data
+        word_parse_features['parse'] = word_parse_features.parse.astype(str)
+        word_parse_features['split'] = word_parse_features['split'].astype(str)
+
+        word_parse_features = word_parse_features.drop_duplicates()
+        word_parse_features.to_pickle('features/'+x+'_allInfo')
+
+        print(x)
+
+        # end German parsing
+        break
 
 ##########################################################################################################
     # function to obtain syablles for words
