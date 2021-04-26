@@ -6,6 +6,7 @@ import string
 import regex as re
 import argparse
 import json
+import spacy
 from pathlib import Path
 
 
@@ -163,14 +164,20 @@ for x in array:
             subtitles_corpus.loc[subtitles_corpus.word == x, 'frequency']) if any(subtitles_corpus.word == x) else 0)
         #google books unigram
 
-        #unigram frequency of target words from traiing data
+        #unigram frequency of target words from training data
 
         #character bigrams of target words from training data
+        word_parse_features['google_char_bigram'] = word_parse_features['word'].apply(
+            lambda x: char_bigram(x))
 
         #word length
         word_set['length'] = word_set['word'].apply(lambda x: len(x))
-        #POS tag
 
+        #POS tag
+        spacynlp = spacy.load("es_core_news_sm")
+        posdoc = spacynlp(word_set['word'])
+
+        word_parse_features['POS_tag'] = word_set['word'].apply(lambda x: posdoc[x].pos_)
         #Syllable Count
 
         #Vowel Count
