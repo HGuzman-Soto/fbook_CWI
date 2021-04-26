@@ -126,27 +126,90 @@ for x in array:
         # use wordset as word columns
 
         data_frame['word'] = word_set['word']
-        print(data_frame['word'].head(50))
-        
 
+        word_parse_features = data_frame
+
+        #######################################################
         # get wikipedia corpus frequency
-        wiki_corpus = pd.read_csv("corpus/german/wikipedia_corpus.csv", delim_whitespace=True)
-        word_parse_features['wikipedia_freq'] = word_parse_features['word'].apply(lambda x: int(
-        wiki_corpus.loc[wiki_corpus.word == x, 'frequency']) if any(wiki_corpus.word == x) else 0)
+
+        # def get_wiki_german(word):
+        #     df = wikipedia_corpus[wikipedia_corpus['word'] == str(word).lower()]
+        #     if (len(df) > 0):
+
+        #         wikipedia_freq = df['frequency'].values[0]
+
+        #         wikipedia_freq = int(wikipedia_freq)
+
+        #         return wikipedia_freq
+        #     else:
+        #         y = 0
+        #         return y
+
         
-        # # get Lang8 learners corpus frequency *NEEDS FINISHED
+        # print("start wikipedia corpus")
+        # wikipedia_corpus = pd.read_csv('corpus/german/wikipedia_corpus.csv')
+
+        # word_parse_features['wikipedia_freq'] = word_parse_features['word'].apply(
+        #     lambda x: get_wiki_german(x))
+
+        # print("end wikipedia corpus")
+        # print(word_parse_features['wikipedia_freq'])
+
+        ##########################################################
+        # get Lang8 learners corpus frequency *NEEDS FINISHED
+
         # learner_corpus = pd.read_csv("corpus/learner_corpus.csv")
         # word_parse_features['learner_corpus_freq'] = word_parse_features['word'].apply(lambda x: int(
         # learner_corpus.loc[learner_corpus.word == x, 'frequency']) if any(learner_corpus.word == x) else 0)
 
+        ##########################################################
         # get subtitles frequency
-        subtitles_corpus = pd.read_csv("corpus/german/subtitles_corpus.csv")
-        word_parse_features['subtitles_freq'] = word_parse_features['word'].apply(lambda x: int(
-            subtitles_corpus.loc[subtitles_corpus.word == x, 'frequency']) if any(subtitles_corpus.word == x) else 0)
 
-        # # get Google Books unigram frequency **needs finished
-        # word_parse_features['google frequency'] = word_parse_features.apply(
-        #     get_frequency, axis=1)
+        # subtitles_corpus = pd.read_csv("corpus/german/subtitles_corpus.csv")
+        # word_parse_features['subtitles_freq'] = word_parse_features['word'].apply(lambda x: int(
+        #     subtitles_corpus.loc[subtitles_corpus.word == x, 'frequency']) if any(subtitles_corpus.word == x) else 0)
+        # print(word_parse_features['subtitles_freq'].head(50))        
+        
+        #########################################################
+        # get POS
+        def get_german_pos(word):
+            import spacy
+            import de_core_news_sm
+            nlp = spacy.load("de_core_news_sm")
+            
+            doc = nlp('u' + word)
+            pos = doc[0].pos_
+        
+        word_parse_features['pos'] = word_parse_features['word'].apply(lambda x: get_german_pos(x))
+        #########################################################
+
+        #google unigram frequency
+        # def get_german_unigrams(word):
+        #     from google_ngram_downloader import readline_google_store 
+        
+        #     count = 0 
+        #     fname, url, records = next(readline_google_store(ngram_len=1, indices=word[0], lang='ger'))
+        #     try: 
+        #         record = next(records)
+        #         print(record.match_count)
+        #         print(record.ngram)
+            
+        #         while word not in record.ngram.lower() :
+        #             print(word)
+        #             print(record.ngram)
+        #             record = next(records) 
+            
+        #         while record.ngram == word: 
+        #             count = count + record.match_count 
+        #             record = next(records) 
+                    
+        #     except StopIteration: 
+        #         pass 
+            
+        #     return count
+        
+        # word_parse_features['google_frequency'] = word_parse_features['word'].apply(lambda x: get_german_unigrams(x))
+        #########################################################
 
         # Apply function to get word length
         word_set['length'] = word_set['word'].apply(lambda x: len(x))
@@ -156,8 +219,8 @@ for x in array:
             lambda x: sum([x.count(y) for y in "aeiouäöü"]))
 
         # pickle data
-        word_parse_features['parse'] = word_parse_features.parse.astype(str)
-        word_parse_features['split'] = word_parse_features['split'].astype(str)
+        # word_parse_features['parse'] = word_parse_features.parse.astype(str)
+        # word_parse_features['split'] = word_parse_features['split'].astype(str)
 
         word_parse_features = word_parse_features.drop_duplicates()
         word_parse_features.to_pickle('features/'+x+'_allInfo')
@@ -166,6 +229,7 @@ for x in array:
 
         # end German parsing
         break
+
 
 ##########################################################################################################
     # function to obtain syablles for words
