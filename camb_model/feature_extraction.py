@@ -6,6 +6,7 @@ import string
 import regex as re
 import argparse
 import json
+import spacy
 from pathlib import Path
 
 
@@ -29,6 +30,7 @@ if __name__ == "__main__":
     parser.add_argument('--old_dataset', '-old', type=str, default=None)
     parser.add_argument('--test', '-t', type=str, default=None)
     parser.add_argument('--german', '-ge', type=str, default=None)
+    parser.add_argument('--spanish', '-sp', type=str, default=None)
 
     array = []
     args = parser.parse_args()
@@ -146,6 +148,42 @@ for x in array:
             lambda x: sum([x.count(y) for y in "aeiouäöü"]))
 
 ##########################################################################################################
+    # if Spanish
+
+    if(args.spanish):
+
+        #wikipedia corpus word frequency
+        #unable to find for now
+
+        #Lang-8 word frequencies
+
+
+        #subtitles frequencies
+        subtitles_corpus = pd.read_csv("corpus/spanish/subtitlex_esp-2.csv")
+        word_parse_features['subtitles_freq'] = word_parse_features['word'].apply(lambda x: int(
+            subtitles_corpus.loc[subtitles_corpus.word == x, 'frequency']) if any(subtitles_corpus.word == x) else 0)
+        #google books unigram
+
+        #unigram frequency of target words from training data
+
+        #character bigrams of target words from training data
+        word_parse_features['google_char_bigram'] = word_parse_features['word'].apply(
+            lambda x: char_bigram(x))
+
+        #word length
+        word_set['length'] = word_set['word'].apply(lambda x: len(x))
+
+        #POS tag
+        spacynlp = spacy.load("es_core_news_sm")
+        posdoc = spacynlp(word_set['word'])
+
+        word_parse_features['POS_tag'] = word_set['word'].apply(lambda x: posdoc[x].pos_)
+        #Syllable Count
+
+        #Vowel Count
+        word_set['vowels'] = word_set['word'].apply(
+            lambda x: sum([x.count(y) for y in "aeiouáéíóúü"]))
+###########################################################################################################
     # function to obtain syablles for words
     from datamuse import datamuse
     api = datamuse.Datamuse()
