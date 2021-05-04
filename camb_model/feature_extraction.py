@@ -135,85 +135,83 @@ for x in array:
         word_parse_features = data_frame
         word_parse_features = word_parse_features[ word_parse_features['word'] == word_parse_features['word']]
         #temp resize
-        word_parse_features = word_parse_features[:20]
+        word_parse_features = word_parse_features[:30]
 
         #######################################################
         # # get wikipedia corpus frequency
 
-        # def get_wiki_german(word):
-        #     print(word)
-        #     df = wikipedia_corpus[wikipedia_corpus['word'] == str(word).lower()]
-        #     if (len(df) > 0):
+        def get_wiki_german(word):
+            print(word)
+            df = wikipedia_corpus[wikipedia_corpus['word'] == str(word).lower()]
+            if (len(df) > 0):
 
-        #         wikipedia_freq = df['frequency'].values[0]
+                wikipedia_freq = df['frequency'].values[0]
 
-        #         wikipedia_freq = int(wikipedia_freq)
+                wikipedia_freq = int(wikipedia_freq)
 
-        #         return wikipedia_freq
-        #     else:
-        #         y = 0
-        #         return y
+                return wikipedia_freq
+            else:
+                y = 0
+                return y
 
         
-        # print("start wikipedia corpus")
+        print("start wikipedia corpus")
 
-        # wikipedia_corpus = pd.read_csv('corpus/german/wikipedia_corpus.csv', df={'word': str, 'frequency': int})
-        # word_parse_features['wikipedia_freq'] = word_parse_features['word'].apply(
-        #     lambda x: get_wiki_german(x))
+        wikipedia_corpus = pd.read_csv('corpus/german/wikipedia_corpus.csv')
+        word_parse_features['wikipedia_freq'] = word_parse_features['word'].apply(
+            lambda x: get_wiki_german(x))
         
 
-        # print("end wikipedia corpus")
+        print("end wikipedia corpus")
 
-        # ##########################################################
-        # # get Lang8 learners corpus frequency *NEEDS FINISHED
+        ##########################################################
+        #get Lang8 learners corpus frequency *NEEDS FINISHED
 
-        # # learner_corpus = pd.read_csv("corpus/learner_corpus.csv")
-        # # word_parse_features['learner_corpus_freq'] = word_parse_features['word'].apply(lambda x: int(
-        # # learner_corpus.loc[learner_corpus.word == x, 'frequency']) if any(learner_corpus.word == x) else 0)
+        learner_corpus = pd.read_csv("corpus/german/learner_corpus.csv", dtype={'word': str, 'frequency': int})
 
-        # ##########################################################
-        # # get subtitles frequency
-        # print("start subtitles")
+        word_parse_features['learners_freq'] = word_parse_features['word'].apply(lambda x: int(
+        learner_corpus.loc[learner_corpus.word == x, 'frequency'].iloc[0]) if any(learner_corpus.word == x) else 0)
+
+        ##########################################################
+        # get subtitles frequency
+        print("start subtitles")
     
-        # subtitles_corpus = pd.read_csv("corpus/german/subtitles_corpus.csv", dtype={'word': str, 'frequency': int})
-        # subtitles_corpus['word'] = subtitles_corpus['word'].apply(lambda x: str(x).lower())
-        # subtitles_corpus['frequency'] = subtitles_corpus['frequency'].apply(lambda x: int(x))
+        subtitles_corpus = pd.read_csv("corpus/german/subtitles_corpus.csv", dtype={'word': str, 'frequency': int})
+        subtitles_corpus['word'] = subtitles_corpus['word'].apply(lambda x: str(x).lower())
+        subtitles_corpus['frequency'] = subtitles_corpus['frequency'].apply(lambda x: int(x))
 
-        # word_parse_features['subtitles_freq'] = word_parse_features['word'].apply(lambda x: 
-        # int(subtitles_corpus.loc[ subtitles_corpus.word == x, 'frequency'].iloc[0]) if any(subtitles_corpus.word == x) else 0)  
+        word_parse_features['subtitles_freq'] = word_parse_features['word'].apply(lambda x: 
+        int(subtitles_corpus.loc[ subtitles_corpus.word == x, 'frequency'].iloc[0]) if any(subtitles_corpus.word == x) else 0)  
         
-        # print(subtitles_corpus)
-        # print(word_parse_features.head(5))
-        
-        # print("end subtitles")
+        print("end subtitles")
 
-        # #########################################################
-        # # get POS
-        # print("getting pos")
-        # def get_german_pos(word):
-        #     import spacy
-        #     nlp = spacy.load("de_core_news_sm")
+        #########################################################
+        # get POS
+        print("getting pos")
+        def get_german_pos(word):
+            import spacy
+            nlp = spacy.load("de_core_news_sm")
             
-        #     doc = nlp('u' + word)
-        #     pos = ""
-        #     pos = str(doc[0].pos_)
+            doc = nlp('u' + word)
+            pos = ""
+            pos = str(doc[0].pos_)
 
-        #     print(word + '_' + pos)
-        #     return pos
+            print(word + '_' + pos)
+            return pos
         
-        # word_parse_features['pos'] = word_parse_features['word'].apply(lambda x: get_german_pos(x))
-        # print("pos done")
-        # #########################################################
+        word_parse_features['pos'] = word_parse_features['word'].apply(lambda x: get_german_pos(x))
+        print("pos done")
+        #########################################################
         #NER
         # RUN THE FOLLOWING JAVA COMMAND IN CORENLP FOLDER:
-        # java -mx4g -cp "*" edu.stanford.nlp.pipeline.StanfordCoreNLPServer -props StanfordCoreNLP-german.properties -annotators "ner" -port 9001 -timeout 30000
+        # java -mx4g -cp "*" edu.stanford.nlp.pipeline.StanfordCoreNLPServer -props StanfordCoreNLP-german.properties -annotators "ner" -port 9000 -timeout 30000
 
         # Now parse
         import pycorenlp
         import pandas as pd
         from pycorenlp import StanfordCoreNLP
         print("start core")
-        nlp = StanfordCoreNLP('http://localhost:9001')
+        nlp = StanfordCoreNLP('http://localhost:9000')
 
 
         sentences = data_frame[['sentence', 'ID']].copy()
@@ -248,48 +246,48 @@ for x in array:
 
         word_parse_features['ner'] = word_parse_features.apply(get_german_ner, axis=1).astype(str)
 
-        # #########################################################
+        #########################################################
 
-        # #google unigram frequency
-        # def get_german_unigrams(word, pos):
-        #     from google_ngram_downloader import readline_google_store 
+        #google unigram frequency
+        def get_german_unigrams(word, pos):
+            from google_ngram_downloader import readline_google_store 
         
-        #     count = 0 
+            count = 0 
             
-        #     try:
-        #         fname, url, records = next(readline_google_store(ngram_len=1, indices=word[0], lang='ger'))
+            try:
+                fname, url, records = next(readline_google_store(ngram_len=1, indices=word[0], lang='ger'))
             
-        #     except AssertionError:
-        #         return 0
+            except AssertionError:
+                return 0
             
-        #     str1 = word.lower()
-        #     str2 = str1 + '_' + pos.lower()
+            str1 = word.lower()
+            str2 = str1 + '_' + pos.lower()
 
-        #     print(str1)
+            print(str1)
 
-        #     try: 
-        #         record = next(records)
-        #         start = time.time()
-        #         elapsed = 0
-        #         while not str1 == record.ngram.lower() and not str2 == record.ngram.lower() and elapsed < 40:
+            try: 
+                record = next(records)
+                start = time.time()
+                elapsed = 0
+                while not str1 == record.ngram.lower() and not str2 == record.ngram.lower() and elapsed < 40:
 
-        #             record = next(records)
-        #             elapsed = time.time() - start
+                    record = next(records)
+                    elapsed = time.time() - start
             
-        #         while record.ngram.lower() == str1 or record.ngram.lower() == str2:
-        #             count = count + record.match_count 
-        #             record = next(records)
+                while record.ngram.lower() == str1 or record.ngram.lower() == str2:
+                    count = count + record.match_count 
+                    record = next(records)
                     
-        #     except StopIteration: 
-        #         pass 
+            except StopIteration: 
+                pass 
             
-        #     print("count: " + str(count))
-        #     return count
+            print("count: " + str(count))
+            return count
         
-        # print("getting google freq")
-        # word_parse_features['google_frequency'] = word_parse_features.apply(lambda x: get_german_unigrams(x['word'], x['pos']), axis = 1)
-        # print("google freq done")
-        # #########################################################
+        print("getting google freq")
+        word_parse_features['google_freq'] = word_parse_features.apply(lambda x: get_german_unigrams(x['word'], x['pos']), axis = 1)
+        print("google freq done")
+        #########################################################
 
         # Apply function to get word length
         word_parse_features['length'] = word_parse_features['word'].apply(lambda x: len(x))
@@ -306,7 +304,7 @@ for x in array:
         word_parse_features.to_pickle('features/'+x+'_allInfo')
 
         #temp store in csv
-        word_parse_features = word_parse_features[['word','length','ner', 'is_entity']]
+        word_parse_features = word_parse_features[['word','length','vowels','pos','ner','wikipedia_freq', 'learners_freq','subtitles_freq','google_freq']]
         word_parse_features.to_csv('out.csv')
 
         print(x)
