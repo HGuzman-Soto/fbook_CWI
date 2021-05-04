@@ -7,8 +7,12 @@ import regex as re
 import argparse
 import json
 import spacy
+import nltk
+import time
+from nltk.corpus import wordnet
 from pathlib import Path
-
+nltk.download('wordnet')
+nltk.download('omw')
 
 # Load the data set that needs populating
 ##########################################################################################################
@@ -47,6 +51,8 @@ if __name__ == "__main__":
         array += ['WikiNews_Dev', 'Wikipedia_Dev', 'News_Dev']
     if (args.old_dataset):
         array += ['2016_test', '2016_train']
+    if (args.spanish):
+        array += ['Spanish_Train', 'Spanish_Test']
     elif (args.test):
         array = [args.test]
 
@@ -69,6 +75,11 @@ for x in array:
             'sentence', 'word', 'index', 'complex_binary'))
         data_frame['word'] = data_frame['word'].astype(str)
         data_frame['sentence'] = data_frame['sentence'].astype(str)
+
+    if(args.spanish):
+        location = "training_data/spanish/" + x + ".tsv"
+        data_frame = pd.read_table(location, names=('ID', 'sentence', 'start_index', 'end_index', 'word', 'total_native',
+                                                    'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic'), encoding='utf-8-sig')
 
     if(args.all == 1):
         location = 'training_data/'+x+'.tsv'
@@ -152,37 +163,111 @@ for x in array:
 
     if(args.spanish):
 
+        #stole from german implementation, not sure what it does
+        data_frame['word'] = word_set['word']
+        word_parse_features = data_frame
+        word_parse_features = word_parse_features[ word_parse_features['word'] == word_parse_features['word']]
+        word_parse_features = word_parse_features[:50]
+
         #wikipedia corpus word frequency
         #unable to find for now
 
         #Lang-8 word frequencies
+        learners_corpus = pd.read_csv("corpus/spanish/learners-esp.csv", dtype={'word': str, 'frequency': int})
+        learners_corpus['word'] = learners_corpus['word'].apply(lambda x: str(x).lower())
+        learners_corpus['frequency'] = learners_corpus['frequency'].apply(lambda x: int(x))
 
+        word_parse_features['learners_freq'] = word_parse_features['word'].apply(lambda x: 
+        int(learners_corpus.loc[ learners_corpus.word == x, 'frequency'].iloc[0]) if any(learners_corpus.word == x) else 0) 
 
         #subtitles frequencies
-        subtitles_corpus = pd.read_csv("corpus/spanish/subtitlex_esp-2.csv")
-        word_parse_features['subtitles_freq'] = word_parse_features['word'].apply(lambda x: int(
-            subtitles_corpus.loc[subtitles_corpus.word == x, 'frequency']) if any(subtitles_corpus.word == x) else 0)
-        #google books unigram
+        subtitles_corpus = pd.read_csv("corpus/spanish/subtitlex-esp.csv", dtype={'word': str, 'frequency': int})
+        subtitles_corpus['word'] = subtitles_corpus['word'].apply(lambda x: str(x).lower())
+        subtitles_corpus['frequency'] = subtitles_corpus['frequency'].apply(lambda x: int(x))
 
-        #unigram frequency of target words from training data
-
-        #character bigrams of target words from training data
-        word_parse_features['google_char_bigram'] = word_parse_features['word'].apply(
-            lambda x: char_bigram(x))
-
-        #word length
-        word_set['length'] = word_set['word'].apply(lambda x: len(x))
-
+        word_parse_features['subtitles_freq'] = word_parse_features['word'].apply(lambda x: 
+        int(subtitles_corpus.loc[ subtitles_corpus.word == x, 'frequency'].iloc[0]) if any(subtitles_corpus.word == x) else 0) 
+        
         #POS tag
         spacynlp = spacy.load("es_core_news_sm")
-        posdoc = spacynlp(word_set['word'])
 
-        word_parse_features['POS_tag'] = word_set['word'].apply(lambda x: posdoc[x].pos_)
+        word_parse_features['pos'] = word_parse_features['word'].apply(lambda x: str(spacynlp(x)[0].pos_) )
+
+        #google unigram frequency
+        def get_spanish_unigrams(word, pos):
+            from google_ngram_downloader import readline_google_store 
+        
+            count = 0 
+            
+            try:
+                fname, url, records = next(readline_google_store(ngram_len=1, indices=word[0], lang='spa'))
+            
+            except AssertionError:
+                return 0
+            
+            str1 = word.lower()
+            str2 = str1 + '_' + pos.lower()
+
+            print(str1)
+
+            try: 
+                record = next(records)
+                start = time.time()
+                elapsed = 0
+                while not str1 == record.ngram.lower() and not str2 == record.ngram.lower() and elapsed < 40:
+
+                    record = next(records)
+                    elapsed = time.time() - start
+            
+                while record.ngram.lower() == str1 or record.ngram.lower() == str2:
+                    count = count + record.match_count 
+                    record = next(records)
+                    
+            except StopIteration: 
+                pass 
+            
+            print("count: " + str(count))
+            return count
+        
+        print("getting google freq")
+        word_parse_features['google_freq'] = word_parse_features.apply(lambda x: get_spanish_unigrams(x['word'], x['pos']), axis = 1)
+        print("google freq done")
+
+        #character bigrams of target words from training data
+        #word_parse_features['google_char_bigram'] = word_parse_features['word'].apply(
+        #    lambda x: char_bigram(x))
+
+        #word length
+        word_parse_features['length'] = word_parse_features['word'].apply(lambda x: len(x))
+
         #Syllable Count
 
         #Vowel Count
-        word_set['vowels'] = word_set['word'].apply(
+        word_parse_features['vowels'] = word_parse_features['word'].apply(
             lambda x: sum([x.count(y) for y in "aeiouáéíóúü"]))
+
+        #Synonym Count
+        word_parse_features['synonyms'] = word_parse_features['word'].apply(
+            lambda x: len(wordnet.synsets(x, lang="spa")))
+
+
+        #########################################################
+
+        # pickle data
+
+        #word_parse_features = word_parse_features.drop_duplicates()
+        word_parse_features.to_pickle('features/'+x+'_allInfo')
+
+        #temp store in csv
+        print(word_parse_features.columns)
+        word_parse_features = word_parse_features[['word','length','vowels','synonyms','pos', 'learners_freq', 'subtitles_freq', 'google_freq']]
+        word_parse_features.to_csv('out.csv')
+
+        print(x)
+
+        # end Spanish parsing
+        continue
+
 ###########################################################################################################
     # function to obtain syablles for words
     from datamuse import datamuse
@@ -333,7 +418,6 @@ for x in array:
     # Function to get the proper lemma
 
     print("start tagging")
-    from nltk.corpus import wordnet
 
     def get_wordnet_pos(treebank_tag):
 
