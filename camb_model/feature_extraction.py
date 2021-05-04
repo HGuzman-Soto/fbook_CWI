@@ -133,7 +133,7 @@ for x in array:
         word_parse_features = word_parse_features[ word_parse_features['word'] == word_parse_features['word']]
 
         #temp resize
-        word_parse_features = word_parse_features[:40]
+        word_parse_features = word_parse_features[:20]
 
         #######################################################
         # get wikipedia corpus frequency
@@ -158,6 +158,7 @@ for x in array:
         wikipedia_corpus = pd.read_csv('corpus/german/wikipedia_corpus.csv')
         word_parse_features['wikipedia_freq'] = word_parse_features['word'].apply(
             lambda x: get_wiki_german(x))
+        
 
         print("end wikipedia corpus")
 
@@ -172,9 +173,15 @@ for x in array:
         # get subtitles frequency
         print("start subtitles")
     
-        subtitles_corpus = pd.read_csv("corpus/german/subtitles_corpus.csv")
-        word_parse_features['subtitles_freq'] = word_parse_features['word'].apply(lambda x: int(
-            subtitles_corpus.loc[subtitles_corpus.word == x, 'frequency']) if any(subtitles_corpus.word == x) else 0)      
+        subtitles_corpus = pd.read_csv("corpus/german/subtitles_corpus.csv", dtype={'word': str, 'frequency': int})
+        subtitles_corpus['word'] = subtitles_corpus['word'].apply(lambda x: str(x).lower())
+        subtitles_corpus['frequency'] = subtitles_corpus['frequency'].apply(lambda x: int(x))
+
+        word_parse_features['subtitles_freq'] = word_parse_features['word'].apply(lambda x: 
+        int(subtitles_corpus.loc[ subtitles_corpus.word == x, 'frequency'].iloc[0]) if any(subtitles_corpus.word == x) else 0)  
+        
+        print(subtitles_corpus)
+        print(word_parse_features.head(5))
         
         print("end subtitles")
 
@@ -194,6 +201,22 @@ for x in array:
         
         word_parse_features['pos'] = word_parse_features['word'].apply(lambda x: get_german_pos(x))
         print("pos done")
+        #########################################################
+        #NER
+
+        # Now parse
+        import pycorenlp
+        import pandas as pd
+        from pycorenlp import StanfordCoreNLP
+        print("start core")
+        nlp = StanfordCoreNLP('http://localhost:9000')
+
+
+        sentences = data_frame[['sentence', 'ID']].copy()
+
+        sentences = sentences.drop_duplicates()
+
+        print("end core")
         #########################################################
 
         #google unigram frequency
