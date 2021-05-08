@@ -9,6 +9,7 @@ import json
 import spacy
 import nltk
 import time
+import pyphen
 from nltk.corpus import wordnet
 from pathlib import Path
 nltk.download('wordnet')
@@ -230,7 +231,7 @@ for x in array:
             return count
         
         print("getting google freq")
-        word_parse_features['google_freq'] = word_parse_features.apply(lambda x: get_spanish_unigrams(x['word'], x['pos']), axis = 1)
+        #word_parse_features['google_freq'] = word_parse_features.apply(lambda x: get_spanish_unigrams(x['word'], x['pos']), axis = 1)
         print("google freq done")
 
         #character bigrams of target words from training data
@@ -241,6 +242,9 @@ for x in array:
         word_parse_features['length'] = word_parse_features['word'].apply(lambda x: len(x))
 
         #Syllable Count
+        syllableDictionary = pyphen.Pyphen(lang='es')
+        word_parse_features['syllables'] = word_parse_features['word'].apply(
+            lambda x: (syllableDictionary.inserted(x.replace('-','')).count('-') + 1))
 
         #Vowel Count
         word_parse_features['vowels'] = word_parse_features['word'].apply(
@@ -249,7 +253,6 @@ for x in array:
         #Synonym Count
         word_parse_features['synonyms'] = word_parse_features['word'].apply(
             lambda x: len(wordnet.synsets(x, lang="spa")))
-
 
         #########################################################
 
@@ -260,7 +263,7 @@ for x in array:
 
         #temp store in csv
         print(word_parse_features.columns)
-        word_parse_features = word_parse_features[['word','length','vowels','synonyms','pos', 'learners_freq', 'subtitles_freq', 'google_freq']]
+        word_parse_features = word_parse_features[['word','length','vowels','syllables','synonyms','pos', 'learners_freq', 'subtitles_freq']]
         word_parse_features.to_csv('out.csv')
 
         print(x)
