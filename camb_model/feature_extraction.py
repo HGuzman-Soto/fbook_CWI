@@ -182,7 +182,7 @@ for x in array:
         int(learners_corpus.loc[ learners_corpus.word == x, 'frequency'].iloc[0]) if any(learners_corpus.word == x) else 0) 
 
         #subtitles frequencies
-        subtitles_corpus = pd.read_csv("corpus/spanish/subtitlex-esp.csv", dtype={'word': str, 'frequency': int})
+        subtitles_corpus = pd.read_csv("corpus/spanish/subtitles-esp.csv", dtype={'word': str, 'frequency': int})
         subtitles_corpus['word'] = subtitles_corpus['word'].apply(lambda x: str(x).lower())
         subtitles_corpus['frequency'] = subtitles_corpus['frequency'].apply(lambda x: int(x))
 
