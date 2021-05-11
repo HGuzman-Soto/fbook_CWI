@@ -171,7 +171,12 @@ for x in array:
         word_parse_features = word_parse_features[:50]
 
         #wikipedia corpus word frequency
-        #unable to find for now
+        wikipedia_corpus = pd.read_csv("corpus/spanish/wikipedia-esp.csv", dtype={'word': str, 'frequency': int})
+        wikipedia_corpus['word'] = wikipedia_corpus['word'].apply(lambda x: str(x).lower())
+        wikipedia_corpus['frequency'] = wikipedia_corpus['frequency'].apply(lambda x: int(x))
+
+        word_parse_features['wikipedia_freq'] = word_parse_features['word'].apply(lambda x: 
+        int(wikipedia_corpus.loc[ wikipedia_corpus.word == x, 'frequency'].iloc[0]) if any(wikipedia_corpus.word == x) else 0)
 
         #Lang-8 word frequencies
         learners_corpus = pd.read_csv("corpus/spanish/learners-esp.csv", dtype={'word': str, 'frequency': int})
@@ -234,6 +239,53 @@ for x in array:
         #word_parse_features['google_freq'] = word_parse_features.apply(lambda x: get_spanish_unigrams(x['word'], x['pos']), axis = 1)
         print("google freq done")
 
+        #########################################################
+        #NER
+        # RUN THE FOLLOWING JAVA COMMAND IN CORENLP FOLDER:
+        # java -mx4g -cp "*" edu.stanford.nlp.pipeline.StanfordCoreNLPServer -props StanfordCoreNLP-spanish.properties -annotators "ner" -port 9000 -timeout 30000
+
+        import pycorenlp
+        import pandas as pd
+        from pycorenlp import StanfordCoreNLP
+        print("start core")
+        nlp = StanfordCoreNLP('http://localhost:9000')
+
+
+        sentences = data_frame[['sentence', 'ID']].copy()
+
+        sentences = sentences.drop_duplicates()
+
+        def spanish_parse(text):
+            output = nlp.annotate(text, properties={
+            'annotators': 'ner',
+            'outputFormat': 'json'
+            })
+            return output
+        
+        def get_spanish_ner(row):
+            word = row['word']
+            parse = row['parse']
+            print(word)
+            print(parse)
+            print(parse['sentences'])
+            for i in range(len(parse['sentences'][0]['tokens'])):
+                comp_word = parse['sentences'][0]['tokens'][i]['word']
+                comp_word = comp_word.lower()
+                
+                print(parse['sentences'][0]['tokens'][i]['ner'])
+                
+                if comp_word == word:
+                    return str(parse['sentences'][0]['tokens'][i]['ner'])
+
+        #run the funcs
+        # apply parsing to sentences
+        sentences['parse'] = sentences['sentence'].apply(lambda x: spanish_parse(x))
+
+        word_parse_features = pd.merge(sentences, word_parse_features)
+
+        word_parse_features['ner'] = word_parse_features.apply(get_spanish_ner, axis=1).astype(str)
+
+
         #character bigrams of target words from training data
         #word_parse_features['google_char_bigram'] = word_parse_features['word'].apply(
         #    lambda x: char_bigram(x))
@@ -263,7 +315,7 @@ for x in array:
 
         #temp store in csv
         print(word_parse_features.columns)
-        word_parse_features = word_parse_features[['word','length','vowels','syllables','synonyms','pos', 'learners_freq', 'subtitles_freq']]
+        word_parse_features = word_parse_features[['word','length','vowels','syllables','synonyms','pos','learners_freq','subtitles_freq','wikipedia_freq', 'ner']]
         word_parse_features.to_csv('out.csv')
 
         print(x)
