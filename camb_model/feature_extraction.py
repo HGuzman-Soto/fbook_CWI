@@ -11,6 +11,9 @@ import json
 from pathlib import Path
 import time
 import pyphen
+from statistics import fmean
+import requests
+from requests.exceptions import HTTPError
 
 
 # Load the data set that needs populating
@@ -138,14 +141,13 @@ for x in array:
         word_parse_features = word_parse_features[ word_parse_features['word'] == word_parse_features['word']]
         word_parse_features = word_parse_features.drop_duplicates(subset=['word'])
         #temp resize
-        word_parse_features = word_parse_features[100:140]
+        #word_parse_features = word_parse_features[100:105]
 
         #######################################################
 
         # get wikipedia corpus frequency
 
         def get_wiki_german(word):
-            print(word)
             df = wikipedia_corpus[wikipedia_corpus['word'] == str(word).lower()]
             if (len(df) > 0):
 
@@ -271,44 +273,31 @@ for x in array:
 
         #########################################################
 
-        #google unigram frequency
-        def get_german_unigrams(word, pos):
-            from google_ngram_downloader import readline_google_store 
-        
-            count = 0 
-            
+
+        def get_german_unigrams(word):
+            url = f"https://books.google.com/ngrams/json?content={word}&year_start=1800&year_end=2019&corpus=31&smoothing=3"
+
             try:
-                fname, url, records = next(readline_google_store(ngram_len=1, indices=word[0], lang='ger'))
-            
-            except AssertionError:
-                return 0
-            
-            str1 = word.lower()
-            str2 = str1 + '_' + pos.lower()
+                response = requests.get(url)
+                response.raise_for_status()
+                jsonResponse = response.json()
+                print("Entire JSON response")
+                freqlist = list(jsonResponse[0]['timeseries'])
+                freqlist = [float(f) for f in freqlist]
+                freq = fmean(freqlist)
+                return freq
 
-            print(str1)
-
-            try: 
-                record = next(records)
-                start = time.time()
-                elapsed = 0
-                while not str1 == record.ngram.lower() and not str2 == record.ngram.lower() and elapsed < 60:
-
-                    record = next(records)
-                    elapsed = time.time() - start
+            except HTTPError as http_err:
+                print(f'HTTP error occurred: {http_err}')
+            except Exception as err:
+                print(f'Other error occurred: {err}')
             
-                while record.ngram.lower() == str1 or record.ngram.lower() == str2:
-                    count = count + record.match_count 
-                    record = next(records)
-                    
-            except StopIteration: 
-                pass 
+            return 0
             
-            print("count: " + str(count))
-            return count
+            
         
         print("getting google freq")
-        word_parse_features['google_freq'] = word_parse_features.apply(lambda x: get_german_unigrams(x['word'], x['pos']), axis = 1)
+        word_parse_features['google_freq'] = word_parse_features.apply(lambda x: get_german_unigrams(x['word']), axis = 1)
         print("google freq done")
 
         #########################################################
@@ -403,6 +392,11 @@ for x in array:
 
         # end German parsing
         break
+
+    ##########################################################################################################
+    #                                    END OF GERMAN
+    ##########################################################################################################
+    
 
     ##########################################################################################################
     # function to obtain syablles for words
