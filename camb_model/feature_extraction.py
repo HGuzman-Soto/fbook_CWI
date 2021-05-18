@@ -14,6 +14,7 @@ import pyphen
 from statistics import fmean
 import requests
 from requests.exceptions import HTTPError
+import spacy
 
 
 # Load the data set that needs populating
@@ -209,17 +210,18 @@ for x in array:
         #########################################################
         # get POS
         print("getting pos")
-        def get_german_pos(word):
-            import spacy
-            nlp = spacy.load("de_core_news_sm")
+
+        def get_german_pos(word, nlp):
             
             doc = nlp('u' + word)
             pos = ""
             pos = str(doc[0].pos_)
 
+            print(word + '_' + pos)
             return pos
-        
-        word_parse_features['pos'] = word_parse_features['word'].apply(lambda x: get_german_pos(x))
+
+        nlp = spacy.load("de_core_news_sm")
+        word_parse_features['pos'] = word_parse_features['word'].apply(lambda x: get_german_pos(x, nlp))
         print("pos done")
         #########################################################
         #NER
@@ -278,6 +280,7 @@ for x in array:
             url = f"https://books.google.com/ngrams/json?content={word}&year_start=1900&year_end=2019&corpus=31&smoothing=3"
 
             try:
+                time.sleep(.5)
                 response = requests.get(url)
                 response.raise_for_status()
                 jsonResponse = response.json()
