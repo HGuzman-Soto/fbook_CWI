@@ -275,13 +275,12 @@ for x in array:
 
 
         def get_german_unigrams(word):
-            url = f"https://books.google.com/ngrams/json?content={word}&year_start=1800&year_end=2019&corpus=31&smoothing=3"
+            url = f"https://books.google.com/ngrams/json?content={word}&year_start=1900&year_end=2019&corpus=31&smoothing=3"
 
             try:
                 response = requests.get(url)
                 response.raise_for_status()
                 jsonResponse = response.json()
-                print("Entire JSON response")
                 freqlist = list(jsonResponse[0]['timeseries'])
                 freqlist = [float(f) for f in freqlist]
                 freq = fmean(freqlist)
