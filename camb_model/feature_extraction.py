@@ -217,7 +217,6 @@ for x in array:
             pos = ""
             pos = str(doc[0].pos_)
 
-            print(word + '_' + pos)
             return pos
         
         word_parse_features['pos'] = word_parse_features['word'].apply(lambda x: get_german_pos(x))
@@ -275,6 +274,7 @@ for x in array:
 
 
         def get_german_unigrams(word):
+            #if using this for another language, modify the corpus= ' ' bit by playing with the website
             url = f"https://books.google.com/ngrams/json?content={word}&year_start=1900&year_end=2019&corpus=31&smoothing=3"
 
             try:
