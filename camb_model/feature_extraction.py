@@ -13,6 +13,9 @@ import time
 import pyphen
 from nltk.corpus import wordnet
 from pathlib import Path
+from statistics import fmean
+import requests
+from requests.exceptions import HTTPError
 nltk.download('wordnet')
 nltk.download('omw')
 
@@ -209,43 +212,28 @@ for x in array:
         word_parse_features['pos'] = word_parse_features['word'].apply(lambda x: str(spacynlp(x)[0].pos_) )
 
         #google unigram frequency
-        def get_spanish_unigrams(word, pos):
-            from google_ngram_downloader import readline_google_store 
-        
-            count = 0 
-            
-            try:
-                fname, url, records = next(readline_google_store(ngram_len=1, indices=word[0], lang='spa'))
-            
-            except AssertionError:
-                return 0
-            
-            str1 = word.lower()
-            str2 = str1 + '_' + pos.lower()
+        def get_spanish_unigrams(word):
+           #if using this for another language, modify the corpus= ' ' bit by playing with the website
+           url = f"https://books.google.com/ngrams/json?content={word}&year_start=1900&year_end=2019&corpus=32&smoothing=3"
 
-            print(str1)
+           try:
+               response = requests.get(url)
+               response.raise_for_status()
+               jsonResponse = response.json()
+               freqlist = list(jsonResponse[0]['timeseries'])
+               freqlist = [float(f) for f in freqlist]
+               freq = fmean(freqlist)
+               return freq
 
-            try: 
-                record = next(records)
-                start = time.time()
-                elapsed = 0
-                while not str1 == record.ngram.lower() and not str2 == record.ngram.lower() and elapsed < 40:
-
-                    record = next(records)
-                    elapsed = time.time() - start
+           except HTTPError as http_err:
+               print(f'HTTP error occurred: {http_err}')
+           except Exception as err:
+               print(f'Other error occurred: {err}')
             
-                while record.ngram.lower() == str1 or record.ngram.lower() == str2:
-                    count = count + record.match_count 
-                    record = next(records)
-                    
-            except StopIteration: 
-                pass 
+           return 0
             
-            print("count: " + str(count))
-            return count
-        
         print("getting google freq")
-        #word_parse_features['google_freq'] = word_parse_features.apply(lambda x: get_spanish_unigrams(x['word'], x['pos']), axis = 1)
+        word_parse_features['google_freq'] = word_parse_features.apply(lambda x: get_spanish_unigrams(x['word']), axis = 1)
         print("google freq done")
 
         #########################################################
@@ -380,7 +368,7 @@ for x in array:
 
         #temp store in csv
         print(word_parse_features.columns)
-        word_parse_features = word_parse_features[['word','length','vowels','syllables','synonyms','pos','learners_freq','subtitles_freq','wikipedia_freq', 'news_freq', 'wiki_char_bigram', 'wiki_char_fourgram']]
+        word_parse_features = word_parse_features[['word','length','vowels','syllables','synonyms','pos','learners_freq','subtitles_freq','wikipedia_freq', 'news_freq', 'google_freq', 'wiki_char_bigram', 'wiki_char_fourgram']]
         word_parse_features.to_csv('out.csv')
 
         print(x)
