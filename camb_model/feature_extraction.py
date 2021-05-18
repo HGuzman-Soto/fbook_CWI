@@ -3,6 +3,7 @@
 import pandas as pd
 import numpy
 import string
+import math
 import regex as re
 import argparse
 import json
@@ -178,6 +179,14 @@ for x in array:
         word_parse_features['wikipedia_freq'] = word_parse_features['word'].apply(lambda x: 
         int(wikipedia_corpus.loc[ wikipedia_corpus.word == x, 'frequency'].iloc[0]) if any(wikipedia_corpus.word == x) else 0)
 
+        #news corpus word frequency
+        news_corpus = pd.read_csv("corpus/spanish/news-esp.csv", dtype={'index': int, 'word': str, 'frequency': int})
+        news_corpus['word'] = news_corpus['word'].apply(lambda x: str(x).lower())
+        news_corpus['frequency'] = news_corpus['frequency'].apply(lambda x: int(x))
+
+        word_parse_features['news_freq'] = word_parse_features['word'].apply(lambda x: 
+        int(news_corpus.loc[ news_corpus.word == x, 'frequency'].iloc[0]) if any(news_corpus.word == x) else 0)
+
         #Lang-8 word frequencies
         learners_corpus = pd.read_csv("corpus/spanish/learners-esp.csv", dtype={'word': str, 'frequency': int})
         learners_corpus['word'] = learners_corpus['word'].apply(lambda x: str(x).lower())
@@ -279,16 +288,72 @@ for x in array:
 
         #run the funcs
         # apply parsing to sentences
-        sentences['parse'] = sentences['sentence'].apply(lambda x: spanish_parse(x))
+        #sentences['parse'] = sentences['sentence'].apply(lambda x: spanish_parse(x))
 
-        word_parse_features = pd.merge(sentences, word_parse_features)
+        #word_parse_features = pd.merge(sentences, word_parse_features)
 
-        word_parse_features['ner'] = word_parse_features.apply(get_spanish_ner, axis=1).astype(str)
+        #word_parse_features['ner'] = word_parse_features.apply(get_spanish_ner, axis=1).astype(str)
 
 
-        #character bigrams of target words from training data
-        #word_parse_features['google_char_bigram'] = word_parse_features['word'].apply(
-        #    lambda x: char_bigram(x))
+        #########################################################
+        #get wiki bigrams
+
+        bi_language_model = pd.read_csv('corpus/spanish/wiki-bigrams-esp.csv', sep=',')
+
+        def char_bigram(word, ngram=2, language_model=bi_language_model):
+            prev = 0
+            curr = ngram
+            score = 0
+            normalized = len(word) - 3
+            if normalized < 1:
+                normalized = 1
+
+            for i in range(0, len(word)):
+                target_char = word[prev:curr]
+                try:
+                    if(target_char in language_model['bigram'].values):
+                        score += math.log(language_model.loc[language_model.bigram ==
+                                                            target_char, 'probability'])
+                        # print(score)
+                except:
+                    score += math.log(4.2857560833409393e-07)  # char bigram model
+                prev += 1
+                curr += 1
+                # print(word, target_char, score)
+
+            return (math.exp(score) / normalized)
+
+        word_parse_features['wiki_char_bigram'] = word_parse_features['word'].apply(lambda x: char_bigram(x))
+
+        #########################################################
+        #get wiki fourgrams
+
+        four_language_model = pd.read_csv('corpus/spanish/wiki-fourgram-esp.csv', sep=',')
+
+        def char_fourgram(word, ngram=4, language_model=four_language_model):
+            prev = 0
+            curr = ngram
+            score = 0
+            normalized = len(word) - 3
+            if normalized < 1:
+                normalized = 1
+
+            for i in range(0, len(word)):
+                target_char = word[prev:curr]
+                try:
+                    if(target_char in language_model['fourgram'].values):
+                        score += math.log(language_model.loc[language_model.fourgram ==
+                                                            target_char, 'probability'])
+                        # print(score)
+                except:
+                    score += math.log(1.8038475918273076e-11)  # char fourgram model
+                prev += 1
+                curr += 1
+                # print(word, target_char, score)
+
+            return (math.exp(score) / normalized)
+
+        word_parse_features['wiki_char_fourgram'] = word_parse_features['word'].apply(lambda x: char_fourgram(x))
 
         #word length
         word_parse_features['length'] = word_parse_features['word'].apply(lambda x: len(x))
@@ -315,7 +380,7 @@ for x in array:
 
         #temp store in csv
         print(word_parse_features.columns)
-        word_parse_features = word_parse_features[['word','length','vowels','syllables','synonyms','pos','learners_freq','subtitles_freq','wikipedia_freq', 'ner']]
+        word_parse_features = word_parse_features[['word','length','vowels','syllables','synonyms','pos','learners_freq','subtitles_freq','wikipedia_freq', 'news_freq', 'wiki_char_bigram', 'wiki_char_fourgram']]
         word_parse_features.to_csv('out.csv')
 
         print(x)
