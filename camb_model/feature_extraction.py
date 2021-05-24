@@ -152,6 +152,7 @@ for x in array:
             df = wikipedia_corpus[wikipedia_corpus['word'] == str(word).lower()]
             if (len(df) > 0):
 
+                print(word)
                 wikipedia_freq = df['frequency'].values[0]
 
                 wikipedia_freq = int(wikipedia_freq)
@@ -280,7 +281,7 @@ for x in array:
             url = f"https://books.google.com/ngrams/json?content={word}&year_start=1900&year_end=2019&corpus=31&smoothing=3"
 
             try:
-                time.sleep(.5)
+                time.sleep(1)
                 response = requests.get(url)
                 response.raise_for_status()
                 jsonResponse = response.json()
