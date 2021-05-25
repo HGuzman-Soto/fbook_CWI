@@ -323,49 +323,115 @@ def feature_extraction(indice=0):
         ('standard', StandardScaler())
     ])
 
-    #('ngram', ngram) is omitted
+    ###################################################################################
+    # adding in German features
+    # define some features again for correct feat names
+
+    pos = Pipeline([
+        ('selector', NumberSelector(key='pos')),
+        ('standard', StandardScaler())
+    ])
+
+    ner = Pipeline([
+        ('selector', NumberSelector(key='ner')),
+        ('standard', StandardScaler())
+    ])
+
+    learners = Pipeline([
+        ('selector', NumberSelector(key='learners_freq')),
+        ('standard', StandardScaler())
+    ])
+
+    news = Pipeline([
+        ('selector', NumberSelector(key='news_freq')),
+        ('standard', StandardScaler())
+    ])
+
+    frequency = Pipeline([
+        ('selector', NumberSelector(key='google frequency')),
+        ('standard', StandardScaler())
+    ])
+
+    wiki_char_bigram = Pipeline([
+        ('selector', NumberSelector(key='wiki_char_bigram')),
+        ('standard', StandardScaler())
+    ])
+
+    wiki_char_fourgram = Pipeline([
+        ('selector', NumberSelector(key='wiki_char_fourgram')),
+        ('standard', StandardScaler())
+    ])
+
+    bi_gram_char = Pipeline([
+        ('selector', TextSelector(key='word')),
+        ('vect', CountVectorizer(analyzer='char_wb', ngram_range=(2, 2)))
+    ])
+
+    four_gram_char = Pipeline([
+        ('selector', TextSelector(key='word')),
+        ('vect', CountVectorizer(analyzer='char_wb', ngram_range=(4, 4)))
+    ])
+
+    # German feature list
     feature_list = [
-        # ('words', words),
-        # ('bigram_char', bi_gram_char),
-        # ('four_gram_char', four_gram_char),
-        ('Tag', tag),
-        ('simple_wiki_bigrams', simple_wiki_bigrams),
-        ('learners_bigrams', learners_bigrams),
-        ('google_char_bigram', google_char_bigram),
-        ('google_char_trigram', google_char_trigram),
-        ('simple_wiki_fourgram', simple_wiki_fourgram),
-        ('learner_fourgram', learner_fourgram),
-        ('word_length', word_length),
+        ('words', words),
+        ('length', word_length),
+        ('syllables', syllables),
         ('vowels', vowels),
-        ('consonants', consonants),
-        ('Syllables', syllables),
-        ('dep_num', dep_num),
-        ('synonyms', synonyms),
-        ('hypernyms', hypernyms),
-        ('hyponyms', hyponyms),
-        ('holonyms', holonyms),
-        ('meronyms', meronyms),
-        ('ogden', ogden),
-        ('ner', is_entity),
-        ('simple_wiki', simple_wiki),
-        ('cald', cald),
-        ('cnc', conc),
-        ('img', img),
-        ('aoa', aoa),
-        ('fam', fam),
-        ('subimdb', subimdb),
-        ('freq', frequency),
-        ('KFCAT', KFCAT),
-        ('KFSMP', KFSMP),
-        ('KFFRQ', KFFRQ),
-        ('NPHN', NPHN),
-        ('TLFRQ', TLFRQ),
-        ('complex_lexicon', lexicon),
-        ('subtitles_freq', subtitles_corpus),
+        ('pos', pos),
+        ('ner', ner),
         ('wikipedia_freq', Wikipedia),
-        ('learner_corpus_freq', learners),
-        ('bnc_freq', BNC)
+        ('learners_freq', learners),
+        ('subtitles_freq', subtitles_corpus),
+        ('news_freq', news),
+        ('freq', frequency), # this is google frequency
+        ('bigram_char', bi_gram_char),
+        ('four_gram_char', four_gram_char),
     ]
+
+    # #('ngram', ngram) is omitted
+    # feature_list = [
+    #     # ('words', words),
+    #     # ('bigram_char', bi_gram_char),
+    #     # ('four_gram_char', four_gram_char),
+    #     ('Tag', tag),
+    #     ('simple_wiki_bigrams', simple_wiki_bigrams),
+    #     ('learners_bigrams', learners_bigrams),
+    #     ('google_char_bigram', google_char_bigram),
+    #     ('google_char_trigram', google_char_trigram),
+    #     ('simple_wiki_fourgram', simple_wiki_fourgram),
+    #     ('learner_fourgram', learner_fourgram),
+    #     ('word_length', word_length),
+    #     ('vowels', vowels),
+    #     ('consonants', consonants),
+    #     ('Syllables', syllables),
+    #     ('dep_num', dep_num),
+    #     ('synonyms', synonyms),
+    #     ('hypernyms', hypernyms),
+    #     ('hyponyms', hyponyms),
+    #     ('holonyms', holonyms),
+    #     ('meronyms', meronyms),
+    #     ('ogden', ogden),
+    #     ('ner', is_entity),
+    #     ('simple_wiki', simple_wiki),
+    #     ('cald', cald),
+    #     ('cnc', conc),
+    #     ('img', img),
+    #     ('aoa', aoa),
+    #     ('fam', fam),
+    #     ('subimdb', subimdb),
+    #     ('freq', frequency),
+    #     ('KFCAT', KFCAT),
+    #     ('KFSMP', KFSMP),
+    #     ('KFFRQ', KFFRQ),
+    #     ('NPHN', NPHN),
+    #     ('TLFRQ', TLFRQ),
+    #     ('complex_lexicon', lexicon),
+    #     ('subtitles_freq', subtitles_corpus),
+    #     ('wikipedia_freq', Wikipedia),
+    #     ('learner_corpus_freq', learners),
+    #     ('bnc_freq', BNC)
+    # ]
 
     if (args.feature_importance == 1):
         feats = FeatureUnion(feature_list[indice:])
@@ -921,6 +987,8 @@ if __name__ == "__main__":
         train_names.append('news_train')
         news_training_data = pd.read_pickle('features/News_Train_allInfo')
         news_training_data.name = 'News'
+        news_training_data = news_training_data[:50]
+        news_training_data.to_csv('test.csv')
         train_frames.append(news_training_data)
 
     if (args.train_wikipedia == 1):
@@ -966,6 +1034,10 @@ if __name__ == "__main__":
     ##work on pickling the data
     elif (args.german == 1):
         train_names.append('German_train')
+        german_train_data = pd.read_pickle('features/German_Train_allInfo')
+        wiki_training_data.name = 'WikiNews'
+        train_frames.append(wiki_training_data)
+
 
     total_training = pd.concat(train_frames)
 
