@@ -233,7 +233,7 @@ for x in array:
            return 0
             
         print("getting google freq")
-        word_parse_features['google_freq'] = word_parse_features.apply(lambda x: get_spanish_unigrams(x['word']), axis = 1)
+        #word_parse_features['google_freq'] = word_parse_features.apply(lambda x: get_spanish_unigrams(x['word']), axis = 1)
         print("google freq done")
 
         #########################################################
@@ -359,6 +359,23 @@ for x in array:
         word_parse_features['synonyms'] = word_parse_features['word'].apply(
             lambda x: len(wordnet.synsets(x, lang="spa")))
 
+        #word imbeddings
+
+        wordvec_sent = data_frame['sentence'].copy()
+        wordvec_words = [nltk.word_tokenize(sent) for sent in wordvec_sent]
+
+        from gensim.models import Word2Vec
+        word2vec = Word2Vec(wordvec_words, vector_size=5 , min_count=2)
+
+        def parse_word2vec(x):
+            if x in word2vec.wv:
+                return word2vec.wv[x]
+            else:
+                return 0
+
+        word_parse_features['wordvec'] = word_parse_features['word'].apply(lambda x: parse_word2vec(x))
+
+
         #########################################################
 
         # pickle data
@@ -368,7 +385,7 @@ for x in array:
 
         #temp store in csv
         print(word_parse_features.columns)
-        word_parse_features = word_parse_features[['word','length','vowels','syllables','synonyms','pos','learners_freq','subtitles_freq','wikipedia_freq', 'news_freq', 'google_freq', 'wiki_char_bigram', 'wiki_char_fourgram']]
+        word_parse_features = word_parse_features[['word','length','vowels','syllables','synonyms','pos','learners_freq','subtitles_freq','wikipedia_freq', 'news_freq', 'wiki_char_bigram', 'wiki_char_fourgram', 'wordvec']]
         word_parse_features.to_csv('out.csv')
 
         print(x)
