@@ -395,10 +395,8 @@ for x in array:
         sent_corpus = word_parse_features[['sentence']].copy()
         sent_corpus.append(test_df['sentence'])
         sent_corpus = sent_corpus.drop_duplicates()
-        print(sent_corpus['sentence'])
 
         #clean sentences
-        # Cleaning function for words
         remove = string.punctuation
         remove = remove.replace("-", "")
         remove = remove.replace("'", "")  # don't remove apostraphies
@@ -410,18 +408,20 @@ for x in array:
         sent_corpus['sentence'] = sent_corpus['sentence'].apply(
             lambda x: x.translate({ord(char): None for char in remove}))
 
-        #tokenize words
-        sent_corpus['sentence_t'] = sent_corpus['sentence'].apply(lambda x: word_tokenize(x))
+        #word embeddings
 
-        sent_corpus = sent_corpus.drop(['sentence'], axis=1)
+        wordvec_sent = sent_corpus['sentence'].copy()
+        wordvec_words = [word_tokenize(sent) for sent in wordvec_sent]
 
-        print("printing sent corpus")
-        print(sent_corpus)
+        word2vec = word2vec.Word2Vec(wordvec_words, vector_size=5 , min_count=2)
 
-        model = word2vec.Word2Vec(sentences=sent_corpus, vector_size=200, window=4, min_count=1, workers=4)
-        word_vectors = model.wv
-        word_vectors.save("./lm/germ_wiki_embeddings.sv")
-        print(word_vectors.get)
+        def parse_word2vec(x):
+            if x in word2vec.wv:
+                return word2vec.wv[x]
+            else:
+                return 0
+
+        word_parse_features['wordvec'] = word_parse_features['word'].apply(lambda x: parse_word2vec(x))
         
         #########################################################
         #Synonym Count
