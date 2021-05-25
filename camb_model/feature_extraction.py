@@ -13,6 +13,7 @@ from pathlib import Path
 import time
 import pyphen
 from statistics import fmean
+from nltk.tokenize import word_tokenize
 from py_openthesaurus import OpenThesaurusWeb
 import requests
 from requests.exceptions import HTTPError
@@ -381,6 +382,47 @@ for x in array:
         # word_parse_features['syllables'] = word_parse_features['word'].apply(
         #     lambda x: (syllable_dict.inserted(x.replace('-','')).count('-') + 1))
 
+        #########################################################
+        # Word Embeddings
+        from gensim.models import word2vec
+
+        #import test data
+        location = "training_data/german/German_Test.tsv"
+        test_df = pd.read_table(location, names=('ID', 'sentence', 'start_index', 'end_index', 'word', 'total_native',
+                                                    'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic'), encoding='utf-8-sig')
+        
+        # create shared corpus
+        sent_corpus = word_parse_features[['sentence']].copy()
+        sent_corpus.append(test_df['sentence'])
+        sent_corpus = sent_corpus.drop_duplicates()
+        print(sent_corpus['sentence'])
+
+        #clean sentences
+        # Cleaning function for words
+        remove = string.punctuation
+        remove = remove.replace("-", "")
+        remove = remove.replace("'", "")  # don't remove apostraphies
+
+        remove = remove + '“'
+        remove = remove + '”'
+
+        pattern = r"[{}]".format(remove)  # create the pattern
+        sent_corpus['sentence'] = sent_corpus['sentence'].apply(
+            lambda x: x.translate({ord(char): None for char in remove}))
+
+        #tokenize words
+        sent_corpus['sentence_t'] = sent_corpus['sentence'].apply(lambda x: word_tokenize(x))
+
+        sent_corpus = sent_corpus.drop(['sentence'], axis=1)
+
+        print("printing sent corpus")
+        print(sent_corpus)
+
+        model = word2vec.Word2Vec(sentences=sent_corpus, vector_size=200, window=4, min_count=1, workers=4)
+        word_vectors = model.wv
+        word_vectors.save("./lm/germ_wiki_embeddings.sv")
+        print(word_vectors.get)
+        
         #########################################################
         #Synonym Count
 
