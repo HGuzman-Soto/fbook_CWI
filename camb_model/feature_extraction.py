@@ -145,7 +145,7 @@ for x in array:
         word_parse_features = word_parse_features[ word_parse_features['word'] == word_parse_features['word']]
         word_parse_features = word_parse_features.drop_duplicates(subset=['word'])
         #temp resize
-        #word_parse_features = word_parse_features[100:105]
+        word_parse_features = word_parse_features[100:115]
 
         #######################################################
 
@@ -281,7 +281,7 @@ for x in array:
 
         # def get_german_unigrams(word):
         #     #if using this for another language, modify the corpus= ' ' bit by playing with the website
-        #     url = f"https://books.google.com/ngrams/json?content={word}&year_start=1900&year_end=2019&corpus=31&smoothing=3"
+        #     url = f"https://books.google.com/ngrams/json?content={word}&year_start=1969&year_end=2019&corpus=31&smoothing=3"
 
         #     try:
         #         time.sleep(1)
@@ -385,54 +385,61 @@ for x in array:
         #########################################################
         # Word Embeddings
         from gensim.models import word2vec
+        from gensim.models import keyedvectors
 
-        #import test data
-        location = "training_data/german/German_Test.tsv"
-        test_df = pd.read_table(location, names=('ID', 'sentence', 'start_index', 'end_index', 'word', 'total_native',
-                                                    'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic'), encoding='utf-8-sig')
+        # #import test data
+        # location = "training_data/german/German_Test.tsv"
+        # test_df = pd.read_table(location, names=('ID', 'sentence', 'start_index', 'end_index', 'word', 'total_native',
+        #                                             'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic'), encoding='utf-8-sig')
         
-        # create shared corpus
-        sent_corpus = word_parse_features[['sentence']].copy()
-        sent_corpus.append(test_df['sentence'])
-        sent_corpus = sent_corpus.drop_duplicates()
+        # # create shared corpus
+        # sent_corpus = word_parse_features[['sentence']].copy()
+        # sent_corpus.append(test_df['sentence'])
+        # sent_corpus = sent_corpus.drop_duplicates()
 
-        #clean sentences
-        remove = string.punctuation
-        remove = remove.replace("-", "")
-        remove = remove.replace("'", "")  # don't remove apostraphies
+        # #clean sentences
+        # remove = string.punctuation
+        # remove = remove.replace("-", "")
+        # remove = remove.replace("'", "")  # don't remove apostraphies
 
-        remove = remove + '“'
-        remove = remove + '”'
+        # remove = remove + '“'
+        # remove = remove + '”'
 
-        pattern = r"[{}]".format(remove)  # create the pattern
-        sent_corpus['sentence'] = sent_corpus['sentence'].apply(
-            lambda x: x.translate({ord(char): None for char in remove}))
+        # pattern = r"[{}]".format(remove)  # create the pattern
+        # sent_corpus['sentence'] = sent_corpus['sentence'].apply(
+        #     lambda x: x.translate({ord(char): None for char in remove}))
 
-        #word embeddings
+        # #word embeddings
+        # wordvec_sent = sent_corpus['sentence'].copy()
+        # wordvec_words = [word_tokenize(sent) for sent in wordvec_sent]
 
-        wordvec_sent = sent_corpus['sentence'].copy()
-        wordvec_words = [word_tokenize(sent) for sent in wordvec_sent]
+        # word2vec = word2vec.Word2Vec(wordvec_words, vector_size=500 , min_count=1, workers=4)
 
-        word2vec = word2vec.Word2Vec(wordvec_words, vector_size=5 , min_count=2)
-
-        def parse_word2vec(x):
-            if x in word2vec.wv:
-                return word2vec.wv[x]
+        def parse_word2vec(x, vectors):
+            if x in vectors:
+                return vectors[x]
             else:
                 return 0
+        
+        # word_vectors = word2vec.wv
+        # word_vectors.save("./lm/germ_wiki_embeddings.txt")
 
-        word_parse_features['wordvec'] = word_parse_features['word'].apply(lambda x: parse_word2vec(x))
+        #if saved data
+        word_vectors = keyedvectors.KeyedVectors.load('./lm/germ_wiki_embeddings.txt')
+
+        word_parse_features['wordvec'] = word_parse_features['word'].apply(lambda x: parse_word2vec(x, word_vectors))
+
+        print("word embeddings done")
         
         #########################################################
-        #Synonym Count
+        #Synonym Count from OpenThesaurus
 
         def getSyn(db, word):
-            print(word)
             syn = 0
             try:
                 syn = len(db.get_synonyms(word=word, form="long"))
             except:
-                print(word)
+                print("bad lookup")
 
             return syn
 
@@ -457,9 +464,9 @@ for x in array:
         word_parse_features.to_pickle('features/'+x+'_allInfo')
 
         #temp store in csv
-        word_parse_features = word_parse_features[['word','length','synonyms']]
+        word_parse_features = word_parse_features[['word','length','synonyms','wordvec']]
         #word_parse_features = word_parse_features[['word','length','syllables','vowels','pos','ner','wikipedia_freq', 'learners_freq','subtitles_freq', 'news_freq', 'google_freq','wiki_char_bigram','wiki_char_fourgram']]
-        word_parse_features.to_csv('out.csv')
+        word_parse_features.to_csv('out.csv', index=False)
 
         print(x)
 
