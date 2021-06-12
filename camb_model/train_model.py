@@ -18,6 +18,7 @@ from sklearn.feature_selection import RFECV
 
 from sklearn.model_selection import GridSearchCV
 from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import OneHotEncoder
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -32,6 +33,7 @@ import numpy as np
 import argparse
 import pandas as pd
 import sys
+import gensim
 import wandb
 import pickle
 
@@ -45,9 +47,9 @@ Script will train the models only and pickle them
 ##########################################################################################################
 
 """
-Either run feature importance or train a model. Since doing both will take twice as long, its best to 
+Either run feature importance or train a model. Since doing both will take twice as long, its best to
 just have a good model already that you want to run feature importance. This means keep track of the name of your model
-and what features you used to train it. 
+and what features you used to train it.
 
 """
 
@@ -55,7 +57,7 @@ and what features you used to train it.
 def main():
 
     if args.feature_importance == 1:
-        feats_for_graph = feature_extraction(indice=3)
+        feats_for_graph = feature_extraction(indice=0)
         model_graph = train_model(training_data, feats_for_graph)
 
         feature_list = ['pos', 'simple_wiki_bigrams', 'learners_bigrams', 'google_char_bigram', 'google_char_trigram', 'simple_wiki_fourgram', 'learner_fourgram',
@@ -64,6 +66,9 @@ def main():
                         'sub_imdb', 'google frequency', 'KFCAT', 'KFSMP', 'KFFRQ', 'NPHN',
                         'TLFRQ', 'complex_lexicon', 'subtitles_freq', 'wikipedia_freq',
                         'learner_corpus_freq', 'bnc_freq']
+        
+        #german list
+        feature_list = []
 
         feature_importance(model_graph, feature_list=feature_list)
 
@@ -79,6 +84,7 @@ def main():
     else:
         feats = feature_extraction()
         feature_processing = Pipeline([('feats', feats)])
+        print(training_data)
         feature_processing.fit_transform(training_data)
         model = train_model(training_data, feats)
         pickle_model(model)
@@ -122,10 +128,41 @@ class NumberSelector(BaseEstimator, TransformerMixin):
         return X[[self.key]]
 
 
-##########################################################################################################
+# ##########################################################################################################
+# # model = gensim.models.KeyedVectors.load_word2vec_format("dewiki_20180420_100d.txt")
+# model = gensim.models.KeyedVectors.load_word2vec_format("german.model", binary=True)
+
+# class EmbeddingVectorizer(BaseEstimator, TransformerMixin):
+#     def __init__(self, key):
+#         self.key = key
+
+#     def fit(self, X, y=None):
+#         return self
+
+#     def transform(self, X):
+#         X_ = X.copy()
+#         vecs = []
+
+#         for i in range(0, len(X_)):
+#             try:
+#                 vecs.append(model[X_[i]])
+#             except:
+#                 vecs.append(np.array(np.zeros(100)))
+
+#         vecs = np.array(vecs)
+#         return vecs
+
+
+
+
+# ##########################################################################################################
+
 
 
 def feature_extraction(indice=0):
+
+    feature_list = []
+
     words = Pipeline([
         ('selector', TextSelector(key='word')),
         ('vect', CountVectorizer())
@@ -323,6 +360,11 @@ def feature_extraction(indice=0):
         ('standard', StandardScaler())
     ])
 
+    # wordvec = Pipeline([
+    #     ('selector', TextSelector(key='word')),
+    #     ('vect', EmbeddingVectorizer(key='word'))
+    # ])
+
     ###################################################################################
     # adding in German features
     # define some features again for correct feat names
@@ -348,7 +390,7 @@ def feature_extraction(indice=0):
     ])
 
     frequency = Pipeline([
-        ('selector', NumberSelector(key='google frequency')),
+        ('selector', NumberSelector(key='google_freq')),
         ('standard', StandardScaler())
     ])
 
@@ -372,11 +414,26 @@ def feature_extraction(indice=0):
         ('vect', CountVectorizer(analyzer='char_wb', ngram_range=(4, 4)))
     ])
 
+    #embeddings
+
+    for x in range(1,101):
+        key = 'embed_' + str(x)
+
+        embed = Pipeline([
+        ('selector', NumberSelector(key=key)),
+        ('standard', StandardScaler())
+        ])
+
+        feature_list.append((key, embed))
+
+
+
     # German feature list
-    feature_list = [
+    feature_list += [
         ('words', words),
         ('length', word_length),
         ('syllables', syllables),
+        ('synonyms', synonyms),
         ('vowels', vowels),
         ('pos', pos),
         ('ner', ner),
@@ -386,8 +443,10 @@ def feature_extraction(indice=0):
         ('news_freq', news),
         ('freq', frequency), # this is google frequency
         ('bigram_char', bi_gram_char),
-        ('four_gram_char', four_gram_char),
+        ('four_gram_char', four_gram_char)
     ]
+
+    print(feature_list)
 
     # #('ngram', ngram) is omitted
     # feature_list = [
@@ -568,7 +627,7 @@ def train_model(training_data, feats):
     if (args.combine_models == 1):
 
         estimators = [('rf', models[1]), ('ada', models[0])]
-        ensemble = VotingClassifier(estimators, voting='hard')
+        ensemble = VotingClassifier(estimators, voting='soft')
         ensemble.fit(training_data, train_targets)
         model = ensemble
         models.append(model)
@@ -580,9 +639,9 @@ def train_model(training_data, feats):
 
 """
 Given a pipline with features and a classifier + the names of features
-Function plots feature importance 
+Function plots feature importance
 
-The words and n-gram features are always ommitted, and the pos-tag will have 30 features. A work 
+The words and n-gram features are always ommitted, and the pos-tag will have 30 features. A work
 around was I summed up these first 30 'features' and created a category for pos tags. Then I append
 it to the rest of the 24 features.
 
@@ -957,7 +1016,7 @@ if __name__ == "__main__":
                         '-feature', type=int, default=0)
     parser.add_argument(
         '--model_name', '-mn', type=str, default=None)
-    
+
     ## language args
     parser.add_argument('--german', '-ge', type=int, default=0)
 
@@ -1030,13 +1089,13 @@ if __name__ == "__main__":
             'features/News_Dev_allInfo')
         news_dev_data.name = 'News'
         train_frames.append(news_dev_data)
-    
+
     ##work on pickling the data
     elif (args.german == 1):
         train_names.append('German_train')
         german_train_data = pd.read_pickle('features/German_Train_allInfo')
-        wiki_training_data.name = 'WikiNews'
-        train_frames.append(wiki_training_data)
+        german_train_data.name = 'German'
+        train_frames.append(german_train_data)
 
 
     total_training = pd.concat(train_frames)

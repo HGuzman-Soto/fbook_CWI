@@ -82,6 +82,7 @@ def predict(name, model, array):
         """
 
         if(args.test):
+            # df = df.drop(columns=['parse', 'count', 'split', 'original word'])
             df = df.drop(columns=['parse', 'count', 'split', 'original word'])
         else:
             # df = df.drop(columns=['parse', 'count', 'split', 'original word', 'total_native',
@@ -129,6 +130,9 @@ def parse_all_args():
     parser.add_argument('--predict', '-p', type=int, default=1)
     parser.add_argument('--evaluation', '-e', type=int, default=1)
     parser.add_argument('--model_name', '-mn', type=str, default=None)
+
+    parser.add_argument('--german', '-ge', type=int, default=0)
+
 
     args = parser.parse_args()
 
@@ -202,6 +206,12 @@ if __name__ == "__main__":
         testing_data = pd.read_pickle('features/' + args.test + '_allInfo')
         testing_data.name = 'testing'
         test_frames = [testing_data]
+    
+    elif (args.german == 1):
+        test_name = 'German_test'
+        testing_data = pd.read_pickle('features/German_Test_allInfo')
+        testing_data.name = 'testing'
+        test_frames = [testing_data]
 
     if (args.features):
         used_feats = args.features.strip("[]").split(",")
@@ -214,8 +224,8 @@ if __name__ == "__main__":
     # if features are not specified, remove unnecessary features
     else:
         for i in range(len(test_frames)):
-            test_frames[i] = test_frames[i].drop(
-                columns=['parse', 'count', 'split', 'original word'])
+            # test_frames[i] = test_frames[i].drop(columns=['parse', 'count', 'split', 'original word'])
+            test_frames[i] = test_frames[i].drop(columns=['count', 'split'])
     # total_test = pd.concat(test_frames)
     # total_test.fillna(0.0, inplace=True)
     main()

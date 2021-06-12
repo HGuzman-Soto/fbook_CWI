@@ -40,6 +40,7 @@ if __name__ == "__main__":
     parser.add_argument('--old_dataset', '-old', type=str, default=None)
     parser.add_argument('--test', '-t', type=str, default=None)
     parser.add_argument('--german', '-ge', type=int, default=None)
+    parser.add_argument('--debug', '-de', type=int, default=None)
 
     array = []
     args = parser.parse_args()
@@ -144,8 +145,10 @@ for x in array:
         word_parse_features = data_frame
         word_parse_features = word_parse_features[ word_parse_features['word'] == word_parse_features['word']]
         word_parse_features = word_parse_features.drop_duplicates(subset=['word'])
+
         #temp resize
-        word_parse_features = word_parse_features[100:120]
+        if(args.debug):
+            word_parse_features = word_parse_features[100:120]
 
 ###################################################################################
 
@@ -165,13 +168,13 @@ for x in array:
                 y = 0
                 return y
 
-        
+
         print("start wikipedia corpus")
 
         wikipedia_corpus = pd.read_csv('corpus/german/wikipedia_corpus.csv')
         word_parse_features['wikipedia_freq'] = word_parse_features['word'].apply(
             lambda x: get_wiki_german(x))
-        
+
 
         print("end wikipedia corpus")
 
@@ -186,14 +189,14 @@ for x in array:
 ###################################################################################
         # get subtitles frequency
         print("start subtitles")
-    
+
         subtitles_corpus = pd.read_csv("corpus/german/subtitles_corpus.csv", dtype={'word': str, 'frequency': int})
         subtitles_corpus['word'] = subtitles_corpus['word'].apply(lambda x: str(x).lower())
         subtitles_corpus['frequency'] = subtitles_corpus['frequency'].apply(lambda x: int(x))
 
-        word_parse_features['subtitles_freq'] = word_parse_features['word'].apply(lambda x: 
-        int(subtitles_corpus.loc[ subtitles_corpus.word == x, 'frequency'].iloc[0]) if any(subtitles_corpus.word == x) else 0)  
-        
+        word_parse_features['subtitles_freq'] = word_parse_features['word'].apply(lambda x:
+        int(subtitles_corpus.loc[ subtitles_corpus.word == x, 'frequency'].iloc[0]) if any(subtitles_corpus.word == x) else 0)
+
         print("end subtitles")
 
 ###################################################################################
@@ -216,7 +219,7 @@ for x in array:
         print("getting pos")
 
         def get_german_pos(word, nlp):
-            
+
             doc = nlp('u' + word)
             pos = ""
             pos = str(doc[0].pos_)
@@ -226,6 +229,9 @@ for x in array:
 
         nlp = spacy.load("de_core_news_sm")
         word_parse_features['pos'] = word_parse_features['word'].apply(lambda x: get_german_pos(x, nlp))
+
+        #cat feature encoding
+        word_parse_features['pos'] = (word_parse_features['pos'].astype('category')).cat.codes
         print("pos done")
 
 ###################################################################################
@@ -251,7 +257,7 @@ for x in array:
             'outputFormat': 'json'
             })
             return output
-        
+
         def get_german_ner(row):
             word = row['word']
             parse = row['parse']
@@ -259,13 +265,13 @@ for x in array:
             for i in range(len(parse['sentences'][0]['tokens'])):
                 comp_word = parse['sentences'][0]['tokens'][i]['word']
                 comp_word = comp_word.lower()
-                
+
                 print(parse['sentences'][0]['tokens'][i]['ner'])
-                
+
                 if comp_word == word:
                     rstr = str(parse['sentences'][0]['tokens'][i]['ner'])
                     return rstr
-                
+
                 else:
                     return "O"
 
@@ -275,7 +281,9 @@ for x in array:
 
         word_parse_features = pd.merge(sentences, word_parse_features)
 
+        # cat feature encoding
         word_parse_features['ner'] = word_parse_features.apply(get_german_ner, axis=1).astype(str)
+        word_parse_features['ner'] = (word_parse_features['ner'].astype('category')).cat.codes
 
 ###################################################################################
 
@@ -298,73 +306,14 @@ for x in array:
                 print(f'HTTP error occurred: {http_err}')
             except Exception as err:
                 print(f'Other error occurred: {err}')
-            
+
             return 0
-            
-            
-        
+
+
+
         print("getting google freq")
         word_parse_features['google_freq'] = word_parse_features.apply(lambda x: get_german_unigrams(x['word']), axis = 1)
         print("google freq done")
-
-        # #get wiki bigrams
-
-        # bi_language_model = pd.read_csv('corpus/german/wikidump_char_bigrams.csv', sep=',')
-
-        # def char_bigram(word, ngram=2, language_model=bi_language_model):
-        #     prev = 0
-        #     curr = ngram
-        #     score = 0
-        #     normalized = len(word) - 3
-        #     if normalized < 1:
-        #         normalized = 1
-
-        #     for i in range(0, len(word)):
-        #         target_char = word[prev:curr]
-        #         try:
-        #             if(target_char in language_model['bigram'].values):
-        #                 score += math.log(language_model.loc[language_model.bigram ==
-        #                                                     target_char, 'probability'])
-        #                 # print(score)
-        #         except:
-        #             score += math.log(4.2857560833409393e-07)  # char bigram model
-        #         prev += 1
-        #         curr += 1
-        #         # print(word, target_char, score)
-
-        #     return (math.exp(score) / normalized)
-
-        # word_parse_features['wiki_char_bigram'] = word_parse_features['word'].apply(lambda x: char_bigram(x))
-
-        # #########################################################
-        # #get wiki fourgrams
-
-        # four_language_model = pd.read_csv('corpus/german/wikidump_char_fourgrams.csv', sep=',')
-
-        # def char_fourgram(word, ngram=4, language_model=four_language_model):
-        #     prev = 0
-        #     curr = ngram
-        #     score = 0
-        #     normalized = len(word) - 3
-        #     if normalized < 1:
-        #         normalized = 1
-
-        #     for i in range(0, len(word)):
-        #         target_char = word[prev:curr]
-        #         try:
-        #             if(target_char in language_model['fourgram'].values):
-        #                 score += math.log(language_model.loc[language_model.fourgram ==
-        #                                                     target_char, 'probability'])
-        #                 # print(score)
-        #         except:
-        #             score += math.log(1.8038475918273076e-11)  # char fourgram model
-        #         prev += 1
-        #         curr += 1
-        #         # print(word, target_char, score)
-
-        #     return (math.exp(score) / normalized)
-
-        # word_parse_features['wiki_char_fourgram'] = word_parse_features['word'].apply(lambda x: char_fourgram(x))
 
 ###################################################################################
         #Syllable Count
@@ -377,16 +326,32 @@ for x in array:
         # Word Embeddings
         from gensim.models import word2vec
 
-        model = gensim.models.KeyedVectors.load_word2vec_format("dewiki_20180420_100d.txt")
+        model = gensim.models.KeyedVectors.load_word2vec_format("dewiki_20180420_300d.txt", limit= 1000000)
         print("word2vec model loaded")
 
         def parse_word2vec(x, vectors):
             try:
                  return vectors.get_vector(x)
             except:
-                return 0
+                return numpy.zeros(300)
 
         word_parse_features['wordvec'] = word_parse_features['word'].apply(lambda x: parse_word2vec(x, model))
+
+        # each dimension to individual columns!!
+
+        names = []
+        for i in range(1, 301):
+            names.append("embed_" + str(i))
+
+        #expand vector
+        df2 = word_parse_features.wordvec.apply(pd.Series)
+        df2.columns = [names]
+
+        # remove NaNs -> 0
+        df2.fillna(0, inplace=True)
+        
+        # add to word feats
+        word_parse_features = pd.concat([word_parse_features, df2], axis=1)
 
 
         print("word embeddings done")
@@ -420,7 +385,6 @@ for x in array:
 
         # pickle data
 
-        word_parse_features = word_parse_features.drop_duplicates()
         word_parse_features.to_pickle('features/'+x+'_allInfo')
 
         #temp store in csv
@@ -432,10 +396,10 @@ for x in array:
         # end German parsing
         continue
 
-    ##########################################################################################################
+    ####################################################################################################################################
     #                                    END OF GERMAN
-    ##########################################################################################################
-    
+    ####################################################################################################################################
+
 
     ##########################################################################################################
     # function to obtain syablles for words
@@ -1005,7 +969,7 @@ for x in array:
 
 ##########################################################################################################
     """
-    Wikipedia word may appear multiple times, we get the first instance. 
+    Wikipedia word may appear multiple times, we get the first instance.
     We may have to sort frequency
     """
     def get_wiki(word):
