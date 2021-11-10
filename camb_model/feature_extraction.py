@@ -82,6 +82,7 @@ for x in array:
         data_frame['sentence'] = data_frame['sentence'].astype(str)
 
     if(args.spanish):
+        print("running " + x)
         location = "training_data/spanish/" + x + ".tsv"
         data_frame = pd.read_table(location, names=('ID', 'sentence', 'start_index', 'end_index', 'word', 'total_native',
                                                     'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic'), encoding='utf-8-sig')
@@ -135,19 +136,19 @@ for x in array:
 
         # get wikipedia corpus frequency
 
-        wiki_corpus = pd.read_csv("corpus/german/wikipedia_corpus.txt", delim_whitespace=True)
+        wiki_corpus = pd.read_csv("corpus/spanish/wikipedia_esp.txt", delim_whitespace=True)
         word_parse_features['wikipedia_freq'] = word_parse_features['word'].apply(lambda x: int(
         wiki_corpus.loc[wiki_corpus.word == x, 'frequency']) if any(wiki_corpus.word == x) else 0)
         
         # get Lang8 learners corpus frequency *NEEDS FINISHED
 
-        learner_corpus = pd.read_csv("corpus/learner_corpus.csv")
+        learner_corpus = pd.read_csv("corpus/learners_esp.csv")
         word_parse_features['learner_corpus_freq'] = word_parse_features['word'].apply(lambda x: int(
         learner_corpus.loc[learner_corpus.word == x, 'frequency']) if any(learner_corpus.word == x) else 0)
 
         # get subtitles frequency
 
-        subtitles_corpus = pd.read_csv("corpus/german/subtitles_corpus.csv")
+        subtitles_corpus = pd.read_csv("corpus/spanish/subtitles-esp.csv")
         word_parse_features['subtitles_freq'] = word_parse_features['word'].apply(lambda x: int(
             subtitles_corpus.loc[subtitles_corpus.word == x, 'frequency']) if any(subtitles_corpus.word == x) else 0)
 
@@ -172,118 +173,114 @@ for x in array:
         data_frame['word'] = word_set['word']
         word_parse_features = data_frame
         word_parse_features = word_parse_features[ word_parse_features['word'] == word_parse_features['word']]
-        word_parse_features = word_parse_features[:50]
+        word_parse_features = word_parse_features.drop_duplicates(subset=['word'])
 
-        #wikipedia corpus word frequency
+###################################################################################
+
+        # get wikipedia corpus frequency
+
+        def get_wiki_german(word):
+            df = wikipedia_corpus[wikipedia_corpus['word'] == str(word).lower()]
+            if (len(df) > 0):
+
+                #print(word)
+                wikipedia_freq = df['frequency'].values[0]
+
+                wikipedia_freq = int(wikipedia_freq)
+
+                return wikipedia_freq
+            else:
+                y = 0
+                return y
+
+
+        print("start wikipedia corpus")
+
         wikipedia_corpus = pd.read_csv("corpus/spanish/wikipedia-esp.csv", dtype={'word': str, 'frequency': int})
-        wikipedia_corpus['word'] = wikipedia_corpus['word'].apply(lambda x: str(x).lower())
-        wikipedia_corpus['frequency'] = wikipedia_corpus['frequency'].apply(lambda x: int(x))
+        word_parse_features['wikipedia_freq'] = word_parse_features['word'].apply(
+            lambda x: get_wiki_german(x))
 
-        word_parse_features['wikipedia_freq'] = word_parse_features['word'].apply(lambda x: 
-        int(wikipedia_corpus.loc[ wikipedia_corpus.word == x, 'frequency'].iloc[0]) if any(wikipedia_corpus.word == x) else 0)
 
-        #news corpus word frequency
-        news_corpus = pd.read_csv("corpus/spanish/news-esp.csv", dtype={'index': int, 'word': str, 'frequency': int})
-        news_corpus['word'] = news_corpus['word'].apply(lambda x: str(x).lower())
-        news_corpus['frequency'] = news_corpus['frequency'].apply(lambda x: int(x))
+        print("end wikipedia corpus")
 
-        word_parse_features['news_freq'] = word_parse_features['word'].apply(lambda x: 
-        int(news_corpus.loc[ news_corpus.word == x, 'frequency'].iloc[0]) if any(news_corpus.word == x) else 0)
+###################################################################################
+        #get Lang8 learners corpus frequency
 
-        #Lang-8 word frequencies
-        learners_corpus = pd.read_csv("corpus/spanish/learners-esp.csv", dtype={'word': str, 'frequency': int})
-        learners_corpus['word'] = learners_corpus['word'].apply(lambda x: str(x).lower())
-        learners_corpus['frequency'] = learners_corpus['frequency'].apply(lambda x: int(x))
+        learner_corpus = pd.read_csv("corpus/spanish/learners-esp.csv", dtype={'word': str, 'frequency': int})
 
-        word_parse_features['learners_freq'] = word_parse_features['word'].apply(lambda x: 
-        int(learners_corpus.loc[ learners_corpus.word == x, 'frequency'].iloc[0]) if any(learners_corpus.word == x) else 0) 
+        word_parse_features['learners_freq'] = word_parse_features['word'].apply(lambda x: int(
+        learner_corpus.loc[learner_corpus.word == x, 'frequency'].iloc[0]) if any(learner_corpus.word == x) else 0)
 
-        #subtitles frequencies
+###################################################################################
+       # get subtitles frequency
+        print("start subtitles")
+
         subtitles_corpus = pd.read_csv("corpus/spanish/subtitles-esp.csv", dtype={'word': str, 'frequency': int})
         subtitles_corpus['word'] = subtitles_corpus['word'].apply(lambda x: str(x).lower())
         subtitles_corpus['frequency'] = subtitles_corpus['frequency'].apply(lambda x: int(x))
 
-        word_parse_features['subtitles_freq'] = word_parse_features['word'].apply(lambda x: 
-        int(subtitles_corpus.loc[ subtitles_corpus.word == x, 'frequency'].iloc[0]) if any(subtitles_corpus.word == x) else 0) 
+        word_parse_features['subtitles_freq'] = word_parse_features['word'].apply(lambda x:
+        int(subtitles_corpus.loc[ subtitles_corpus.word == x, 'frequency'].iloc[0]) if any(subtitles_corpus.word == x) else 0)
+
+        print("end subtitles")
+
+###################################################################################
+        #get news corpus frequency
+
+        #news corpus word frequency
+        news_corpus = pd.read_csv("corpus/spanish/news-esp.csv", dtype={'index': int, 'word': str, 'frequency': int})
+        news_corpus['word'] = news_corpus['word'].apply(lambda x: str(x).lower())
+
+        for f in news_corpus['frequency']:
+            try:
+                f = int(f)
+            except:
+                f = 0
+
+        word_parse_features['news_freq'] = word_parse_features['word'].apply(lambda x: int(
+        news_corpus.loc[news_corpus.word == x, 'frequency'].iloc[0]) if any(news_corpus.word == x) else 0)
+
+###################################################################################
         
         #POS tag
         spacynlp = spacy.load("es_core_news_sm")
 
         word_parse_features['pos'] = word_parse_features['word'].apply(lambda x: str(spacynlp(x)[0].pos_) )
 
+################################################################################################
+
         #google unigram frequency
         def get_spanish_unigrams(word):
-           #if using this for another language, modify the corpus= ' ' bit by playing with the website
-           url = f"https://books.google.com/ngrams/json?content={word}&year_start=1900&year_end=2019&corpus=32&smoothing=3"
+            #if using this for another language, modify the corpus= ' ' bit by playing with the website
+            url = f"https://books.google.com/ngrams/json?content={word}&year_start=1969&year_end=2019&corpus=32&smoothing=3"
 
-           try:
-               response = requests.get(url)
-               response.raise_for_status()
-               jsonResponse = response.json()
-               freqlist = list(jsonResponse[0]['timeseries'])
-               freqlist = [float(f) for f in freqlist]
-               freq = fmean(freqlist)
-               return freq
+            try:
+                time.sleep(1)
+                response = requests.get(url)
+                response.raise_for_status()
+                jsonResponse = response.json()
+                freqlist = list(jsonResponse[0]['timeseries'])
+                freqlist = [float(f) for f in freqlist]
+                freq = fmean(freqlist)
+                return freq
 
-           except HTTPError as http_err:
-               print(f'HTTP error occurred: {http_err}')
-           except Exception as err:
-               print(f'Other error occurred: {err}')
-            
-           return 0
-            
+            except HTTPError as http_err:
+                print(f'HTTP error occurred: {http_err}')
+            except Exception as err:
+                print(f'Other error occurred: {word}')
+            return 0
+
+
+
         print("getting google freq")
-        #word_parse_features['google_freq'] = word_parse_features.apply(lambda x: get_spanish_unigrams(x['word']), axis = 1)
+        print(len(word_parse_features['word']))
+        word_parse_features['google_freq'] = word_parse_features.apply(lambda x: get_spanish_unigrams(x['word']), axis = 1)
         print("google freq done")
 
+
         #########################################################
-        #NER
-        # RUN THE FOLLOWING JAVA COMMAND IN CORENLP FOLDER:
-        # java -mx4g -cp "*" edu.stanford.nlp.pipeline.StanfordCoreNLPServer -props StanfordCoreNLP-spanish.properties -annotators "ner" -port 9000 -timeout 30000
-
-        import pycorenlp
-        import pandas as pd
-        from pycorenlp import StanfordCoreNLP
-        print("start core")
-        nlp = StanfordCoreNLP('http://localhost:9000')
-
-
-        sentences = data_frame[['sentence', 'ID']].copy()
-
-        sentences = sentences.drop_duplicates()
-
-        def spanish_parse(text):
-            output = nlp.annotate(text, properties={
-            'annotators': 'ner',
-            'outputFormat': 'json'
-            })
-            return output
         
-        def get_spanish_ner(row):
-            word = row['word']
-            parse = row['parse']
-            print(word)
-            print(parse)
-            print(parse['sentences'])
-            for i in range(len(parse['sentences'][0]['tokens'])):
-                comp_word = parse['sentences'][0]['tokens'][i]['word']
-                comp_word = comp_word.lower()
-                
-                print(parse['sentences'][0]['tokens'][i]['ner'])
-                
-                if comp_word == word:
-                    return str(parse['sentences'][0]['tokens'][i]['ner'])
 
-        #run the funcs
-        # apply parsing to sentences
-        #sentences['parse'] = sentences['sentence'].apply(lambda x: spanish_parse(x))
-
-        #word_parse_features = pd.merge(sentences, word_parse_features)
-
-        #word_parse_features['ner'] = word_parse_features.apply(get_spanish_ner, axis=1).astype(str)
-
-
-        #########################################################
         #get wiki bigrams
 
         bi_language_model = pd.read_csv('corpus/spanish/wiki-bigrams-esp.csv', sep=',')
@@ -311,7 +308,7 @@ for x in array:
 
             return (math.exp(score) / normalized)
 
-        word_parse_features['wiki_char_bigram'] = word_parse_features['word'].apply(lambda x: char_bigram(x))
+        word_parse_features['simple_wiki_bigrams'] = word_parse_features['word'].apply(lambda x: char_bigram(x))
 
         #########################################################
         #get wiki fourgrams
@@ -341,7 +338,7 @@ for x in array:
 
             return (math.exp(score) / normalized)
 
-        word_parse_features['wiki_char_fourgram'] = word_parse_features['word'].apply(lambda x: char_fourgram(x))
+        word_parse_features['simple_wiki_fourgram'] = word_parse_features['word'].apply(lambda x: char_fourgram(x))
 
         #word length
         word_parse_features['length'] = word_parse_features['word'].apply(lambda x: len(x))
@@ -359,24 +356,36 @@ for x in array:
         word_parse_features['synonyms'] = word_parse_features['word'].apply(
             lambda x: len(wordnet.synsets(x, lang="spa")))
 
-        #word imbeddings
 
-        wordvec_sent = data_frame['sentence'].copy()
-        wordvec_words = [nltk.word_tokenize(sent) for sent in wordvec_sent]
+        #import test data
+        #location = "training_data/spanish/Spanish_Test.tsv"
+        #test_df = pd.read_table(location, names=('ID', 'sentence', 'start_index', 'end_index', 'word', 'total_native',
+        #                                            'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic'), encoding='utf-8-sig')
 
-        from gensim.models import Word2Vec
-        word2vec = Word2Vec(wordvec_words, vector_size=5 , min_count=2)
+        #wordvec_sent = data_frame['sentence'].copy()
+        #wordvec_sent.append(test_df['sentence'])
+        #wordvec_words = [nltk.word_tokenize(sent) for sent in wordvec_sent]
 
+        '''import gensim
+        #word2vec = Word2Vec(wordvec_words, vector_size=500 , min_count=1, workers=4)
+        word2vec = gensim.models.KeyedVectors.load_word2vec_format('corpus/spanish/embed-esp.vec', binary=False)
         def parse_word2vec(x):
             if x in word2vec.wv:
                 return word2vec.wv[x]
             else:
                 return 0
 
-        word_parse_features['wordvec'] = word_parse_features['word'].apply(lambda x: parse_word2vec(x))
+        word_parse_features['wordvec'] = word_parse_features['word'].apply(lambda x: parse_word2vec(x))'''
 
 
         #########################################################
+
+        ''''pos', 'simple_wiki_bigrams', 'learners_bigrams', 'google_char_bigram', 'google_char_trigram', 'simple_wiki_fourgram', 'learner_fourgram',
+                        'length', 'vowels', 'syllables', 'consonants', 'dep num', 'synonyms', 'hypernyms',
+                        'hyponyms', 'holonyms', 'meronyms', 'ogden', 'ner', 'simple_wiki', 'cald', 'cnc', 'img', 'aoa', 'fam',
+                        'sub_imdb', 'google frequency', 'KFCAT', 'KFSMP', 'KFFRQ', 'NPHN',
+                        'TLFRQ', 'complex_lexicon', 'subtitles_freq', 'wikipedia_freq',
+                        'learner_corpus_freq', 'bnc_freq'''
 
         # pickle data
 
@@ -385,10 +394,10 @@ for x in array:
 
         #temp store in csv
         print(word_parse_features.columns)
-        word_parse_features = word_parse_features[['word','length','vowels','syllables','synonyms','pos','learners_freq','subtitles_freq','wikipedia_freq', 'news_freq', 'wiki_char_bigram', 'wiki_char_fourgram', 'wordvec']]
+        word_parse_features = word_parse_features[['word','length','vowels','syllables','synonyms','pos','learners_freq','subtitles_freq','wikipedia_freq', 'news_freq', 'simple_wiki_bigrams', 'simple_wiki_fourgram']]
         word_parse_features.to_csv('out.csv')
 
-        print(x)
+        #print(x)
 
         # end Spanish parsing
         continue
@@ -480,7 +489,7 @@ for x in array:
         return output
 
     # apply parsing to sentences
-    sentences['parse'] = sentences['clean sentence'].apply(lambda x: parse(x))
+    #sentences['parse'] = sentences['clean sentence'].apply(lambda x: parse(x))
 
     word_parse_features = pd.merge(sentences, word_features)
 
