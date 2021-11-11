@@ -432,7 +432,6 @@ def feature_extraction(indice=0):
         ('learners_freq', learners),
         ('subtitles_freq', subtitles_corpus),
         ('news_freq', news),
-        ('pos', pos),
         ('google_freq', frequency),
         ('simple_wiki_bigrams', bi_gram_char),
         ('simple_wiki_fourgram', four_gram_char),
