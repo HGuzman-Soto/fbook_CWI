@@ -64,7 +64,7 @@ def main():
             """feature_list += ['word','length','syllables','synonyms','vowels','wikipedia_freq','learner_corpus_freq','subtitles_freq','news_freq','google_freq','simple_wiki_fourgram','simple_wiki_bigrams']
             """
             print("adding spanish features")
-            feature_list += ['word','wikipedia_freq','learners_freq','subtitles_freq','news_freq','pos','google_freq','simple_wiki_bigrams','wimple_wiki_fourgram','length','syllables','vowels','synonyms']
+            feature_list += ['word','wikipedia_freq','learners_freq','subtitles_freq','news_freq','google_freq','simple_wiki_bigrams','wimple_wiki_fourgram','length','syllables','vowels','synonyms']
         else:
             feature_list = ['pos', 'simple_wiki_bigrams', 'learners_bigrams', 'google_char_bigram', 'google_char_trigram', 'simple_wiki_fourgram', 'learner_fourgram',
                             'length', 'vowels', 'syllables', 'consonants', 'dep num', 'synonyms', 'hypernyms',
