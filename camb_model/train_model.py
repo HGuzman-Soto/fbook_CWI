@@ -40,6 +40,7 @@ import pickle
 
 """
 Script will train the models only and pickle them
+
 """
 
 
@@ -49,6 +50,7 @@ Script will train the models only and pickle them
 Either run feature importance or train a model. Since doing both will take twice as long, its best to
 just have a good model already that you want to run feature importance. This means keep track of the name of your model
 and what features you used to train it.
+
 """
 
 
@@ -60,11 +62,16 @@ def main():
 
         feature_list = []
 
-        if(args.spanish):
-            """feature_list += ['word','length','syllables','synonyms','vowels','wikipedia_freq','learner_corpus_freq','subtitles_freq','news_freq','google_freq','simple_wiki_fourgram','simple_wiki_bigrams']
-            """
-            print("adding spanish features")
-            feature_list += ['word','wikipedia_freq','learners_freq','subtitles_freq','news_freq','google_freq','simple_wiki_bigrams','wimple_wiki_fourgram','length','syllables','vowels','synonyms']
+        if(args.german):
+            #german list
+
+            #embeddings
+
+            # for x in range(1,301):
+            #     key = 'embed_' + str(x)
+            #     feature_list.append(key)
+            
+            feature_list += ['words','length','syllables','vowels','wikipedia_freq','learners_freq','subtitles_freq','news_freq', 'google_freq', 'synonyms']
         else:
             feature_list = ['pos', 'simple_wiki_bigrams', 'learners_bigrams', 'google_char_bigram', 'google_char_trigram', 'simple_wiki_fourgram', 'learner_fourgram',
                             'length', 'vowels', 'syllables', 'consonants', 'dep num', 'synonyms', 'hypernyms',
@@ -353,7 +360,7 @@ def feature_extraction(indice=0):
     ])
 
     learners = Pipeline([
-        ('selector', NumberSelector(key='learners_freq')),
+        ('selector', NumberSelector(key='learner_corpus_freq')),
         ('standard', StandardScaler())
     ])
 
@@ -380,8 +387,8 @@ def feature_extraction(indice=0):
     # define some features again for correct feat names
 
     pos = Pipeline([
-        ('selector', TextSelector(key='pos')),
-        ('vect', CountVectorizer())
+        ('selector', NumberSelector(key='pos')),
+        ('standard', StandardScaler())
     ])
 
     ner = Pipeline([
@@ -424,21 +431,17 @@ def feature_extraction(indice=0):
         ('vect', CountVectorizer(analyzer='char_wb', ngram_range=(4, 4)))
     ])
 
-# feature_list += ['word','length','syllables','synonyms','vowels','pos','wikipedia_freq','learner_corpus_freq','subtitles_freq','news_freq','google_freq','simple_wiki_fourgram','simple_wiki_bigrams']
+
     # German feature list
     feature_list += [
-        ('word', words),
+        ('words', words),
+        ('length', word_length),
+        ('syllables', syllables),
+        ('vowels', vowels),
         ('wikipedia_freq', Wikipedia),
         ('learners_freq', learners),
         ('subtitles_freq', subtitles_corpus),
         ('news_freq', news),
-        ('google_freq', frequency),
-        ('simple_wiki_bigrams', bi_gram_char),
-        ('simple_wiki_fourgram', four_gram_char),
-        ('length', word_length),
-        ('syllables', syllables),
-        ('vowels', vowels),
-        ('synonyms', synonyms)
     ]
 
 
@@ -493,16 +496,16 @@ def feature_extraction(indice=0):
         # ('words', words),
         # ('bigram_char', bi_gram_char),
         # ('four_gram_char', four_gram_char),
-        #('Tag', tag),
-        ('simple_wiki_bigrams', bi_gram_char),
+        ('Tag', tag),
+        ('simple_wiki_bigrams', simple_wiki_bigrams),
         ('learners_bigrams', learners_bigrams),
         ('google_char_bigram', google_char_bigram),
         ('google_char_trigram', google_char_trigram),
-        ('simple_wiki_fourgram', four_gram_char),
+        ('simple_wiki_fourgram', simple_wiki_fourgram),
         ('learner_fourgram', learner_fourgram),
-        ('length', word_length),
+        ('word_length', word_length),
         ('vowels', vowels),
-        ('syllables', syllables),
+        ('Syllables', syllables),
         ('dep_num', dep_num),
         ('synonyms', synonyms),
         ('hypernyms', hypernyms),
@@ -510,7 +513,6 @@ def feature_extraction(indice=0):
         ('holonyms', holonyms),
         ('meronyms', meronyms),
         ('ogden', ogden),
-        ('pos', pos),
         ('ner', is_entity),
         ('simple_wiki', simple_wiki),
         ('cald', cald),
@@ -519,17 +521,16 @@ def feature_extraction(indice=0):
         ('aoa', aoa),
         ('fam', fam),
         ('subimdb', subimdb),
-        ('google_freq', frequency),
+        ('freq', frequency),
         ('KFCAT', KFCAT),
         ('KFSMP', KFSMP),
         ('KFFRQ', KFFRQ),
         ('NPHN', NPHN),
         ('TLFRQ', TLFRQ),
         ('complex_lexicon', lexicon),
-        ('news_freq', news),
         ('subtitles_freq', subtitles_corpus),
         ('wikipedia_freq', Wikipedia),
-        ('learners_freq', learners),
+        ('learner_corpus_freq', learners),
         ('bnc_freq', BNC)
 
     ]
@@ -637,12 +638,16 @@ def train_model(training_data, feats):
 """
 Given a pipline with features and a classifier + the names of features
 Function plots feature importance
+
 The words and n-gram features are always ommitted, and the pos-tag will have 30 features. A work
 around was I summed up these first 30 'features' and created a category for pos tags. Then I append
 it to the rest of the 24 features.
+
+
 One area of concern is defining feature list and how to define a susbset of features to train. Defining the feature
 list you could just do manually to be honest as you run the code (there's only a few times we will run it). But
 how to subset a features when training the model is an ongoing issue.
+
 """
 
 
@@ -691,7 +696,7 @@ def recursive_feat(argVal):
 
     useful_data = training_data.drop(['sentence', 'ID', 'start_index', 'end_index',
                                       'word', 'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic',
-                                      'split', 'count', 'word', 'pos'], axis=1)
+                                      'split', 'count', 'word'], axis=1)
 
     if(argVal == 1):
         rfecv = RFECV(model, n_jobs=6, verbose=1)
@@ -802,14 +807,15 @@ def OVL():
         handles, labels = plt.gca().get_legend_handles_labels()
         labels[2] += f': {area_inters_x * 100:.1f} %'
 
-        # show plot
-        # plt.legend(handles, labels, title='Complex?')
-        # plt.xlabel(f)
-        # plt.ylabel("Probability Density")
-        # plt.show()
-        # save_path = 'OVLResults/all/all_' + f + '.png'
-        # plt.savefig(save_path)
-        # plt.cla()
+         #show plot
+        plt.legend(handles, labels, title='Complex?')
+        plt.xlabel(f)
+        plt.ylabel("Probability Density")
+        plt.show()
+        save_path = 'OVLResults/all/all_' + f + '.png'
+        plt.savefig(save_path)
+        plt.cla()
+        plt.show()
         tup = (f, area_inters_x)
         feature_set.append(tup)
 
@@ -819,18 +825,18 @@ def OVL():
     # show bar plot of feature names and performance
     ##
 
-    names = list(zip(*feature_set))[0]
-    performance = list(zip(*feature_set))[1]
-    x_pos = np.arange(len(names))
+    #names = list(zip(*feature_set))[0]
+    #performance = list(zip(*feature_set))[1]
+    #x_pos = np.arange(len(names))
 
-    plt.cla()
-    plt.bar(x_pos, performance, align='center')
-    plt.title('Complex/Non-complex Feature Value KDE Plot Overlap')
-    plt.xlabel('Feature name')
-    plt.ylabel('Percentage of Overlap')
-    plt.xticks(x_pos, names, rotation='vertical')
-    plt.subplots_adjust(bottom=0.25)
-    plt.show()
+    #plt.cla()
+    #plt.bar(x_pos, performance, align='center')
+    #plt.title('Complex/Non-complex Feature Value KDE Plot Overlap')
+    #plt.xlabel('Feature name')
+    #plt.ylabel('Percentage of Overlap')
+    #plt.xticks(x_pos, names, rotation='vertical')
+    #plt.subplots_adjust(bottom=0.25)
+    #plt.show()
 
 
 ##########################################################################################################
@@ -890,7 +896,7 @@ if __name__ == "__main__":
         '--model_name', '-mn', type=str, default=None)
 
     ## language args
-    parser.add_argument('--spanish', '-sp', type=int, default=0)
+    parser.add_argument('--german', '-ge', type=int, default=0)
 
 
     train_frames = []
@@ -963,11 +969,11 @@ if __name__ == "__main__":
         train_frames.append(news_dev_data)
 
     ##work on pickling the data
-    elif (args.spanish == 1):
+    elif (args.german == 1):
         train_names.append('Spanish_train')
-        spanish_train_data = pd.read_pickle('features/Spanish_Train_allInfo')
-        spanish_train_data.name = 'Spanish'
-        train_frames.append(spanish_train_data)
+        german_train_data = pd.read_pickle('features/Spanish_Train_allInfo')
+        german_train_data.name = 'Spanish'
+        train_frames.append(german_train_data)
 
 
     total_training = pd.concat(train_frames)

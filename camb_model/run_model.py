@@ -32,6 +32,7 @@ def main():
 
 """
 Evaluation script gives train, test, and later dev results
+
 """
 
 
@@ -130,7 +131,7 @@ def parse_all_args():
     parser.add_argument('--evaluation', '-e', type=int, default=1)
     parser.add_argument('--model_name', '-mn', type=str, default=None)
 
-    parser.add_argument('--spanish', '-sp', type=int, default=0)
+    parser.add_argument('--german', '-ge', type=int, default=0)
 
 
     args = parser.parse_args()
@@ -206,8 +207,8 @@ if __name__ == "__main__":
         testing_data.name = 'testing'
         test_frames = [testing_data]
     
-    elif (args.spanish == 1):
-        test_name = 'Spanish_test'
+    elif (args.german == 1):
+        test_name = 'German_test'
         testing_data = pd.read_pickle('features/Spanish_Test_allInfo')
         testing_data.name = 'testing'
         test_frames = [testing_data]
