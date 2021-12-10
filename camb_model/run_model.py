@@ -209,7 +209,7 @@ if __name__ == "__main__":
     
     elif (args.german == 1):
         test_name = 'German_test'
-        testing_data = pd.read_pickle('features/German_Test_allInfo')
+        testing_data = pd.read_pickle('features/Spanish_Test_allInfo')
         testing_data.name = 'testing'
         test_frames = [testing_data]
 

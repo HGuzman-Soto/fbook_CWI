@@ -71,7 +71,7 @@ def main():
             #     key = 'embed_' + str(x)
             #     feature_list.append(key)
             
-            feature_list += ['words','length','syllables','synonyms','vowels','pos','ner','wikipedia_freq','learners_freq','subtitles_freq','news_freq','freq','bigram_char','four_gram_char']
+            feature_list += ['words','length','syllables','vowels','wikipedia_freq','learners_freq','subtitles_freq','news_freq', 'google_freq', 'synonyms']
         else:
             feature_list = ['pos', 'simple_wiki_bigrams', 'learners_bigrams', 'google_char_bigram', 'google_char_trigram', 'simple_wiki_fourgram', 'learner_fourgram',
                             'length', 'vowels', 'syllables', 'consonants', 'dep num', 'synonyms', 'hypernyms',
@@ -437,17 +437,11 @@ def feature_extraction(indice=0):
         ('words', words),
         ('length', word_length),
         ('syllables', syllables),
-        ('synonyms', synonyms),
         ('vowels', vowels),
-        ('pos', pos),
-        ('ner', ner),
         ('wikipedia_freq', Wikipedia),
         ('learners_freq', learners),
         ('subtitles_freq', subtitles_corpus),
         ('news_freq', news),
-        ('freq', frequency), # this is google frequency
-        ('bigram_char', bi_gram_char),
-        ('four_gram_char', four_gram_char)
     ]
 
 
@@ -700,9 +694,9 @@ def recursive_feat(argVal):
     else:
         model = RandomForestClassifier(n_estimators=5000)
 
-    useful_data = training_data.drop(['sentence', 'ID', 'clean sentence', 'parse', 'start_index', 'end_index',
+    useful_data = training_data.drop(['sentence', 'ID', 'start_index', 'end_index',
                                       'word', 'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic',
-                                      'split', 'count', 'word', 'original word', 'lemma', 'pos'], axis=1)
+                                      'split', 'count', 'word'], axis=1)
 
     if(argVal == 1):
         rfecv = RFECV(model, n_jobs=6, verbose=1)
@@ -767,9 +761,9 @@ def OVL():
     # new random state
     rng = np.random.RandomState(42)
 
-    train_cleaned = training_data.drop(['sentence', 'ID', 'clean sentence', 'parse', 'start_index', 'end_index',
+    train_cleaned = training_data.drop(['sentence', 'ID', 'start_index', 'end_index',
                                         'word', 'total_native', 'total_non_native', 'native_complex', 'non_native_complex', 'complex_binary', 'complex_probabilistic',
-                                        'split', 'count', 'word', 'original word', 'lemma', 'pos'], axis=1)
+                                        'split', 'count', 'word', 'pos'], axis=1)
 
     # for each feature
     feature_set = []
@@ -813,14 +807,15 @@ def OVL():
         handles, labels = plt.gca().get_legend_handles_labels()
         labels[2] += f': {area_inters_x * 100:.1f} %'
 
-        # show plot
-        # plt.legend(handles, labels, title='Complex?')
-        # plt.xlabel(f)
-        # plt.ylabel("Probability Density")
-        # plt.show()
-        # save_path = 'OVLResults/all/all_' + f + '.png'
-        # plt.savefig(save_path)
-        # plt.cla()
+         #show plot
+        plt.legend(handles, labels, title='Complex?')
+        plt.xlabel(f)
+        plt.ylabel("Probability Density")
+        plt.show()
+        save_path = 'OVLResults/all/all_' + f + '.png'
+        plt.savefig(save_path)
+        plt.cla()
+        plt.show()
         tup = (f, area_inters_x)
         feature_set.append(tup)
 
@@ -830,18 +825,18 @@ def OVL():
     # show bar plot of feature names and performance
     ##
 
-    names = list(zip(*feature_set))[0]
-    performance = list(zip(*feature_set))[1]
-    x_pos = np.arange(len(names))
+    #names = list(zip(*feature_set))[0]
+    #performance = list(zip(*feature_set))[1]
+    #x_pos = np.arange(len(names))
 
-    plt.cla()
-    plt.bar(x_pos, performance, align='center')
-    plt.title('Complex/Non-complex Feature Value KDE Plot Overlap')
-    plt.xlabel('Feature name')
-    plt.ylabel('Percentage of Overlap')
-    plt.xticks(x_pos, names, rotation='vertical')
-    plt.subplots_adjust(bottom=0.25)
-    plt.show()
+    #plt.cla()
+    #plt.bar(x_pos, performance, align='center')
+    #plt.title('Complex/Non-complex Feature Value KDE Plot Overlap')
+    #plt.xlabel('Feature name')
+    #plt.ylabel('Percentage of Overlap')
+    #plt.xticks(x_pos, names, rotation='vertical')
+    #plt.subplots_adjust(bottom=0.25)
+    #plt.show()
 
 
 ##########################################################################################################
@@ -975,9 +970,9 @@ if __name__ == "__main__":
 
     ##work on pickling the data
     elif (args.german == 1):
-        train_names.append('German_train')
-        german_train_data = pd.read_pickle('features/German_Train_allInfo')
-        german_train_data.name = 'German'
+        train_names.append('Spanish_train')
+        german_train_data = pd.read_pickle('features/Spanish_Train_allInfo')
+        german_train_data.name = 'Spanish'
         train_frames.append(german_train_data)
 
 
