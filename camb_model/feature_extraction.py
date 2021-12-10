@@ -154,31 +154,31 @@ for x in array:
         word_parse_features['synonyms'] = word_parse_features['word'].apply(
             lambda x: len(wordnet.synsets(x, lang="spa")))
 
-        #def get_german_unigrams(word):
-            #if using this for another language, modify the corpus= ' ' bit by playing with the website
-        #    url = f"https://books.google.com/ngrams/json?content={word}&year_start=1969&year_end=2019&corpus=32&smoothing=3"
+        def get_german_unigrams(word):
+            if using this for another language, modify the corpus= ' ' bit by playing with the website
+            url = f"https://books.google.com/ngrams/json?content={word}&year_start=1969&year_end=2019&corpus=32&smoothing=3"
 
-        #    try:
-        #        time.sleep(1)
-         #       response = requests.get(url)
-          #      response.raise_for_status()
-           #     jsonResponse = response.json()
-            #    freqlist = list(jsonResponse[0]['timeseries'])
-             #   freqlist = [float(f) for f in freqlist]
-              #  freq = mean(freqlist)
-               # return freq
+            try:
+                time.sleep(1)
+                response = requests.get(url)
+                response.raise_for_status()
+                jsonResponse = response.json()
+                freqlist = list(jsonResponse[0]['timeseries'])
+                freqlist = [float(f) for f in freqlist]
+                freq = mean(freqlist)
+                return freq
 
-       #     except HTTPError as http_err:
-        #        print(f'HTTP error occurred: {http_err}')
-         #   except Exception as err:
-          #      print(f'Other error occurred: {err}')
+            except HTTPError as http_err:
+                print(f'HTTP error occurred: {http_err}')
+            except Exception as err:
+                print(f'Other error occurred: {err}')
 
-           # return 0
+            return 0
 
 
 
         print("getting google freq")
-        #word_parse_features['google_freq'] = word_parse_features.apply(lambda x: get_german_unigrams(x['word']), axis = 1)
+        word_parse_features['google_freq'] = word_parse_features.apply(lambda x: get_german_unigrams(x['word']), axis = 1)
         print("google freq done")
 
         # get wikipedia corpus frequency
